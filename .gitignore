@@ -1,0 +1,8 @@
+data/
+*.json
+.api_key*
+dashboard.html
+weekly_reviews/
+__pycache__/
+*.pyc
+.DS_Store
