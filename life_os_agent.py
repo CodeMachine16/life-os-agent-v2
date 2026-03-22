@@ -57,6 +57,15 @@ ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 MODEL = "claude-opus-4-6"
 
 
+def get_api_key() -> str:
+    """Resolve Anthropic API key: file first, then environment variable."""
+    if API_KEY_FILE.exists():
+        key = API_KEY_FILE.read_text().strip()
+        if key:
+            return key
+    return os.environ.get("ANTHROPIC_API_KEY", "")
+
+
 # ─────────────────────────────────────────────
 # ANTHROPIC CLIENT
 # ─────────────────────────────────────────────
@@ -648,6 +657,75 @@ class LoginPageGenerator:
   </form>
   <div class="err" id="em"></div>
 </div>
+
+<canvas id="snowMtn" style="position:fixed;bottom:0;left:0;width:100%;height:280px;pointer-events:none;z-index:3;"></canvas>
+<script>
+(function(){
+var cvs=document.getElementById('snowMtn');
+var dpr=window.devicePixelRatio||1;
+var ctx=cvs.getContext('2d');
+var W,H,flakes=[],sunT=0;
+function resize(){
+  W=cvs.width=Math.round(window.innerWidth*dpr);
+  H=cvs.height=Math.round(280*dpr);
+  cvs.style.width=window.innerWidth+'px';
+  cvs.style.height='280px';
+  initFlakes();
+}
+function initFlakes(){
+  flakes=[];
+  var n=Math.min(900,Math.floor(W/2.2));
+  for(var i=0;i<n;i++){
+    flakes.push({x:Math.random()*W,y:Math.random()*H,r:(0.4+Math.random()*2.2)*dpr,
+      speed:(0.4+Math.random()*1.1)*dpr,drift:(Math.random()-0.5)*0.5*dpr,op:0.35+Math.random()*0.65});
+  }
+}
+var l0=[[0,0],[0.05,28],[0.12,55],[0.18,38],[0.25,70],[0.30,52],[0.38,65],[0.45,42],[0.52,78],[0.58,55],[0.65,68],[0.72,44],[0.80,72],[0.88,50],[0.95,60],[1,0]];
+var l1=[[0,0],[0.04,35],[0.09,62],[0.15,48],[0.20,80],[0.27,60],[0.32,200],[0.37,68],[0.43,85],[0.50,55],[0.56,90],[0.63,62],[0.70,95],[0.77,58],[0.84,80],[0.91,65],[0.97,42],[1,0]];
+var l2=[[0,0],[0.06,42],[0.11,72],[0.17,55],[0.22,95],[0.28,75],[0.32,210],[0.36,78],[0.41,110],[0.48,68],[0.54,100],[0.60,72],[0.67,108],[0.74,70],[0.81,90],[0.88,68],[0.94,50],[1,0]];
+function mtnPath(pts){
+  ctx.beginPath();ctx.moveTo(0,H);
+  for(var i=0;i<pts.length;i++) ctx.lineTo(pts[i][0]*W,H-pts[i][1]*dpr);
+  ctx.lineTo(W,H);ctx.closePath();
+}
+function drawMtn(){
+  mtnPath(l0);ctx.fillStyle='rgba(6,14,40,0.93)';ctx.fill();
+  mtnPath(l1);ctx.fillStyle='rgba(9,20,55,0.96)';ctx.fill();
+  mtnPath(l2);ctx.fillStyle='rgba(11,26,65,1.0)';ctx.fill();
+}
+function drawSun(){
+  var cx=0.32*W, cy=H-210*dpr-12*dpr, cr=9*dpr;
+  sunT+=0.018;
+  var grd=ctx.createRadialGradient(cx,cy,cr*0.5,cx,cy,cr*3.5);
+  grd.addColorStop(0,'rgba(160,210,255,0.28)');grd.addColorStop(1,'rgba(160,210,255,0)');
+  ctx.beginPath();ctx.arc(cx,cy,cr*3.5,0,Math.PI*2);ctx.fillStyle=grd;ctx.fill();
+  for(var i=0;i<16;i++){
+    var a=i*(Math.PI*2/16)+Math.sin(sunT*2.1+i*0.7)*0.12;
+    var inner=cr+3*dpr, outer=cr+18*dpr+Math.sin(sunT*1.7+i*1.3)*5*dpr;
+    ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*inner,cy+Math.sin(a)*inner);
+    ctx.lineTo(cx+Math.cos(a)*outer,cy+Math.sin(a)*outer);
+    ctx.strokeStyle='rgba(180,220,255,0.55)';ctx.lineWidth=1.1*dpr;ctx.stroke();
+  }
+  ctx.beginPath();ctx.arc(cx,cy,cr,0,Math.PI*2);
+  ctx.strokeStyle='rgba(200,230,255,0.85)';ctx.lineWidth=1.5*dpr;ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,cr,0,Math.PI*2);
+  ctx.fillStyle='rgba(140,190,255,0.18)';ctx.fill();
+}
+function drawSnow(){
+  for(var i=0;i<flakes.length;i++){
+    var f=flakes[i];
+    ctx.globalAlpha=f.op;ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,Math.PI*2);
+    ctx.fillStyle='rgba(220,235,255,1)';ctx.fill();
+    f.y+=f.speed;f.x+=f.drift;
+    if(f.y>H+5){f.y=-5;f.x=Math.random()*W;}
+    if(f.x>W+5) f.x=-5; if(f.x<-5) f.x=W+5;
+  }
+  ctx.globalAlpha=1;
+}
+function frame(){ctx.clearRect(0,0,W,H);drawMtn();drawSun();drawSnow();requestAnimationFrame(frame);}
+resize();window.addEventListener('resize',resize);requestAnimationFrame(frame);
+})();
+</script>
 <script>
 let mode='login';
 function sw(m){
@@ -697,7 +775,7 @@ class DashboardGenerator:
   --green:#10b981;--amber:#f59e0b;--red:#ef4444;
   --serif:'Playfair Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif;
 }
-body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 80px;}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 300px;}
 .atm{position:fixed;inset:0;pointer-events:none;z-index:0;}
 .orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.35;}
 .o1{width:800px;height:600px;top:-200px;left:-100px;background:radial-gradient(ellipse,#2470d0,transparent 70%);}
@@ -1076,6 +1154,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
     <div class="nav-right">
       <span class="nav-user">{display_name}</span>
       <span id="saveInd" class="save-ind"></span>
+      <a href="/artemis" class="nav-link" style="background:rgba(90,171,223,.12);border-color:rgba(90,171,223,.4);">&#9679; Artemis AI</a>
       <a href="/api/auth/logout" class="nav-link">Sign out</a>
     </div>
   </div>
@@ -1158,28 +1237,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
   </div>
 </div>
 
-<!-- Artemis Toggle -->
-<div class="art-toggle" onclick="toggleArtemis()">
-  <div class="art-dot"></div>
-  Artemis
-</div>
-
-<!-- Artemis Panel -->
-<div class="art-panel" id="artPanel">
-  <div class="art-header">
-    <div class="art-name">Artemis <span class="art-badge">AI</span></div>
-    <button class="art-close" onclick="toggleArtemis()">&#215;</button>
-  </div>
-  <div id="artMessages" class="art-messages">
-    <div class="art-msg art-msg-bot" id="artGreeting">{art_intro}</div>
-  </div>
-  <div class="art-footer">
-    <input type="text" class="art-input" id="artInput"
-           placeholder="Ask Artemis..."
-           onkeydown="if(event.key==='Enter'&&!event.shiftKey){{event.preventDefault();sendMessage();}}"/>
-    <button class="art-send" id="artSendBtn" onclick="sendMessage()">Send</button>
-  </div>
-</div>
+<!-- Artemis is now at /artemis -->
 
 <script>
 // ── Task completion ───────────────────────────────────────
@@ -1295,84 +1353,161 @@ async function generatePlan() {{
   }}
 }}
 
-// ── Artemis Chat ──────────────────────────────────────────
-let artHistory = [];
-let artOpen = false;
-
-function toggleArtemis() {{
-  artOpen = !artOpen;
-  const panel = document.getElementById('artPanel');
-  if (artOpen) {{
-    panel.classList.add('open');
-    document.getElementById('artInput').focus();
-  }} else {{
-    panel.classList.remove('open');
-  }}
-}}
-
-async function sendMessage() {{
-  const input = document.getElementById('artInput');
-  const btn   = document.getElementById('artSendBtn');
-  const msg   = input.value.trim();
-  if (!msg || btn.disabled) return;
-
-  appendMsg('user', msg);
-  input.value = '';
-  artHistory.push({{ role: 'user', content: msg }});
-  btn.disabled = true;
-
-  const loadId = appendLoading();
-  try {{
-    const r = await fetch('/api/chat', {{
-      method: 'POST',
-      headers: {{'Content-Type': 'application/json'}},
-      credentials: 'include',
-      body: JSON.stringify({{ messages: artHistory }})
-    }});
-    const d = await r.json();
-    removeEl(loadId);
-    const reply = d.reply || 'I had trouble with that. Please try again.';
-    appendMsg('bot', reply);
-    artHistory.push({{ role: 'assistant', content: reply }});
-    // Keep history manageable
-    if (artHistory.length > 30) artHistory = artHistory.slice(-30);
-  }} catch(e) {{
-    removeEl(loadId);
-    appendMsg('bot', 'Connection error. Please try again.');
-  }}
-  btn.disabled = false;
-  input.focus();
-}}
-
-function appendMsg(role, text) {{
-  const msgs = document.getElementById('artMessages');
-  const el   = document.createElement('div');
-  el.className = 'art-msg art-msg-' + (role === 'user' ? 'user' : 'bot');
-  el.textContent = text;
-  msgs.appendChild(el);
-  msgs.scrollTop = msgs.scrollHeight;
-  return el;
-}}
-function appendLoading() {{
-  const msgs = document.getElementById('artMessages');
-  const el   = document.createElement('div');
-  const id   = 'artLoad_' + Date.now();
-  el.id = id;
-  el.className = 'art-msg art-msg-bot art-loading';
-  el.textContent = '...';
-  msgs.appendChild(el);
-  msgs.scrollTop = msgs.scrollHeight;
-  return id;
-}}
-function removeEl(id) {{
-  const el = document.getElementById(id);
-  if (el) el.remove();
-}}
+// Artemis chat is now at /artemis page
 </script>
+{self._snow_mountain_html()}
 </body>
 </html>"""
 
     # ── HTML fragment builders ────────────────────────────────────────────
+
+    @staticmethod
+    def _snow_mountain_html() -> str:
+        """Returns the snow mountain canvas animation HTML/JS block."""
+        return """
+<canvas id="snowMtn" style="position:fixed;bottom:0;left:0;width:100%;height:280px;pointer-events:none;z-index:3;"></canvas>
+<script>
+(function(){
+var cvs=document.getElementById('snowMtn');
+var dpr=window.devicePixelRatio||1;
+var ctx=cvs.getContext('2d');
+var W,H,flakes=[],sunT=0;
+
+function resize(){
+  W=cvs.width=Math.round(window.innerWidth*dpr);
+  H=cvs.height=Math.round(280*dpr);
+  cvs.style.width=window.innerWidth+'px';
+  cvs.style.height='280px';
+  initFlakes();
+}
+
+function initFlakes(){
+  flakes=[];
+  var n=Math.min(900,Math.floor(W/2.2));
+  for(var i=0;i<n;i++){
+    flakes.push({
+      x:Math.random()*W,
+      y:Math.random()*H,
+      r:(0.4+Math.random()*2.2)*dpr,
+      speed:(0.4+Math.random()*1.1)*dpr,
+      drift:(Math.random()-0.5)*0.5*dpr,
+      op:0.35+Math.random()*0.65
+    });
+  }
+}
+
+// Mountain layer definitions  (relative: x=0..1 of W, y=pixels from bottom)
+function mtnPath(pts,H){
+  // pts: array of [xFrac, yFromBottom]
+  ctx.beginPath();
+  ctx.moveTo(0,H);
+  for(var i=0;i<pts.length;i++){
+    ctx.lineTo(pts[i][0]*W, H-pts[i][1]*dpr);
+  }
+  ctx.lineTo(W,H);
+  ctx.closePath();
+}
+
+var layer0_pts=[
+  [0,0],[0.05,28],[0.12,55],[0.18,38],[0.25,70],[0.30,52],[0.38,65],
+  [0.45,42],[0.52,78],[0.58,55],[0.65,68],[0.72,44],[0.80,72],[0.88,50],[0.95,60],[1,0]
+];
+var layer1_pts=[
+  [0,0],[0.04,35],[0.09,62],[0.15,48],[0.20,80],[0.27,60],[0.32,200],
+  [0.37,68],[0.43,85],[0.50,55],[0.56,90],[0.63,62],[0.70,95],[0.77,58],
+  [0.84,80],[0.91,65],[0.97,42],[1,0]
+];
+var layer2_pts=[
+  [0,0],[0.06,42],[0.11,72],[0.17,55],[0.22,95],[0.28,75],[0.32,210],
+  [0.36,78],[0.41,110],[0.48,68],[0.54,100],[0.60,72],[0.67,108],
+  [0.74,70],[0.81,90],[0.88,68],[0.94,50],[1,0]
+];
+
+function drawMtn(){
+  // Layer 0 - back
+  mtnPath(layer0_pts,H);
+  ctx.fillStyle='rgba(6,14,40,0.93)';
+  ctx.fill();
+  // Layer 1 - mid
+  mtnPath(layer1_pts,H);
+  ctx.fillStyle='rgba(9,20,55,0.96)';
+  ctx.fill();
+  // Layer 2 - front
+  mtnPath(layer2_pts,H);
+  ctx.fillStyle='rgba(11,26,65,1.0)';
+  ctx.fill();
+}
+
+function mainPeakTop(){
+  // Main peak is at x=0.32, y=210px from bottom in layer2
+  return { x: 0.32*W, y: H - 210*dpr };
+}
+
+function drawSun(){
+  var pt=mainPeakTop();
+  var cx=pt.x, cy=pt.y-12*dpr;
+  var cr=9*dpr;
+  sunT+=0.018;
+
+  // Outer glow
+  var grd=ctx.createRadialGradient(cx,cy,cr*0.5,cx,cy,cr*3.5);
+  grd.addColorStop(0,'rgba(160,210,255,0.28)');
+  grd.addColorStop(1,'rgba(160,210,255,0)');
+  ctx.beginPath();ctx.arc(cx,cy,cr*3.5,0,Math.PI*2);
+  ctx.fillStyle=grd;ctx.fill();
+
+  // Rays
+  var nRays=16;
+  for(var i=0;i<nRays;i++){
+    var base=i*(Math.PI*2/nRays);
+    var jitter=Math.sin(sunT*2.1+i*0.7)*0.12;
+    var ang=base+jitter;
+    var innerR=cr+3*dpr;
+    var lenJitter=Math.sin(sunT*1.7+i*1.3)*5*dpr;
+    var outerR=cr+18*dpr+lenJitter;
+    ctx.beginPath();
+    ctx.moveTo(cx+Math.cos(ang)*innerR, cy+Math.sin(ang)*innerR);
+    ctx.lineTo(cx+Math.cos(ang)*outerR, cy+Math.sin(ang)*outerR);
+    ctx.strokeStyle='rgba(180,220,255,0.55)';
+    ctx.lineWidth=1.1*dpr;
+    ctx.stroke();
+  }
+
+  // Circle
+  ctx.beginPath();ctx.arc(cx,cy,cr,0,Math.PI*2);
+  ctx.strokeStyle='rgba(200,230,255,0.85)';
+  ctx.lineWidth=1.5*dpr;ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,cr,0,Math.PI*2);
+  ctx.fillStyle='rgba(140,190,255,0.18)';ctx.fill();
+}
+
+function drawSnow(){
+  for(var i=0;i<flakes.length;i++){
+    var f=flakes[i];
+    ctx.globalAlpha=f.op;
+    ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,Math.PI*2);
+    ctx.fillStyle='rgba(220,235,255,1)';ctx.fill();
+    f.y+=f.speed; f.x+=f.drift;
+    if(f.y>H+5){f.y=-5;f.x=Math.random()*W;}
+    if(f.x>W+5) f.x=-5;
+    if(f.x<-5) f.x=W+5;
+  }
+  ctx.globalAlpha=1;
+}
+
+function frame(){
+  ctx.clearRect(0,0,W,H);
+  drawMtn();
+  drawSun();
+  drawSnow();
+  requestAnimationFrame(frame);
+}
+
+resize();
+window.addEventListener('resize',resize);
+requestAnimationFrame(frame);
+})();
+</script>"""
 
     def _build_tasks_html(self, tasks: list) -> str:
         if not tasks:
@@ -1537,6 +1672,365 @@ DEMO_HABITS_DATA = {
 
 
 # ─────────────────────────────────────────────
+# ARTEMIS PAGE GENERATOR (full-page chat UI)
+# ─────────────────────────────────────────────
+
+class ArtemisPageGenerator:
+    """Generates the full-screen Artemis AI chat page."""
+
+    @staticmethod
+    def generate(display_name: str = "there") -> str:
+        snow = DashboardGenerator._snow_mountain_html()
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Artemis — Life OS AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+*,*::before,*::after{{box-sizing:border-box;margin:0;padding:0;}}
+:root{{
+  --bg:#0e2244;--sidebar:rgba(10,22,52,.97);--surface:rgba(15,40,85,.72);
+  --border:rgba(90,160,230,.10);--border-m:rgba(90,160,230,.22);
+  --text:#d2e8ff;--muted:rgba(140,185,235,.55);--accent:#5aabdf;
+  --green:#10b981;--sans:'Inter',system-ui,sans-serif;--serif:'Playfair Display',Georgia,serif;
+}}
+html,body{{height:100%;overflow:hidden;}}
+body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:flex;height:100vh;}}
+.atm{{position:fixed;inset:0;pointer-events:none;z-index:0;}}
+.orb{{position:absolute;border-radius:50%;filter:blur(90px);opacity:.30;}}
+.o1{{width:700px;height:500px;top:-150px;left:-100px;background:radial-gradient(ellipse,#2470d0,transparent 70%);}}
+.o2{{width:600px;height:400px;bottom:-100px;right:-100px;background:radial-gradient(ellipse,#1660b8,transparent 70%);}}
+
+/* Sidebar */
+.sidebar{{
+  width:240px;flex-shrink:0;background:var(--sidebar);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;padding:0;
+  position:relative;z-index:2;
+}}
+.sidebar-top{{padding:22px 20px 18px;border-bottom:1px solid var(--border);}}
+.back-link{{display:flex;align-items:center;gap:8px;color:var(--muted);
+           font-size:12px;text-decoration:none;margin-bottom:20px;
+           transition:color .15s;letter-spacing:.03em;}}
+.back-link:hover{{color:var(--text);}}
+.back-arrow{{font-size:14px;}}
+.sidebar-brand{{display:flex;align-items:center;gap:10px;}}
+.sidebar-logo-text{{font-size:12px;font-weight:600;letter-spacing:.09em;
+                    text-transform:uppercase;color:rgba(200,218,245,.6);}}
+.sidebar-logo-text strong{{color:var(--text);}}
+.sidebar-title{{font-family:var(--serif);font-size:22px;font-weight:700;
+               color:#e8f0fa;margin-top:20px;}}
+.sidebar-sub{{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5;font-weight:300;}}
+
+.sidebar-status{{padding:18px 20px;border-bottom:1px solid var(--border);}}
+.status-dot{{display:inline-block;width:7px;height:7px;border-radius:50%;
+            background:var(--green);margin-right:8px;animation:pulse 2s infinite;}}
+@keyframes pulse{{0%,100%{{opacity:1;}}50%{{opacity:.4;}}}}
+.status-text{{font-size:12px;color:var(--muted);}}
+
+.convo-list{{flex:1;overflow-y:auto;padding:16px 12px;}}
+.convo-list::-webkit-scrollbar{{width:3px;}}
+.convo-list::-webkit-scrollbar-thumb{{background:rgba(90,160,230,.15);border-radius:2px;}}
+.convo-item{{padding:10px 12px;border-radius:4px;cursor:pointer;font-size:13px;
+            color:var(--muted);transition:all .15s;border:1px solid transparent;margin-bottom:4px;}}
+.convo-item.active{{background:rgba(90,171,223,.08);border-color:rgba(90,171,223,.15);color:var(--text);}}
+.convo-item:hover:not(.active){{background:rgba(255,255,255,.03);color:var(--text);}}
+.convo-date{{font-size:10px;color:rgba(140,185,235,.35);margin-top:3px;}}
+
+.sidebar-footer{{padding:14px 16px;border-top:1px solid var(--border);font-size:11px;
+               color:rgba(140,185,235,.3);letter-spacing:.04em;}}
+
+/* Main chat area */
+.chat-area{{
+  flex:1;display:flex;flex-direction:column;position:relative;z-index:2;
+  min-width:0;
+}}
+.chat-header{{
+  padding:16px 28px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(10,25,60,.4);backdrop-filter:blur(12px);flex-shrink:0;
+}}
+.chat-header-title{{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.2px;}}
+.chat-header-badge{{font-size:10px;background:rgba(90,171,223,.15);color:var(--accent);
+                   border:1px solid rgba(90,171,223,.25);border-radius:10px;
+                   padding:3px 9px;margin-left:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;}}
+.chat-header-right{{font-size:12px;color:var(--muted);}}
+
+.messages{{
+  flex:1;overflow-y:auto;padding:28px 10% 20px;
+  display:flex;flex-direction:column;gap:18px;
+}}
+.messages::-webkit-scrollbar{{width:5px;}}
+.messages::-webkit-scrollbar-track{{background:transparent;}}
+.messages::-webkit-scrollbar-thumb{{background:rgba(90,160,230,.15);border-radius:3px;}}
+
+.msg-row{{display:flex;align-items:flex-start;gap:14px;max-width:820px;width:100%;}}
+.msg-row.user-row{{align-self:flex-end;flex-direction:row-reverse;}}
+.msg-row.bot-row{{align-self:flex-start;}}
+
+.msg-avatar{{
+  width:32px;height:32px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;letter-spacing:.02em;
+}}
+.bot-avatar{{background:rgba(90,171,223,.18);border:1px solid rgba(90,171,223,.25);color:var(--accent);}}
+.user-avatar{{background:rgba(140,185,235,.1);border:1px solid rgba(140,185,235,.18);color:var(--muted);font-size:11px;}}
+
+.msg-bubble{{
+  padding:14px 18px;border-radius:6px;line-height:1.65;font-size:14px;
+  max-width:calc(100% - 50px);
+}}
+.bot-bubble{{
+  background:rgba(15,38,85,.75);border:1px solid var(--border);color:var(--text);
+}}
+.user-bubble{{
+  background:rgba(90,171,223,.12);border:1px solid rgba(90,171,223,.2);color:var(--text);
+}}
+
+.loading-dots{{display:flex;gap:5px;padding:4px 0;}}
+.loading-dots span{{width:6px;height:6px;border-radius:50%;background:var(--accent);
+                   opacity:.4;animation:dotpulse .9s infinite both;}}
+.loading-dots span:nth-child(2){{animation-delay:.15s;}}
+.loading-dots span:nth-child(3){{animation-delay:.3s;}}
+@keyframes dotpulse{{0%,80%,100%{{transform:scale(.6);opacity:.3;}}40%{{transform:scale(1);opacity:1;}}}}
+
+/* Input bar */
+.input-bar{{
+  padding:16px 10%;padding-bottom:300px;
+  background:transparent;flex-shrink:0;
+}}
+.input-wrap{{
+  display:flex;gap:10px;align-items:flex-end;
+  background:rgba(10,28,70,.88);border:1px solid var(--border-m);
+  border-radius:8px;padding:12px 14px;
+  box-shadow:0 4px 24px rgba(0,0,0,.25);
+  backdrop-filter:blur(12px);
+}}
+.chat-input{{
+  flex:1;background:transparent;border:none;outline:none;
+  font-size:14px;color:var(--text);font-family:var(--sans);
+  resize:none;line-height:1.5;max-height:180px;min-height:24px;
+  overflow-y:auto;
+}}
+.chat-input::placeholder{{color:rgba(140,185,235,.25);}}
+.send-btn{{
+  flex-shrink:0;width:36px;height:36px;border-radius:6px;
+  background:rgba(90,171,223,.18);border:1px solid rgba(90,171,223,.3);
+  color:var(--accent);cursor:pointer;display:flex;align-items:center;
+  justify-content:center;transition:all .15s;font-size:16px;
+}}
+.send-btn:hover{{background:rgba(90,171,223,.3);}}
+.send-btn:disabled{{opacity:.35;cursor:not-allowed;}}
+.input-hint{{font-size:11px;color:rgba(140,185,235,.25);margin-top:8px;
+            text-align:center;letter-spacing:.02em;}}
+
+/* Empty state */
+.empty-chat{{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:40px 20px;gap:12px;
+}}
+.empty-chat-title{{font-family:var(--serif);font-size:26px;color:#e8f0fa;}}
+.empty-chat-sub{{font-size:14px;color:var(--muted);text-align:center;max-width:420px;line-height:1.6;}}
+.suggestion-chips{{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;justify-content:center;}}
+.chip{{
+  padding:8px 16px;background:rgba(90,171,223,.08);
+  border:1px solid rgba(90,171,223,.18);border-radius:20px;
+  font-size:12px;color:var(--muted);cursor:pointer;transition:all .15s;
+}}
+.chip:hover{{background:rgba(90,171,223,.16);color:var(--text);border-color:rgba(90,171,223,.3);}}
+
+@media(max-width:700px){{
+  .sidebar{{display:none;}}
+  .messages,.input-bar{{padding-left:16px;padding-right:16px;}}
+}}
+  </style>
+</head>
+<body>
+<div class="atm"><div class="orb o1"></div><div class="orb o2"></div></div>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-top">
+    <a href="/dashboard" class="back-link"><span class="back-arrow">&#8592;</span> Back to Dashboard</a>
+    <div class="sidebar-brand">
+      <svg width="28" height="18" viewBox="0 0 100 62" fill="none">
+        <circle cx="35" cy="11" r="5.5" stroke="white" stroke-width="1.9"/>
+        <path d="M1,58 C8,44 20,31 35,24 C43,28 51,34 57,38 C61,32 65,27 69,27 C77,33 88,40 99,50"
+              stroke="white" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="sidebar-logo-text">Life <strong>OS</strong></span>
+    </div>
+    <div class="sidebar-title">Artemis</div>
+    <div class="sidebar-sub">Your personalized AI assistant. Ask about your goals, plans, and progress.</div>
+  </div>
+  <div class="sidebar-status">
+    <span class="status-dot"></span>
+    <span class="status-text">Online &mdash; ready to help</span>
+  </div>
+  <div class="convo-list">
+    <div class="convo-item active">
+      Current conversation
+      <div class="convo-date" id="convDate"></div>
+    </div>
+  </div>
+  <div class="sidebar-footer">Artemis AI &bull; Life OS</div>
+</div>
+
+<!-- Chat area -->
+<div class="chat-area">
+  <div class="chat-header">
+    <div>
+      <span class="chat-header-title">Artemis</span>
+      <span class="chat-header-badge">AI</span>
+    </div>
+    <div class="chat-header-right" id="chatStatus">Ready</div>
+  </div>
+
+  <div class="messages" id="messages">
+    <!-- Empty state shown until first message -->
+    <div class="empty-chat" id="emptyState">
+      <div class="empty-chat-title">Hi, {display_name}.</div>
+      <div class="empty-chat-sub">I'm Artemis, your Life OS AI. I can help you think through your goals, break through blockers, and stay on track.</div>
+      <div class="suggestion-chips">
+        <div class="chip" onclick="sendChip(this)">What should I focus on today?</div>
+        <div class="chip" onclick="sendChip(this)">Review my current goals</div>
+        <div class="chip" onclick="sendChip(this)">I'm feeling stuck — help me</div>
+        <div class="chip" onclick="sendChip(this)">How am I progressing overall?</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="input-bar">
+    <div class="input-wrap">
+      <textarea class="chat-input" id="chatInput" rows="1"
+        placeholder="Message Artemis..."
+        onkeydown="handleKey(event)"
+        oninput="autoResize(this)"></textarea>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Send">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M14 8L2 2l2.5 6L2 14l12-6z" fill="currentColor"/>
+        </svg>
+      </button>
+    </div>
+    <div class="input-hint">Press Enter to send &bull; Shift+Enter for new line</div>
+  </div>
+</div>
+
+<script>
+var history = [];
+var sending = false;
+
+// Set today's date
+var d = new Date();
+document.getElementById('convDate').textContent =
+  d.toLocaleDateString('en-US', {{month:'short',day:'numeric',year:'numeric'}});
+
+function autoResize(el) {{
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 180) + 'px';
+}}
+
+function handleKey(e) {{
+  if (e.key === 'Enter' && !e.shiftKey) {{
+    e.preventDefault();
+    sendMessage();
+  }}
+}}
+
+function sendChip(el) {{
+  document.getElementById('chatInput').value = el.textContent;
+  sendMessage();
+}}
+
+function appendMsg(role, text) {{
+  var empty = document.getElementById('emptyState');
+  if (empty) empty.remove();
+  var msgs = document.getElementById('messages');
+  var row = document.createElement('div');
+  row.className = 'msg-row ' + (role === 'user' ? 'user-row' : 'bot-row');
+  var avatarText = role === 'user' ? 'You' : 'A';
+  var avatarCls  = role === 'user' ? 'user-avatar' : 'bot-avatar';
+  var bubbleCls  = role === 'user' ? 'user-bubble' : 'bot-bubble';
+  row.innerHTML =
+    '<div class="msg-avatar ' + avatarCls + '">' + avatarText + '</div>' +
+    '<div class="msg-bubble ' + bubbleCls + '">' + escHtml(text) + '</div>';
+  msgs.appendChild(row);
+  msgs.scrollTop = msgs.scrollHeight;
+  return row;
+}}
+
+function appendLoading() {{
+  var empty = document.getElementById('emptyState');
+  if (empty) empty.remove();
+  var msgs = document.getElementById('messages');
+  var row = document.createElement('div');
+  row.id = 'loadRow';
+  row.className = 'msg-row bot-row';
+  row.innerHTML =
+    '<div class="msg-avatar bot-avatar">A</div>' +
+    '<div class="msg-bubble bot-bubble"><div class="loading-dots">' +
+    '<span></span><span></span><span></span></div></div>';
+  msgs.appendChild(row);
+  msgs.scrollTop = msgs.scrollHeight;
+}}
+
+function removeLoading() {{
+  var el = document.getElementById('loadRow');
+  if (el) el.remove();
+}}
+
+function escHtml(s) {{
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+          .replace(/\\n/g,'<br>');
+}}
+
+async function sendMessage() {{
+  var input = document.getElementById('chatInput');
+  var btn   = document.getElementById('sendBtn');
+  var msg   = input.value.trim();
+  if (!msg || sending) return;
+
+  sending = true;
+  btn.disabled = true;
+  document.getElementById('chatStatus').textContent = 'Thinking...';
+
+  appendMsg('user', msg);
+  input.value = '';
+  input.style.height = 'auto';
+  history.push({{role:'user', content:msg}});
+
+  appendLoading();
+  try {{
+    var r = await fetch('/api/chat', {{
+      method: 'POST',
+      headers: {{'Content-Type': 'application/json'}},
+      credentials: 'include',
+      body: JSON.stringify({{messages: history}})
+    }});
+    var data = await r.json();
+    removeLoading();
+    var reply = data.reply || 'I had trouble with that. Please try again.';
+    appendMsg('bot', reply);
+    history.push({{role:'assistant', content:reply}});
+    if (history.length > 40) history = history.slice(-40);
+  }} catch(e) {{
+    removeLoading();
+    appendMsg('bot', 'Connection error. Please try again.');
+  }}
+
+  sending = false;
+  btn.disabled = false;
+  document.getElementById('chatStatus').textContent = 'Ready';
+  document.getElementById('chatInput').focus();
+}}
+</script>
+{snow}
+</body>
+</html>"""
+
+# ─────────────────────────────────────────────
 # ORCHESTRATOR
 # ─────────────────────────────────────────────
 
@@ -1684,7 +2178,7 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
             if not user:
                 self._redir("/")
                 return
-            orch      = LifeOSOrchestrator(os.environ.get("ANTHROPIC_API_KEY", ""), user)
+            orch      = LifeOSOrchestrator(get_api_key(), user)
             user_info = self._user_mgr.get_user(user)
             plan, coaching, replan = self._load_user_dashboard_data(user)
             html = orch.dashboard.generate(
@@ -1711,11 +2205,20 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
             self._json(self._user_mgr.get_user(user) or {})
             return
 
+        if path == "/artemis":
+            if not user:
+                self._redir("/")
+                return
+            user_info    = self._user_mgr.get_user(user)
+            display_name = user_info.get("display_name", "there") if user_info else "there"
+            self._html(ArtemisPageGenerator.generate(display_name))
+            return
+
         if path == "/api/data":
             if not user:
                 self._json({"error": "Not authenticated"}, 401)
                 return
-            orch = LifeOSOrchestrator(os.environ.get("ANTHROPIC_API_KEY", ""), user)
+            orch = LifeOSOrchestrator(get_api_key(), user)
             self._json({
                 "goals":  orch.goals.data,
                 "memory": orch.memory.data,
@@ -1784,7 +2287,7 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
         if path == "/api/save":
             try:
                 d    = json.loads(body)
-                orch = LifeOSOrchestrator(os.environ.get("ANTHROPIC_API_KEY", ""), user)
+                orch = LifeOSOrchestrator(get_api_key(), user)
                 if "tasks_completed" in d:
                     if not orch.memory.data["sessions"]:
                         orch.memory.log_session({
@@ -1811,7 +2314,7 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
                 if len(title) > 140:
                     self._json({"success": False, "error": "Goal title too long (max 140 chars)"})
                     return
-                orch = LifeOSOrchestrator(os.environ.get("ANTHROPIC_API_KEY", ""), user)
+                orch = LifeOSOrchestrator(get_api_key(), user)
                 orch.goals.add_goal(title, deadline)
                 self._json({"success": True, "goal_count": len(orch.goals.data["goals"])})
             except Exception as e:
@@ -1825,7 +2328,7 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
                 if not goal_id:
                     self._json({"success": False, "error": "goal_id required"})
                     return
-                orch = LifeOSOrchestrator(os.environ.get("ANTHROPIC_API_KEY", ""), user)
+                orch = LifeOSOrchestrator(get_api_key(), user)
                 orch.goals.remove_goal(goal_id)
                 self._json({"success": True})
             except Exception as e:
@@ -1835,7 +2338,7 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
         # ── Plan generation ───────────────────────────────────────────────
 
         if path == "/api/plan/generate":
-            api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+            api_key = get_api_key()
             if not api_key:
                 self._json({"success": False,
                             "error": "ANTHROPIC_API_KEY is not configured on this server."})
@@ -1878,7 +2381,7 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
         # ── Artemis Chat ──────────────────────────────────────────────────
 
         if path == "/api/chat":
-            api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+            api_key = get_api_key()
             if not api_key:
                 self._json({"reply": "I'm not available right now — the API key is not configured on this server."})
                 return
