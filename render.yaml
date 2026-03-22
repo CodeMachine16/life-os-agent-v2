@@ -1,0 +1,10 @@
+services:
+  - type: web
+      name: life-os-agent
+          runtime: python
+              buildCommand: echo ready
+                  startCommand: python3 agent.py --serve
+                      envVars:
+                            - key: ANTHROPIC_API_KEY
+                                    sync: false
+                                        plan: free
