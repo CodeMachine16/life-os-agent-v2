@@ -433,7 +433,7 @@ Your role is to help users:
 
 Personality: Precise, warm, and direct. You give actionable guidance, not vague motivation. You speak like a trusted advisor — concise, honest, and genuinely invested in the user's success. You never use filler phrases like "Great question!" or "Certainly!". You get straight to what matters.
 
-When you have context about the user's goals and action plans, reference them specifically. If asked something outside productivity and goals, gently redirect while still being helpful.
+When you have context about the user's goals and action plans, reference them specifically. If asked something outside productivity and goals, offer helpful response while gently redirecting.
 
 Keep responses under 180 words unless the user specifically asks for more detail. Write in clear, flowing sentences — no markdown headers or excessive bullet points."""
 
@@ -1919,7 +1919,7 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
 </div>
 
 <script>
-var history = [];
+var chatHistory = [];
 var sending = false;
 
 // Set today's date
@@ -1999,7 +1999,7 @@ async function sendMessage() {{
   appendMsg('user', msg);
   input.value = '';
   input.style.height = 'auto';
-  history.push({{role:'user', content:msg}});
+  chatHistory.push({{role:'user', content:msg}});
 
   appendLoading();
   try {{
@@ -2007,14 +2007,14 @@ async function sendMessage() {{
       method: 'POST',
       headers: {{'Content-Type': 'application/json'}},
       credentials: 'include',
-      body: JSON.stringify({{messages: history}})
+      body: JSON.stringify({{messages: chatHistory}})
     }});
     var data = await r.json();
     removeLoading();
     var reply = data.reply || 'I had trouble with that. Please try again.';
     appendMsg('bot', reply);
-    history.push({{role:'assistant', content:reply}});
-    if (history.length > 40) history = history.slice(-40);
+    chatHistory.push({{role:'assistant', content:reply}});
+    if (chatHistory.length > 40) chatHistory = chatHistory.slice(-40);
   }} catch(e) {{
     removeLoading();
     appendMsg('bot', 'Connection error. Please try again.');
@@ -2457,7 +2457,7 @@ def run_setup():
             "deadline":  deadline or "open-ended",
             "status":    "active",
             "created":   datetime.now().isoformat(),
-            "sub_goals": [{"title": sg, "priority": "medium"} for sg in sub_goals],
+            "sub_goals': [{"title": sg, "priority": "medium"} for sg in sub_goals],
         })
 
     with open(GOALS_FILE, "w") as f:
@@ -2504,7 +2504,7 @@ def main():
                     {"id": "a1b2", "title": "Launch SaaS product MVP",
                      "deadline": "May 15, 2026", "status": "active",
                      "created": datetime.now().isoformat(),
-                     "sub_goals": [{"title": "Build onboarding flow", "priority": "high"},
+                     "sub_goals': [{"title": "Build onboarding flow", "priority": "high"},
                                    {"title": "Get 10 beta users", "priority": "high"}]},
                     {"id": "c3d4", "title": "Learn customer discovery",
                      "deadline": "ongoing", "status": "active",
