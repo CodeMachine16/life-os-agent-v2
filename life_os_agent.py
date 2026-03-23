@@ -36,7 +36,7 @@ import urllib.parse
 # ─────────────────────────────────────────────
 
 BASE_DIR = Path(__file__).parent
-DATA_DIR  = BASE_DIR / "data"
+DATA_DIR  = Path(os.environ.get("DATA_PATH", str(BASE_DIR / "data")))
 
 GOALS_FILE     = BASE_DIR / "goals.json"
 MEMORY_FILE    = BASE_DIR / "memory.json"
@@ -478,7 +478,7 @@ class UserManager:
     def _hash(self, password, salt):
         return hashlib.sha256(f"{salt}{password}{salt}".encode()).hexdigest()
 
-    def create_user(self, username, password, display_name=""):
+    def create_user(self, username, password, display_name="", email=""):
         username = username.lower().strip()
         if len(username) < 3:
             return False, "Username must be at least 3 characters"
@@ -493,6 +493,7 @@ class UserManager:
             "password_hash": self._hash(password, salt),
             "salt": salt,
             "display_name": display_name.strip() or username.title(),
+            "email": email.strip(),
             "created_at": datetime.now().isoformat(),
         }
         self._save()
@@ -645,6 +646,10 @@ class LoginPageGenerator:
       <label>Your Name</label>
       <input type="text" id="display_name" placeholder="e.g. Akshat" autocomplete="name"/>
     </div>
+    <div class="field signup-only" id="ef">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="e.g. akshat@example.com" autocomplete="email"/>
+    </div>
     <div class="field">
       <label>Username</label>
       <input type="text" id="username" placeholder="e.g. akshat" required autocomplete="username" autocapitalize="none"/>
@@ -656,6 +661,11 @@ class LoginPageGenerator:
     <button class="btn" type="submit" id="sb">Sign In</button>
   </form>
   <div class="err" id="em"></div>
+    <div class="google-divider" id="gd">or</div>
+    <a class="btn-google" id="gb" href="/auth/google">
+      <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.33 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.67 14.62 48 24 48z"/></svg>
+      Continue with Google
+    </a>
 </div>
 
 <canvas id="snowMtn" style="position:fixed;bottom:0;left:0;width:100%;height:280px;pointer-events:none;z-index:0;"></canvas>
@@ -746,6 +756,7 @@ async function go(e){
   const body={username:document.getElementById('username').value.trim(),
                password:document.getElementById('password').value};
   if(mode==='register')body.display_name=document.getElementById('display_name').value.trim();
+        if(mode==='register')body.email=document.getElementById('email').value.trim();
   try{
     const r=await fetch(`/api/auth/${mode==='login'?'login':'register'}`,
       {method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify(body)});
@@ -886,6 +897,16 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .btn-primary:hover{background:rgba(90,171,223,.25);border-color:rgba(90,171,223,.5);}
 .btn-primary:disabled{opacity:.45;cursor:not-allowed;}
 
+.btn-google {
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;padding:10px;border:1px solid #dadce0;border-radius:6px;
+  background:#fff;color:#3c4043;font-size:14px;cursor:pointer;
+  text-decoration:none;margin-bottom:8px;
+}
+.btn-google:hover{background:#f8f8f8;border-color:#aaa;}
+.btn-google svg{width:18px;height:18px;flex-shrink:0;}
+.google-divider{display:flex;align-items:center;gap:8px;margin:12px 0;color:#888;font-size:13px;}
+.google-divider::before,.google-divider::after{content:'';flex:1;height:1px;background:#e0e0e0;}
 /* Modal */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(10,20,50,.8);
                z-index:50;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
@@ -2226,6 +2247,51 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
             })
             return
 
+        # ── Google OAuth ────────────────────────────────────────────────────────────────────
+        if path == "/auth/google":
+            cid    = os.environ.get("GOOGLE_CLIENT_ID", "")
+            redir  = os.environ.get("GOOGLE_REDIRECT_URI", "")
+            scopes = "openid email profile"
+            url    = (
+                "https://accounts.google.com/o/oauth2/v2/auth"
+                f"?client_id={cid}&redirect_uri={redir}"
+                f"&response_type=code&scope={urllib.parse.quote(scopes)}"
+                "&access_type=offline&prompt=select_account"
+            )
+            self.send_response(302)
+            self.send_header("Location", url)
+            self.end_headers()
+            return
+
+        if path == "/auth/google/callback":
+            import urllib.request as _ur
+            params = dict(urllib.parse.parse_qsl(urllib.parse.urlparse(self.path).query))
+            code   = params.get("code", "")
+            cid    = os.environ.get("GOOGLE_CLIENT_ID", "")
+            csec   = os.environ.get("GOOGLE_CLIENT_SECRET", "")
+            redir  = os.environ.get("GOOGLE_REDIRECT_URI", "")
+            token_data = urllib.parse.urlencode({
+                "code": code, "client_id": cid, "client_secret": csec,
+                "redirect_uri": redir, "grant_type": "authorization_code",
+            }).encode()
+            req  = _ur.Request("https://oauth2.googleapis.com/token", data=token_data)
+            resp = json.loads(_ur.urlopen(req).read())
+            payload_b64 = resp["id_token"].split(".")[1]
+            payload_b64 += "=" * (-len(payload_b64) % 4)
+            import base64 as _b64
+            info    = json.loads(_b64.urlsafe_b64decode(payload_b64))
+            email   = info.get("email", "")
+            name    = info.get("name", email.split("@")[0])
+            username = email.split("@")[0].lower().replace(".", "_")
+            if not self._user_mgr.get_user(username):
+                self._user_mgr.create_user(username, secrets.token_hex(16), name, email)
+            token = self._sess_mgr.create_session(username)
+            self.send_response(302)
+            self.send_header("Set-Cookie", f"session={token}; Path=/; HttpOnly; SameSite=Lax")
+            self.send_header("Location", "/")
+            self.end_headers()
+            return
+
         self.send_response(404)
         self.end_headers()
 
@@ -2262,7 +2328,8 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
                 username     = d.get("username", "").strip()
                 password     = d.get("password", "")
                 display_name = d.get("display_name", "").strip()
-                ok, msg      = self._user_mgr.create_user(username, password, display_name)
+                email        = d.get("email", "").strip()
+                ok, msg      = self._user_mgr.create_user(username, password, display_name, email)
                 if ok:
                     token = self._session_mgr.create(username)
                     self.send_response(200)
