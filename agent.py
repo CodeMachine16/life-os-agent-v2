@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Life OS Agent — Personal Execution Engine (v4 with Artemis AI)
+Helion — Personal Execution Engine (v4 with Artemis AI)
 ==============================================================
 A multi-agent AI system that acts as your personal chief of staff.
 Breaks down goals, generates daily action plans, tracks progress,
@@ -421,9 +421,9 @@ Assess status and replan."""
 # ─────────────────────────────────────────────
 
 class ArtemisAgent:
-    """Artemis — the personalized Life OS AI assistant."""
+    """Artemis — the personalized Helion AI assistant."""
 
-    BASE_SYSTEM = """You are Artemis, an intelligent and personalized AI assistant built into Life OS — a personal productivity and goal execution platform.
+    BASE_SYSTEM = """You are Artemis, an intelligent and personalized AI assistant built into Helion — a personal productivity and goal execution platform.
 
 Your role is to help users:
 - Understand and make progress on their active goals
@@ -580,25 +580,25 @@ class LoginPageGenerator:
 <html lang="en">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Life OS — Sign In</title>
+  <title>Helion — Sign In</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    :root{--bg:#0e2244;--surface:rgba(15,40,85,.78);--border:rgba(90,160,230,.12);
-          --border-m:rgba(90,160,230,.25);--text:#d2e8ff;--muted:rgba(140,185,235,.55);
+    :root{--bg:#eaf3ff;--surface:rgba(255,255,255,0.88);--border:rgba(90,160,230,.12);
+          --border-m:rgba(90,160,230,.25);--text:#1a2e4a;--muted:rgba(60,90,140,.75);
           --accent:#5aabdf;--serif:'Playfair Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif;}
     body{font-family:var(--sans);background:var(--bg);color:var(--text);
          min-height:100vh;display:flex;align-items:center;justify-content:center;}
     .atm{position:fixed;inset:0;pointer-events:none;}
     .orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.38;}
-    .o1{width:700px;height:500px;top:-150px;left:-100px;background:radial-gradient(ellipse,#2470d0,transparent 70%);}
-    .o2{width:600px;height:400px;bottom:-100px;right:-100px;background:radial-gradient(ellipse,#1660b8,transparent 70%);}
+    .o1{width:700px;height:500px;top:-150px;left:-100px;background:radial-gradient(ellipse,#90c8f0,transparent 70%);}
+    .o2{width:600px;height:400px;bottom:-100px;right:-100px;background:radial-gradient(ellipse,#b0d9ff,transparent 70%);}
     .card{position:relative;z-index:1;width:100%;max-width:420px;background:var(--surface);
           border:1px solid var(--border);border-radius:4px;padding:44px 40px 40px;backdrop-filter:blur(24px);}
     .logo{display:flex;align-items:center;gap:10px;margin-bottom:36px;}
     .logo-text{font-size:13px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:rgba(200,218,245,.7);}
     .logo-text strong{color:var(--text);}
-    .card-title{font-family:var(--serif);font-size:28px;font-weight:700;color:#e8f0fa;margin-bottom:8px;}
+    .card-title{font-family:var(--serif);font-size:28px;font-weight:700;color:#1a2e4a;margin-bottom:8px;}
     .card-sub{font-size:13px;color:var(--muted);font-weight:300;margin-bottom:32px;line-height:1.5;}
     .tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:28px;}
     .tab{flex:1;text-align:center;padding:10px 0;font-size:13px;font-weight:500;color:var(--muted);
@@ -639,7 +639,7 @@ class LoginPageGenerator:
   <div id="tl" class="card-title">Welcome back.</div>
   <div id="tr" class="card-title" style="display:none">Get started.</div>
   <div id="sl" class="card-sub">Your goals and plans are waiting.</div>
-  <div id="sr" class="card-sub" style="display:none">Create your personal Life OS account.</div>
+  <div id="sr" class="card-sub" style="display:none">Create your personal Helion account.</div>
   <form onsubmit="go(event)">
     <div class="field signup-only" id="fn">
       <label>Your Name</label>
@@ -658,7 +658,7 @@ class LoginPageGenerator:
   <div class="err" id="em"></div>
 </div>
 
-<canvas id="snowMtn" style="position:fixed;bottom:0;left:0;width:100%;height:280px;pointer-events:none;z-index:3;"></canvas>
+<canvas id="snowMtn" style="position:fixed;bottom:0;left:0;width:100%;height:280px;pointer-events:none;z-index:0;"></canvas>
 <script>
 (function(){
 var cvs=document.getElementById('snowMtn');
@@ -769,17 +769,17 @@ class DashboardGenerator:
     _CSS = """
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#0e2244;--surface:rgba(15,40,85,.72);--surface-2:rgba(20,48,100,.6);
+  --bg:#eaf3ff;--surface:rgba(255,255,255,0.88);--surface-2:rgba(225,240,255,0.75);
   --border:rgba(90,160,230,.10);--border-m:rgba(90,160,230,.22);
-  --text:#d2e8ff;--muted:rgba(140,185,235,.55);--accent:#5aabdf;
+  --text:#1a2e4a;--muted:rgba(60,90,140,.75);--accent:#5aabdf;
   --green:#10b981;--amber:#f59e0b;--red:#ef4444;
   --serif:'Playfair Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif;
 }
 body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 300px;}
 .atm{position:fixed;inset:0;pointer-events:none;z-index:0;}
 .orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.35;}
-.o1{width:800px;height:600px;top:-200px;left:-100px;background:radial-gradient(ellipse,#2470d0,transparent 70%);}
-.o2{width:700px;height:500px;bottom:-150px;right:-100px;background:radial-gradient(ellipse,#1660b8,transparent 70%);}
+.o1{width:800px;height:600px;top:-200px;left:-100px;background:radial-gradient(ellipse,#90c8f0,transparent 70%);}
+.o2{width:700px;height:500px;bottom:-150px;right:-100px;background:radial-gradient(ellipse,#b0d9ff,transparent 70%);}
 .wrapper{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 24px;}
 
 /* Nav */
@@ -798,7 +798,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 /* Hero */
 .hero{margin-bottom:24px;}
 .hero-label{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:6px;}
-.hero-title{font-family:var(--serif);font-size:28px;font-weight:700;color:#e8f0fa;margin-bottom:6px;line-height:1.3;}
+.hero-title{font-family:var(--serif);font-size:28px;font-weight:700;color:#1a2e4a;margin-bottom:6px;line-height:1.3;}
 .hero-sub{font-size:13px;color:var(--muted);line-height:1.6;font-style:italic;}
 
 /* Stats */
@@ -892,7 +892,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .modal-overlay.open{display:flex;}
 .modal{background:#0f2855;border:1px solid var(--border-m);border-radius:4px;
        padding:32px;width:100%;max-width:440px;}
-.modal-title{font-family:var(--serif);font-size:20px;color:#e8f0fa;margin-bottom:20px;}
+.modal-title{font-family:var(--serif);font-size:20px;color:#1a2e4a;margin-bottom:20px;}
 .modal-field{margin-bottom:16px;}
 .modal-field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.1em;
                     color:var(--muted);margin-bottom:7px;font-weight:500;}
@@ -1022,7 +1022,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
         # Artemis greeting
         g_count = len(goals_list)
         art_intro = (
-            f"Hello, {display_name}. I'm Artemis, your Life OS assistant. "
+            f"Hello, {display_name}. I'm Artemis, your Helion assistant. "
             + (f"I can see your {g_count} active goal{'s' if g_count != 1 else ''}. "
                if has_goals else "You haven't added any goals yet. Use the Goals panel to get started. ")
             + "What can I help you with today?"
@@ -1133,7 +1133,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Life OS</title>
+  <title>Helion</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>{self._CSS}</style>
 </head>
@@ -1365,7 +1365,7 @@ async function generatePlan() {{
     def _snow_mountain_html() -> str:
         """Returns the snow mountain canvas animation HTML/JS block."""
         return """
-<canvas id="snowMtn" style="position:fixed;bottom:0;left:0;width:100%;height:280px;pointer-events:none;z-index:3;"></canvas>
+<canvas id="snowMtn" style="position:fixed;bottom:0;left:0;width:100%;height:280px;pointer-events:none;z-index:0;"></canvas>
 <script>
 (function(){
 var cvs=document.getElementById('snowMtn');
@@ -1686,22 +1686,22 @@ class ArtemisPageGenerator:
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Artemis — Life OS AI</title>
+  <title>Artemis — Helion AI</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
 *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0;}}
 :root{{
-  --bg:#0e2244;--sidebar:rgba(10,22,52,.97);--surface:rgba(15,40,85,.72);
+  --bg:#eaf3ff;--sidebar:rgba(210,230,255,0.97);--surface:rgba(255,255,255,0.88);
   --border:rgba(90,160,230,.10);--border-m:rgba(90,160,230,.22);
-  --text:#d2e8ff;--muted:rgba(140,185,235,.55);--accent:#5aabdf;
+  --text:#1a2e4a;--muted:rgba(60,90,140,.75);--accent:#5aabdf;
   --green:#10b981;--sans:'Inter',system-ui,sans-serif;--serif:'Playfair Display',Georgia,serif;
 }}
 html,body{{height:100%;overflow:hidden;}}
 body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:flex;height:100vh;}}
 .atm{{position:fixed;inset:0;pointer-events:none;z-index:0;}}
 .orb{{position:absolute;border-radius:50%;filter:blur(90px);opacity:.30;}}
-.o1{{width:700px;height:500px;top:-150px;left:-100px;background:radial-gradient(ellipse,#2470d0,transparent 70%);}}
-.o2{{width:600px;height:400px;bottom:-100px;right:-100px;background:radial-gradient(ellipse,#1660b8,transparent 70%);}}
+.o1{{width:700px;height:500px;top:-150px;left:-100px;background:radial-gradient(ellipse,#90c8f0,transparent 70%);}}
+.o2{{width:600px;height:400px;bottom:-100px;right:-100px;background:radial-gradient(ellipse,#b0d9ff,transparent 70%);}}
 
 /* Sidebar */
 .sidebar{{
@@ -1721,7 +1721,7 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
                     text-transform:uppercase;color:rgba(200,218,245,.6);}}
 .sidebar-logo-text strong{{color:var(--text);}}
 .sidebar-title{{font-family:var(--serif);font-size:22px;font-weight:700;
-               color:#e8f0fa;margin-top:20px;}}
+               color:#1a2e4a;margin-top:20px;}}
 .sidebar-sub{{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5;font-weight:300;}}
 
 .sidebar-status{{padding:18px 20px;border-bottom:1px solid var(--border);}}
@@ -1831,7 +1831,7 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
   flex:1;display:flex;flex-direction:column;align-items:center;
   justify-content:center;padding:40px 20px;gap:12px;
 }}
-.empty-chat-title{{font-family:var(--serif);font-size:26px;color:#e8f0fa;}}
+.empty-chat-title{{font-family:var(--serif);font-size:26px;color:#1a2e4a;}}
 .empty-chat-sub{{font-size:14px;color:var(--muted);text-align:center;max-width:420px;line-height:1.6;}}
 .suggestion-chips{{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;justify-content:center;}}
 .chip{{
@@ -1875,7 +1875,7 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
       <div class="convo-date" id="convDate"></div>
     </div>
   </div>
-  <div class="sidebar-footer">Artemis AI &bull; Life OS</div>
+  <div class="sidebar-footer">Artemis AI &bull; Helion</div>
 </div>
 
 <!-- Chat area -->
@@ -1892,7 +1892,7 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
     <!-- Empty state shown until first message -->
     <div class="empty-chat" id="emptyState">
       <div class="empty-chat-title">Hi, {display_name}.</div>
-      <div class="empty-chat-sub">I'm Artemis, your Life OS AI. I can help you think through your goals, break through blockers, and stay on track.</div>
+      <div class="empty-chat-sub">I'm Artemis, your Helion AI. I can help you think through your goals, break through blockers, and stay on track.</div>
       <div class="suggestion-chips">
         <div class="chip" onclick="sendChip(this)">What should I focus on today?</div>
         <div class="chip" onclick="sendChip(this)">Review my current goals</div>
@@ -2432,7 +2432,7 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
 
 def run_setup():
     print("\n" + "="*50)
-    print("   Life OS Agent — Setup Wizard")
+    print("   Helion — Setup Wizard")
     print("="*50 + "\n")
 
     api_key = input("Enter your Anthropic API key (sk-ant-...): ").strip()
@@ -2473,7 +2473,7 @@ def run_setup():
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Life OS Agent — Personal Execution Engine (v4)",
+        description="Helion — Personal Execution Engine (v4)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""Examples:
   python3 life_os_agent.py --setup          First-time setup
@@ -2533,7 +2533,7 @@ def main():
 
     if args.serve:
         port = int(os.environ.get("PORT", args.port))
-        print(f"\nStarting Life OS Server on port {port}")
+        print(f"\nStarting Helion Server on port {port}")
         print("Press Ctrl+C to stop.\n")
         try:
             with socketserver.ThreadingTCPServer(("", port), LifeOSServer) as httpd:
