@@ -734,8 +734,30 @@ function drawSnow(){
 }
 function frame(){ctx.clearRect(0,0,W,H);drawMtn();drawSun();drawSnow();requestAnimationFrame(frame);}
 resize();window.addEventListener('resize',resize);requestAnimationFrame(frame);
+})();</script>
+<div id="sun-hz" style="position:fixed;width:70px;height:70px;cursor:default;z-index:2;border-radius:50%;transform:translate(-50%,-50%);"></div>
+<div id="sun-qt" style="position:fixed;display:none;background:rgba(255,255,255,0.93);color:#1a2e4a;font-size:12px;font-weight:500;padding:7px 14px;border-radius:10px;box-shadow:0 2px 16px rgba(0,0,0,.13);pointer-events:none;z-index:11;max-width:220px;text-align:center;line-height:1.5;letter-spacing:0.01em;"></div>
+<script>
+(function(){
+  var qs=['Every peak is within reach — just keep climbing.','You are doing better than you think.','Small steps every day lead to big change.','The view from the top is worth every step.','Believe in the magic of new beginnings.','Your effort today is your strength tomorrow.','Progress, not perfection.','You have got this — one step at a time.','Shine on, even on cloudy days.','You are exactly where you need to be.'];
+  var hz=document.getElementById('sun-hz');
+  var qt=document.getElementById('sun-qt');
+  function pos(){
+    var cvs=document.getElementById('snowMtn');
+    var r=cvs.getBoundingClientRect();
+    hz.style.left=Math.round(0.32*window.innerWidth)+'px';
+    hz.style.top=Math.round(r.top+58)+'px';
+  }
+  pos();window.addEventListener('resize',pos);
+  hz.addEventListener('mouseenter',function(){
+    qt.textContent=qs[Math.floor(Math.random()*qs.length)];
+    qt.style.display='block';
+    var r=hz.getBoundingClientRect();
+    qt.style.left=Math.max(8,r.left-85)+'px';
+    qt.style.top=(r.top-52)+'px';
+  });
+  hz.addEventListener('mouseleave',function(){qt.style.display='none';});
 })();
-</script>
 <script>
 let mode='login';
 function sw(m){
@@ -914,15 +936,15 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .modal-overlay.open{display:flex;}
 .modal{background:#0f2855;border:1px solid var(--border-m);border-radius:4px;
        padding:32px;width:100%;max-width:440px;}
-.modal-title{font-family:var(--serif);font-size:20px;color:#1a2e4a;margin-bottom:20px;}
+.modal-title{font-family:var(--serif);font-size:20px;color:#ffffff;margin-bottom:20px;}
 .modal-field{margin-bottom:16px;}
 .modal-field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.1em;
-                    color:var(--muted);margin-bottom:7px;font-weight:500;}
+                    color:rgba(255,255,255,.75);margin-bottom:7px;font-weight:500;}
 .modal-field input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);
                     border-radius:2px;padding:10px 12px;font-size:13px;color:var(--text);
                     font-family:var(--sans);outline:none;transition:border-color .2s;}
 .modal-field input:focus{border-color:var(--border-m);}
-.modal-field input::placeholder{color:#111111;}
+.modal-field input::placeholder{color:rgba(255,255,255,.4);}
 .modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;}
 .btn-cancel{background:none;border:1px solid var(--border);border-radius:2px;color:var(--muted);
             font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);padding:8px 16px;transition:all .2s;}
@@ -967,7 +989,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .art-input{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:2px;
            padding:8px 10px;font-size:13px;color:var(--text);font-family:var(--sans);outline:none;transition:border .15s;}
 .art-input:focus{border-color:var(--border-m);}
-.art-input::placeholder{color:#111111;}
+.art-input::placeholder{color:rgba(255,255,255,.35);}
 .art-send{background:rgba(90,171,223,.15);border:1px solid rgba(90,171,223,.3);border-radius:2px;
           color:var(--accent);font-size:12px;font-weight:600;cursor:pointer;
           padding:8px 14px;font-family:var(--sans);transition:all .15s;white-space:nowrap;}
