@@ -626,11 +626,11 @@ class LoginPageGenerator:
 <div class="card">
   <div class="logo">
     <svg width="50" height="32" viewBox="0 0 100 62" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="35" cy="11" r="5.5" stroke="white" stroke-width="1.9"/>
+      <circle cx="35" cy="11" r="5.5" stroke="#1a2e4a" stroke-width="1.9"/>
       <path d="M1,58 C8,44 20,31 35,24 C43,28 51,34 57,38 C61,32 65,27 69,27 C77,33 88,40 99,50"
-            stroke="white" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+            stroke="#1a2e4a" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
-    <span class="logo-text">Life <strong>OS</strong></span>
+    <span class="logo-text">Helion <strong>AI</strong></span>
   </div>
   <div class="tabs">
     <div class="tab active" onclick="sw('login')">Sign In</div>
@@ -875,7 +875,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 /* Empty states */
 .empty{text-align:center;padding:32px 20px;}
 .empty-icon{font-size:24px;color:#111111;margin-bottom:10px;line-height:1;}
-.empty-title{font-size:14px;font-weight:600;color:rgba(210,232,255,.6);margin-bottom:6px;}
+.empty-title{font-size:14px;font-weight:600;color:#111111;margin-bottom:6px;}
 .empty-text{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6;}
 
 /* Buttons */
@@ -1145,11 +1145,11 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
   <div class="nav">
     <div class="nav-brand">
       <svg viewBox="0 0 100 62" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="35" cy="11" r="5.5" stroke="white" stroke-width="1.9"/>
+        <circle cx="35" cy="11" r="5.5" stroke="#1a2e4a" stroke-width="1.9"/>
         <path d="M1,58 C8,44 20,31 35,24 C43,28 51,34 57,38 C61,32 65,27 69,27 C77,33 88,40 99,50"
-              stroke="white" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+              stroke="#1a2e4a" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      <div class="nav-title">Life <span>OS</span></div>
+      <div class="nav-title">Helion <span>AI</span></div>
     </div>
     <div class="nav-right">
       <span class="nav-user">{display_name}</span>
@@ -1856,11 +1856,11 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
     <a href="/dashboard" class="back-link"><span class="back-arrow">&#8592;</span> Back to Dashboard</a>
     <div class="sidebar-brand">
       <svg width="28" height="18" viewBox="0 0 100 62" fill="none">
-        <circle cx="35" cy="11" r="5.5" stroke="white" stroke-width="1.9"/>
+        <circle cx="35" cy="11" r="5.5" stroke="#1a2e4a" stroke-width="1.9"/>
         <path d="M1,58 C8,44 20,31 35,24 C43,28 51,34 57,38 C61,32 65,27 69,27 C77,33 88,40 99,50"
-              stroke="white" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+              stroke="#1a2e4a" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      <span class="sidebar-logo-text">Life <strong>OS</strong></span>
+      <span class="sidebar-logo-text">Helion <strong>AI</strong></span>
     </div>
     <div class="sidebar-title">Artemis</div>
     <div class="sidebar-sub">Your personalized AI assistant. Ask about your goals, plans, and progress.</div>
