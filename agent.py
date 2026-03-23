@@ -596,7 +596,7 @@ class LoginPageGenerator:
     .card{position:relative;z-index:1;width:100%;max-width:420px;background:var(--surface);
           border:1px solid var(--border);border-radius:4px;padding:44px 40px 40px;backdrop-filter:blur(24px);}
     .logo{display:flex;align-items:center;gap:10px;margin-bottom:36px;}
-    .logo-text{font-size:13px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:rgba(200,218,245,.7);}
+    .logo-text{font-size:13px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#1a2e4a;}
     .logo-text strong{color:var(--text);}
     .card-title{font-family:var(--serif);font-size:28px;font-weight:700;color:#1a2e4a;margin-bottom:8px;}
     .card-sub{font-size:13px;color:var(--muted);font-weight:300;margin-bottom:32px;line-height:1.5;}
@@ -1718,7 +1718,7 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
 .back-arrow{{font-size:14px;}}
 .sidebar-brand{{display:flex;align-items:center;gap:10px;}}
 .sidebar-logo-text{{font-size:12px;font-weight:600;letter-spacing:.09em;
-                    text-transform:uppercase;color:rgba(200,218,245,.6);}}
+                    text-transform:uppercase;color:#1a2e4a;}}
 .sidebar-logo-text strong{{color:var(--text);}}
 .sidebar-title{{font-family:var(--serif);font-size:22px;font-weight:700;
                color:#1a2e4a;margin-top:20px;}}
@@ -1780,10 +1780,10 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
 
 .msg-bubble{{
   padding:14px 18px;border-radius:6px;line-height:1.65;font-size:14px;
-  max-width:calc(100% - 50px);
+  max-width:calc(100% - 50px)
 }}
 .bot-bubble{{
-  background:rgba(15,38,85,.75);border:1px solid var(--border);color:var(--text);
+  background:rgba(15,38,85,.75);border:1px solid var(--border);color:#ffffff;
 }}
 .user-bubble{{
   background:rgba(90,171,223,.12);border:1px solid rgba(90,171,223,.2);color:var(--text);
@@ -1810,11 +1810,11 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
 }}
 .chat-input{{
   flex:1;background:transparent;border:none;outline:none;
-  font-size:14px;color:var(--text);font-family:var(--sans);
+  font-size:14px;color:#ffffff;font-family:var(--sans);
   resize:none;line-height:1.5;max-height:180px;min-height:24px;
   overflow-y:auto;
 }}
-.chat-input::placeholder{{color:#111111;}}
+.chat-input::placeholder{color:rgba(255,255,255,.5);}{{color:#111111;}}
 .send-btn{{
   flex-shrink:0;width:36px;height:36px;border-radius:6px;
   background:rgba(90,171,223,.18);border:1px solid rgba(90,171,223,.3);
