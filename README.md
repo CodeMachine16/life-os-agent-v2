@@ -1,4 +1,4 @@
-# 🧠 Helion — Personal Execution Engine
+# 🧠 Helion AI — Personal Execution Engine
 
 > An AI-powered multi-agent system that acts as your personal chief of staff.
 > It breaks down your goals, generates daily action plans, tracks progress,
@@ -96,4 +96,4 @@ behavior and adjust advice accordingly.
 
 ---
 
-*Built with Claude claude-opus-4-6 · Helion v1.0*
+*Built with Claude claude-opus-4-6 · Helion AI v1.0*

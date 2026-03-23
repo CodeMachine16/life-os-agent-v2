@@ -1,3 +1,3 @@
-# Helion — zero external dependencies
+# Helion AI — zero external dependencies
 # Uses Python 3 standard library only:
 #   http.server, socketserver, hashlib, secrets, json, os, pathlib, datetime, argparse

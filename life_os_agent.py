@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Helion — Personal Execution Engine (v4 with Artemis AI)
+Helion AI — Personal Execution Engine (v4 with Artemis AI)
 ==============================================================
 A multi-agent AI system that acts as your personal chief of staff.
 Breaks down goals, generates daily action plans, tracks progress,
@@ -423,7 +423,7 @@ Assess status and replan."""
 class ArtemisAgent:
     """Artemis — the personalized Helion AI assistant."""
 
-    BASE_SYSTEM = """You are Artemis, an intelligent and personalized AI assistant built into Helion — a personal productivity and goal execution platform.
+    BASE_SYSTEM = """You are Artemis, an intelligent and personalized AI assistant built into Helion AI — a personal productivity and goal execution platform.
 
 Your role is to help users:
 - Understand and make progress on their active goals
@@ -580,12 +580,12 @@ class LoginPageGenerator:
 <html lang="en">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Helion — Sign In</title>
+  <title>Helion AI — Sign In</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     :root{--bg:#eaf3ff;--surface:rgba(255,255,255,0.88);--border:rgba(90,160,230,.12);
-          --border-m:rgba(90,160,230,.25);--text:#1a2e4a;--muted:rgba(60,90,140,.75);
+          --border-m:rgba(90,160,230,.25);--text:#1a2e4a;--muted:#333333;
           --accent:#5aabdf;--serif:'Playfair Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif;}
     body{font-family:var(--sans);background:var(--bg);color:var(--text);
          min-height:100vh;display:flex;align-items:center;justify-content:center;}
@@ -611,7 +611,7 @@ class LoginPageGenerator:
                   border-radius:2px;padding:11px 14px;font-size:14px;color:var(--text);
                   font-family:var(--sans);outline:none;transition:border-color .2s;}
     .field input:focus{border-color:var(--border-m);}
-    .field input::placeholder{color:rgba(140,185,235,.22);}
+    .field input::placeholder{color:#111111;}
     .btn{width:100%;padding:13px;background:rgba(90,171,223,.15);border:1px solid rgba(90,171,223,.3);
          border-radius:2px;color:var(--text);font-size:13px;font-weight:600;letter-spacing:.06em;
          text-transform:uppercase;cursor:pointer;font-family:var(--sans);transition:all .2s;margin-top:8px;}
@@ -639,7 +639,7 @@ class LoginPageGenerator:
   <div id="tl" class="card-title">Welcome back.</div>
   <div id="tr" class="card-title" style="display:none">Get started.</div>
   <div id="sl" class="card-sub">Your goals and plans are waiting.</div>
-  <div id="sr" class="card-sub" style="display:none">Create your personal Helion account.</div>
+  <div id="sr" class="card-sub" style="display:none">Create your personal Helion AI account.</div>
   <form onsubmit="go(event)">
     <div class="field signup-only" id="fn">
       <label>Your Name</label>
@@ -771,7 +771,7 @@ class DashboardGenerator:
 :root{
   --bg:#eaf3ff;--surface:rgba(255,255,255,0.88);--surface-2:rgba(225,240,255,0.75);
   --border:rgba(90,160,230,.10);--border-m:rgba(90,160,230,.22);
-  --text:#1a2e4a;--muted:rgba(60,90,140,.75);--accent:#5aabdf;
+  --text:#1a2e4a;--muted:#333333;--accent:#5aabdf;
   --green:#10b981;--amber:#f59e0b;--red:#ef4444;
   --serif:'Playfair Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif;
 }
@@ -840,7 +840,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .tag-low{background:rgba(16,185,129,.12);color:#10b981;border:1px solid rgba(16,185,129,.25);}
 .tag-time{background:rgba(30,42,58,.8);color:#7dd3fc;border:1px solid rgba(125,211,252,.15);}
 .tag-start{background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2);}
-.task-goal{font-size:11px;color:rgba(90,160,230,.45);}
+.task-goal{font-size:11px;color:#111111;}
 .task-why{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5;}
 
 /* Goals sidebar */
@@ -851,7 +851,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .goal-body{flex:1;}
 .goal-name{font-size:13px;font-weight:500;display:block;margin-bottom:2px;color:var(--text);}
 .goal-deadline{font-size:11px;color:var(--muted);}
-.goal-remove{background:none;border:none;color:rgba(140,185,235,.3);cursor:pointer;
+.goal-remove{background:none;border:none;color:#111111;cursor:pointer;
              font-size:14px;padding:0 0 0 8px;line-height:1;transition:color .15s;flex-shrink:0;}
 .goal-remove:hover{color:#ef4444;}
 
@@ -870,11 +870,11 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .bars{display:flex;align-items:flex-end;gap:5px;height:64px;padding-top:8px;}
 .bar-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;}
 .bar{width:20px;background:var(--accent);border-radius:2px 2px 0 0;min-height:3px;opacity:.8;}
-.bar-label{font-size:9px;color:rgba(90,160,230,.4);}
+.bar-label{font-size:9px;color:#111111;}
 
 /* Empty states */
 .empty{text-align:center;padding:32px 20px;}
-.empty-icon{font-size:24px;color:rgba(90,160,230,.2);margin-bottom:10px;line-height:1;}
+.empty-icon{font-size:24px;color:#111111;margin-bottom:10px;line-height:1;}
 .empty-title{font-size:14px;font-weight:600;color:rgba(210,232,255,.6);margin-bottom:6px;}
 .empty-text{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6;}
 
@@ -900,7 +900,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
                     border-radius:2px;padding:10px 12px;font-size:13px;color:var(--text);
                     font-family:var(--sans);outline:none;transition:border-color .2s;}
 .modal-field input:focus{border-color:var(--border-m);}
-.modal-field input::placeholder{color:rgba(140,185,235,.2);}
+.modal-field input::placeholder{color:#111111;}
 .modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;}
 .btn-cancel{background:none;border:1px solid var(--border);border-radius:2px;color:var(--muted);
             font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);padding:8px 16px;transition:all .2s;}
@@ -945,7 +945,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .art-input{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:2px;
            padding:8px 10px;font-size:13px;color:var(--text);font-family:var(--sans);outline:none;transition:border .15s;}
 .art-input:focus{border-color:var(--border-m);}
-.art-input::placeholder{color:rgba(140,185,235,.2);}
+.art-input::placeholder{color:#111111;}
 .art-send{background:rgba(90,171,223,.15);border:1px solid rgba(90,171,223,.3);border-radius:2px;
           color:var(--accent);font-size:12px;font-weight:600;cursor:pointer;
           padding:8px 14px;font-family:var(--sans);transition:all .15s;white-space:nowrap;}
@@ -1022,7 +1022,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
         # Artemis greeting
         g_count = len(goals_list)
         art_intro = (
-            f"Hello, {display_name}. I'm Artemis, your Helion assistant. "
+            f"Hello, {display_name}. I'm Artemis, your Helion AI assistant. "
             + (f"I can see your {g_count} active goal{'s' if g_count != 1 else ''}. "
                if has_goals else "You haven't added any goals yet. Use the Goals panel to get started. ")
             + "What can I help you with today?"
@@ -1133,7 +1133,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Helion</title>
+  <title>Helion AI</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>{self._CSS}</style>
 </head>
@@ -1693,7 +1693,7 @@ class ArtemisPageGenerator:
 :root{{
   --bg:#eaf3ff;--sidebar:rgba(210,230,255,0.97);--surface:rgba(255,255,255,0.88);
   --border:rgba(90,160,230,.10);--border-m:rgba(90,160,230,.22);
-  --text:#1a2e4a;--muted:rgba(60,90,140,.75);--accent:#5aabdf;
+  --text:#1a2e4a;--muted:#333333;--accent:#5aabdf;
   --green:#10b981;--sans:'Inter',system-ui,sans-serif;--serif:'Playfair Display',Georgia,serif;
 }}
 html,body{{height:100%;overflow:hidden;}}
@@ -1737,10 +1737,10 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
             color:var(--muted);transition:all .15s;border:1px solid transparent;margin-bottom:4px;}}
 .convo-item.active{{background:rgba(90,171,223,.08);border-color:rgba(90,171,223,.15);color:var(--text);}}
 .convo-item:hover:not(.active){{background:rgba(255,255,255,.03);color:var(--text);}}
-.convo-date{{font-size:10px;color:rgba(140,185,235,.35);margin-top:3px;}}
+.convo-date{{font-size:10px;color:#111111;margin-top:3px;}}
 
 .sidebar-footer{{padding:14px 16px;border-top:1px solid var(--border);font-size:11px;
-               color:rgba(140,185,235,.3);letter-spacing:.04em;}}
+               color:#111111;letter-spacing:.04em;}}
 
 /* Main chat area */
 .chat-area{{
@@ -1750,7 +1750,7 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
 .chat-header{{
   padding:16px 28px;border-bottom:1px solid var(--border);
   display:flex;align-items:center;justify-content:space-between;
-  background:rgba(10,25,60,.4);backdrop-filter:blur(12px);flex-shrink:0;
+  background:rgba(210,230,255,0.97);backdrop-filter:blur(12px);flex-shrink:0;
 }}
 .chat-header-title{{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.2px;}}
 .chat-header-badge{{font-size:10px;background:rgba(90,171,223,.15);color:var(--accent);
@@ -1814,7 +1814,7 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
   resize:none;line-height:1.5;max-height:180px;min-height:24px;
   overflow-y:auto;
 }}
-.chat-input::placeholder{{color:rgba(140,185,235,.25);}}
+.chat-input::placeholder{{color:#111111;}}
 .send-btn{{
   flex-shrink:0;width:36px;height:36px;border-radius:6px;
   background:rgba(90,171,223,.18);border:1px solid rgba(90,171,223,.3);
@@ -1823,7 +1823,7 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
 }}
 .send-btn:hover{{background:rgba(90,171,223,.3);}}
 .send-btn:disabled{{opacity:.35;cursor:not-allowed;}}
-.input-hint{{font-size:11px;color:rgba(140,185,235,.25);margin-top:8px;
+.input-hint{{font-size:11px;color:#111111;margin-top:8px;
             text-align:center;letter-spacing:.02em;}}
 
 /* Empty state */
@@ -1875,7 +1875,7 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
       <div class="convo-date" id="convDate"></div>
     </div>
   </div>
-  <div class="sidebar-footer">Artemis AI &bull; Helion</div>
+  <div class="sidebar-footer">Artemis AI &bull; Helion AI</div>
 </div>
 
 <!-- Chat area -->
@@ -2432,7 +2432,7 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
 
 def run_setup():
     print("\n" + "="*50)
-    print("   Helion — Setup Wizard")
+    print("   Helion AI — Setup Wizard")
     print("="*50 + "\n")
 
     api_key = input("Enter your Anthropic API key (sk-ant-...): ").strip()
@@ -2473,7 +2473,7 @@ def run_setup():
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Helion — Personal Execution Engine (v4)",
+        description="Helion AI — Personal Execution Engine (v4)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""Examples:
   python3 life_os_agent.py --setup          First-time setup
@@ -2533,7 +2533,7 @@ def main():
 
     if args.serve:
         port = int(os.environ.get("PORT", args.port))
-        print(f"\nStarting Helion Server on port {port}")
+        print(f"\nStarting Helion AI Server on port {port}")
         print("Press Ctrl+C to stop.\n")
         try:
             with socketserver.ThreadingTCPServer(("", port), LifeOSServer) as httpd:
