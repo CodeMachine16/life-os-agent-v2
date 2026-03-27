@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Helion AI â Execution Environment (v4 with Artemis AI)
+Helion AI Ã¢ÂÂ Execution Environment (v4 with Artemis AI)
 ==============================================================
 A multi-agent AI system that acts as your personal chief of staff.
 Breaks down goals, generates daily action plans, tracks progress,
-and now includes Artemis â a personalized AI assistant.
+and now includes Artemis Ã¢ÂÂ a personalized AI assistant.
 
 New in v4:
   ArtemisAgent         -> Personalized AI chatbot for goals & plans
@@ -31,9 +31,9 @@ import threading
 import urllib.parse
 
 
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 # CONFIG
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 BASE_DIR = Path(__file__).parent
 # On Railway, use /data (persistent volume mount point) unless overridden.
@@ -69,9 +69,9 @@ def get_api_key() -> str:
     return os.environ.get("ANTHROPIC_API_KEY", "")
 
 
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 # ANTHROPIC CLIENT
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 class AnthropicClient:
     """Minimal Anthropic API client using Python stdlib only."""
@@ -117,9 +117,9 @@ class AnthropicClient:
         })
 
 
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 # GOAL MANAGER
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 class GoalManager:
     def __init__(self, goals_file=None):
@@ -172,9 +172,9 @@ class GoalManager:
         self.save()
 
 
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 # MEMORY SYSTEM
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 class MemorySystem:
     def __init__(self, memory_file=None):
@@ -233,9 +233,9 @@ class MemorySystem:
         self.save()
 
 
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 # HABIT TRACKER
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 class HabitTracker:
     def __init__(self, memory, habits_file=None):
@@ -281,9 +281,9 @@ class HabitTracker:
         self.memory.save()
 
 
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 # PLANNER AGENT
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 class PlannerAgent:
     SYSTEM = """You are a world-class executive coach and productivity strategist.
@@ -340,9 +340,9 @@ Generate today's focused action plan."""
             raise ValueError(f"Planner returned non-JSON: {raw[:200]}")
 
 
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 # COACH AGENT
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 class CoachAgent:
     SYSTEM = """You are a direct, data-driven personal coach.
@@ -373,9 +373,9 @@ Deliver my coaching message."""
         return self.client.message(self.SYSTEM, user_msg, max_tokens=400)
 
 
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 # REPLANNER AGENT
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 class ReplannerAgent:
     SYSTEM = """You are a tactical replanning agent. When someone is falling behind
@@ -419,14 +419,14 @@ Assess status and replan."""
             return {"status": "unknown", "assessment": raw[:200], "hard_truth": ""}
 
 
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 # ARTEMIS AGENT (v4 new)
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 class ArtemisAgent:
-    """Artemis â the personalized Helion AI assistant."""
+    """Artemis Ã¢ÂÂ the personalized Helion AI assistant."""
 
-    BASE_SYSTEM = """You are Artemis, an intelligent and personalized AI assistant built into Helion AI â a personal productivity and goal execution platform.
+    BASE_SYSTEM = """You are Artemis, an intelligent and personalized AI assistant built into Helion AI Ã¢ÂÂ a personal productivity and goal execution platform.
 
 Your role is to help users:
 - Understand and make progress on their active goals
@@ -434,11 +434,11 @@ Your role is to help users:
 - Think clearly about priorities and next steps
 - Reflect on patterns in their productivity data
 
-Personality: Precise, warm, and direct. You give actionable guidance, not vague motivation. You speak like a trusted advisor â concise, honest, and genuinely invested in the user's success. You never use filler phrases like "Great question!" or "Certainly!". You get straight to what matters.
+Personality: Precise, warm, and direct. You give actionable guidance, not vague motivation. You speak like a trusted advisor Ã¢ÂÂ concise, honest, and genuinely invested in the user's success. You never use filler phrases like "Great question!" or "Certainly!". You get straight to what matters.
 
 When you have context about the user's goals and action plans, reference them specifically. If asked something outside productivity and goals, gently redirect while still being helpful.
 
-Keep responses under 180 words unless the user specifically asks for more detail. Write in clear, flowing sentences â no markdown headers or excessive bullet points."""
+Keep responses under 180 words unless the user specifically asks for more detail. Write in clear, flowing sentences Ã¢ÂÂ no markdown headers or excessive bullet points."""
 
     def __init__(self, client: AnthropicClient):
         self.client = client
@@ -459,9 +459,9 @@ Keep responses under 180 words unless the user specifically asks for more detail
             return f"I'm having trouble connecting right now. Please try again in a moment."
 
 
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 # USER MANAGER
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 class UserManager:
     def __init__(self):
@@ -524,9 +524,9 @@ class UserManager:
                 "created_at": u["created_at"]}
 
 
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 # SESSION MANAGER
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 class SessionManager:
     TTL = 86400
@@ -574,9 +574,9 @@ class SessionManager:
         self._save()
 
 
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 # LANDING PAGE GENERATOR
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 class LandingPageGenerator:
     @staticmethod
@@ -682,9 +682,9 @@ class LandingPageGenerator:
     .sec-sub{font-size:17px;color:var(--muted);line-height:1.68;max-width:540px;}
 
     /* TRUST STRIP */
-    .ascent-marker{display:flex;align-items:center;gap:24px;padding:0 56px 60px;justify-content:center;}
-    .ascent-line{flex:1;max-width:100px;height:1px;background:linear-gradient(90deg,transparent,rgba(90,171,223,0.22),transparent);}
-    .ascent-text{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,0.22);}
+    .ascent-marker{display:flex;align-items:center;gap:28px;padding:72px 56px 52px;justify-content:center;}
+    .ascent-line{flex:1;max-width:140px;height:1px;background:linear-gradient(90deg,transparent,rgba(90,171,223,0.28),transparent);}
+    .ascent-text{font-size:10px;letter-spacing:.30em;text-transform:uppercase;color:rgba(255,255,255,0.28);white-space:nowrap;}
     .DEPRECATED_TRUST{padding:8px 20px;font-size:13px;color:var(--muted);
                 letter-spacing:.03em;}
 
@@ -870,6 +870,49 @@ class LandingPageGenerator:
       .cta-inner{padding:60px 24px;}
     }
 
+    /* PREMIUM MOTION v2 */
+    .features-section{position:relative;}
+    .artemis-section{position:relative;}
+    .pricing-section{position:relative;overflow:hidden;}
+    .cta-section{position:relative;}
+    .mockup-section{position:relative;}
+    #how{position:relative;}
+    .features-section::after{content:'';position:absolute;right:0;top:0;width:50%;height:100%;background:radial-gradient(ellipse 90% 70% at 100% 35%,rgba(90,171,223,0.045) 0%,transparent 70%);pointer-events:none;opacity:0;transition:opacity 2s;z-index:0;}
+    .features-section.section-lit::after{opacity:1;}
+    .features-section .container{position:relative;z-index:1;}
+    .feat-row{position:relative;}
+    .feat-row::before{content:'';position:absolute;left:0;top:14%;height:72%;width:1.5px;background:linear-gradient(180deg,transparent,rgba(90,171,223,0.40),transparent);opacity:0;transform:scaleY(0);transform-origin:center;transition:opacity 0.5s,transform 0.55s cubic-bezier(0.16,1,0.3,1);}
+    .feat-row.visible::before{opacity:1;transform:scaleY(1);}
+    .feat-row.visible .feat-num{color:rgba(90,171,223,0.50);transition:color 0.7s 0.1s;}
+    .browser-window{transform:translateY(28px) perspective(900px) rotateX(3.5deg);opacity:0;transition:transform 1.15s cubic-bezier(0.16,1,0.3,1),opacity 1.15s;transform-origin:top center;}
+    .reveal.visible .browser-window{transform:translateY(0) perspective(900px) rotateX(0deg);opacity:1;}
+    .mockup-section::before{content:'';position:absolute;top:0;left:56px;right:56px;height:1px;background:linear-gradient(90deg,transparent,rgba(90,171,223,0.15) 30%,rgba(90,171,223,0.15) 70%,transparent);transform:scaleX(0);transform-origin:left;transition:transform 1.4s cubic-bezier(0.16,1,0.3,1);}
+    .mockup-section.line-active::before{transform:scaleX(1);}
+    #how::before{content:'';position:absolute;top:0;left:56px;right:56px;height:1px;background:linear-gradient(90deg,transparent,rgba(90,171,223,0.15) 30%,rgba(90,171,223,0.15) 70%,transparent);transform:scaleX(0);transform-origin:left;transition:transform 1.4s cubic-bezier(0.16,1,0.3,1);}
+    #how.line-active::before{transform:scaleX(1);}
+    .steps-wrap{position:relative;}
+    .steps-track{position:absolute;left:27px;top:38px;width:1px;height:calc(100% - 76px);background:linear-gradient(180deg,rgba(90,171,223,0.0) 0%,rgba(90,171,223,0.20) 15%,rgba(90,171,223,0.20) 85%,rgba(90,171,223,0.0) 100%);transform:scaleY(0);transform-origin:top center;transition:transform 1.6s cubic-bezier(0.16,1,0.3,1) 0.4s;}
+    .steps-wrap.line-active .steps-track{transform:scaleY(1);}
+    .step.visible .step-num{color:rgba(90,171,223,0.32);text-shadow:0 0 28px rgba(90,171,223,0.12);transition:color 0.9s,text-shadow 0.9s;}
+    .artemis-section::after{content:'';position:absolute;right:0;top:0;width:55%;height:100%;background:radial-gradient(ellipse 90% 80% at 100% 50%,rgba(90,171,223,0.06) 0%,transparent 70%);pointer-events:none;opacity:0;transition:opacity 2s;z-index:0;}
+    .artemis-section.section-lit::after{opacity:1;}
+    .artemis-section .container{position:relative;z-index:1;}
+    .chat-mockup{transform:translateX(32px);opacity:0;transition:transform 0.9s cubic-bezier(0.16,1,0.3,1) 0.2s,opacity 0.9s 0.2s;}
+    .artemis-section.section-lit .chat-mockup{transform:translateX(0);opacity:1;}
+    .chat-msg{opacity:0;transform:translateY(8px);transition:opacity 0.45s,transform 0.45s;}
+    .chat-msg.msg-in{opacity:1;transform:translateY(0);}
+    .pricing-section::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:80%;height:50%;background:radial-gradient(ellipse 80% 100% at 50% 100%,rgba(90,171,223,0.10) 0%,transparent 70%);pointer-events:none;opacity:0;transition:opacity 2.2s;z-index:0;}
+    .pricing-section.section-lit::after{opacity:1;}
+    .pricing-section .container{position:relative;z-index:1;}
+    .price-tag.reveal{opacity:0;transform:scale(0.86) translateY(16px);filter:blur(5px);transition:opacity 1.1s cubic-bezier(0.16,1,0.3,1),transform 1.1s cubic-bezier(0.16,1,0.3,1),filter 0.9s;}
+    .price-tag.reveal.visible{opacity:1;transform:scale(1) translateY(0);filter:blur(0);}
+    .cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 45% 55% at 50% 50%,rgba(90,171,223,0.04) 0%,transparent 70%);animation:ctaBreath 8s ease-in-out infinite;pointer-events:none;z-index:0;}
+    @keyframes ctaBreath{0%,100%{opacity:0.5;transform:scale(1);}50%{opacity:1;transform:scale(1.09);}}
+    .cta-section .cta-inner{position:relative;z-index:1;}
+    .cta-inner{transition:box-shadow 1.4s cubic-bezier(0.16,1,0.3,1),border-color 1.4s;}
+    .cta-inner.glow-active{box-shadow:0 0 0 1px rgba(90,171,223,0.20),0 0 50px rgba(90,171,223,0.10),0 24px 60px rgba(0,0,0,0.30);border-color:rgba(90,171,223,0.20);}
+    .word-stagger .word{display:inline-block;opacity:0;transform:translateY(20px);transition:opacity 0.7s cubic-bezier(0.16,1,0.3,1),transform 0.7s cubic-bezier(0.16,1,0.3,1);}
+    .word-stagger.visible .word{opacity:1;transform:translateY(0);}
     /* REDUCED MOTION */
     @media(prefers-reduced-motion:reduce){
       .reveal,.hero-eyebrow,.hero-headline,.hero-sub,.hero-ctas,.hero-signal{
@@ -1198,17 +1241,17 @@ class LandingPageGenerator:
 </footer>
 
 <script>
-// Ã¢ÂÂÃ¢ÂÂ NAV SCROLL Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ NAV SCROLL ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
 window.addEventListener('scroll', function() {
   document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 60);
 }, { passive: true });
 
-// Ã¢ÂÂÃ¢ÂÂ HERO LOAD Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ HERO LOAD ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
 function triggerHero() { document.body.classList.add('loaded'); }
 window.addEventListener('load', triggerHero);
 setTimeout(triggerHero, 120);
 
-// Ã¢ÂÂÃ¢ÂÂ STAR FIELD Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ STAR FIELD ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
 (function() {
   var c = document.getElementById('starCanvas');
   if (!c) return;
@@ -1248,14 +1291,14 @@ setTimeout(triggerHero, 120);
   draw();
 })();
 
-// Ã¢ÂÂÃ¢ÂÂ MOUNTAIN ANIMATION Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ MOUNTAIN ANIMATION ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
 (function() {
   var section = document.getElementById('mountainSection');
   if (!section) return;
-  // Use the existing canvas â already styled in CSS (position:absolute, inset:0, 100%x100%)
+  // Use the existing canvas Ã¢ÂÂ already styled in CSS (position:absolute, inset:0, 100%x100%)
   var canvas = document.getElementById('mtnCanvas');
   if (!canvas) return;
-  // DO NOT touch mountainSticky position â CSS has position:sticky which must be preserved
+  // DO NOT touch mountainSticky position Ã¢ÂÂ CSS has position:sticky which must be preserved
   var ctx = canvas.getContext('2d');
   var W = 0, H = 0, dpr = window.devicePixelRatio || 1;
   var progress = 0, targetProgress = 0;
@@ -1265,7 +1308,7 @@ setTimeout(triggerHero, 120);
   for (var i = 0; i < 90; i++)
     stars.push({x:Math.random(), y:Math.random()*0.65, r:0.4+Math.random()*1.2, op:0.4+Math.random()*0.6});
 
-  // Gentle ridges â all peaks in bottom 28% of canvas
+  // Gentle ridges Ã¢ÂÂ all peaks in bottom 28% of canvas
   var layers = [
     {pts:[[0,.84],[.15,.77],[.30,.73],[.45,.69],[.58,.71],[.72,.75],[.86,.79],[1,.84]], col:'#1a2840', par:0.010},
     {pts:[[0,.90],[.12,.83],[.26,.78],[.40,.73],[.52,.75],[.65,.71],[.78,.76],[.90,.81],[1,.89]], col:'#0f1c2e', par:0.020},
@@ -1317,7 +1360,7 @@ setTimeout(triggerHero, 120);
       ctx.beginPath(); ctx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2);
       ctx.fillStyle='rgba(255,255,255,'+(s.op*sOp)+')'; ctx.fill();
     });
-    // Sun rises y=0.90 â y=0.18
+    // Sun rises y=0.90 Ã¢ÂÂ y=0.18
     var sunX=W*0.64, sunY=H*(0.90-p*0.72), sunR=16+p*12, sOp2=Math.min(1,p*2.5);
     if (sOp2>0.02) {
       var glow=ctx.createRadialGradient(sunX,sunY,0,sunX,sunY,sunR*4.5);
@@ -1362,12 +1405,67 @@ setTimeout(triggerHero, 120);
   }, {threshold: 0.12});
   document.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
 
-  // Hero entrance animations â trigger after short delay on load
+  // Hero entrance animations Ã¢ÂÂ trigger after short delay on load
   var heroClasses = ['.hero-eyebrow','.hero-headline','.hero-sub','.hero-ctas','.hero-signal'];
   heroClasses.forEach(function(sel, i) {
     var el = document.querySelector(sel);
     if (!el) return;
     setTimeout(function() { el.style.opacity='1'; el.style.transform='translateY(0)'; }, 80 + i * 120);
+  });
+})();
+// PREMIUM MOTION v2
+(function() {
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  function watchOnce(el, cb, thr) {
+    if (!el) return;
+    var io = new IntersectionObserver(function(ent) {
+      ent.forEach(function(e) { if (e.isIntersecting) { cb(e.target); io.unobserve(e.target); } });
+    }, {threshold: thr || 0.15});
+    io.observe(el);
+  }
+  watchOnce(document.querySelector('.features-section'), function(t){ t.classList.add('section-lit'); }, 0.12);
+  watchOnce(document.querySelector('.artemis-section'), function(t){ t.classList.add('section-lit'); }, 0.12);
+  watchOnce(document.querySelector('.pricing-section'), function(t){ t.classList.add('section-lit'); }, 0.15);
+  watchOnce(document.querySelector('.artemis-section'), function(t) {
+    t.querySelectorAll('.chat-msg').forEach(function(m, i) {
+      setTimeout(function(){ m.classList.add('msg-in'); }, 700 + i * 420);
+    });
+  }, 0.15);
+  var stepsEl = document.querySelector('.steps');
+  if (stepsEl && !document.querySelector('.steps-wrap')) {
+    var wrap = document.createElement('div');
+    wrap.className = 'steps-wrap';
+    stepsEl.parentNode.insertBefore(wrap, stepsEl);
+    wrap.appendChild(stepsEl);
+    var track = document.createElement('div');
+    track.className = 'steps-track';
+    wrap.insertBefore(track, stepsEl);
+  }
+  watchOnce(document.querySelector('.steps-wrap') || stepsEl, function(t){ t.classList.add('line-active'); }, 0.12);
+  watchOnce(document.querySelector('.mockup-section'), function(t){ t.classList.add('line-active'); }, 0.08);
+  watchOnce(document.getElementById('how'), function(t){ t.classList.add('line-active'); }, 0.08);
+  watchOnce(document.querySelector('.cta-inner'), function(t) {
+    setTimeout(function(){ t.classList.add('glow-active'); }, 350);
+  }, 0.25);
+  function staggerWords(el, d0) {
+    if (!el || el.dataset.sw) return;
+    el.dataset.sw = '1';
+    var parts = el.innerHTML.split(/(<br\s*\/?>)/gi);
+    var i = 0;
+    el.innerHTML = parts.map(function(p) {
+      if (/^<br/i.test(p)) return p;
+      return p.trim().split(/\s+/).filter(Boolean).map(function(w) {
+        return '<span class="word" style="transition-delay:'+(d0 + i++ * 0.065)+'s">'+w+'</span>';
+      }).join(' ');
+    }).join('');
+    el.classList.add('word-stagger');
+    el.style.transform = 'none';
+    watchOnce(el, function(t) { t.style.opacity = '1'; t.classList.add('visible'); }, 0.15);
+  }
+  [{sel:'.artemis-section .sec-title',d:0.05},{sel:'#how .sec-title',d:0.05},{sel:'.cta-section .sec-title',d:0.08},{sel:'.features-section .sec-title',d:0.05}].forEach(function(t){ staggerWords(document.querySelector(t.sel), t.d); });
+  document.querySelectorAll('.feat-row').forEach(function(row) {
+    row.addEventListener('mouseenter', function() { var n = row.querySelector('.feat-num'); if (n) n.style.color = 'rgba(90,171,223,0.72)'; });
+    row.addEventListener('mouseleave', function() { var n = row.querySelector('.feat-num'); if (n) n.style.color = ''; });
   });
 })();
 </script>
@@ -1381,7 +1479,7 @@ class LoginPageGenerator:
 <html lang="en">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Helion AI â Sign In</title>
+  <title>Helion AI Ã¢ÂÂ Sign In</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -1543,7 +1641,7 @@ resize();window.addEventListener('resize',resize);requestAnimationFrame(frame);
 <div id="sun-qt" style="position:fixed;display:none;background:rgba(255,255,255,0.93);color:#1a2e4a;font-size:12px;font-weight:500;padding:7px 14px;border-radius:10px;box-shadow:0 2px 16px rgba(0,0,0,.13);pointer-events:none;z-index:11;max-width:220px;text-align:center;line-height:1.5;letter-spacing:0.01em;"></div>
 <script>
 (function(){
-  var qs=['Every peak is within reach â just keep climbing.','You are doing better than you think.','Small steps every day lead to big change.','The view from the top is worth every step.','Believe in the magic of new beginnings.','Your effort today is your strength tomorrow.','Progress, not perfection.','You have got this â one step at a time.','Shine on, even on cloudy days.','You are exactly where you need to be.'];
+  var qs=['Every peak is within reach Ã¢ÂÂ just keep climbing.','You are doing better than you think.','Small steps every day lead to big change.','The view from the top is worth every step.','Believe in the magic of new beginnings.','Your effort today is your strength tomorrow.','Progress, not perfection.','You have got this Ã¢ÂÂ one step at a time.','Shine on, even on cloudy days.','You are exactly where you need to be.'];
   var hz=document.getElementById('sun-hz');
   var qt=document.getElementById('sun-qt');
   function pos(){
@@ -1597,13 +1695,13 @@ async function go(e){
 </body></html>"""
 
 
-# âââââââââââââââââââââââââââââââââââââââââââââ
-# DASHBOARD GENERATOR (v4 â clean, no emojis, Artemis chat)
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+# DASHBOARD GENERATOR (v4 Ã¢ÂÂ clean, no emojis, Artemis chat)
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 class DashboardGenerator:
 
-    # ââ CSS (defined as a regular string â no f-string escaping needed) ââ
+    # Ã¢ÂÂÃ¢ÂÂ CSS (defined as a regular string Ã¢ÂÂ no f-string escaping needed) Ã¢ÂÂÃ¢ÂÂ
     _CSS = """
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -1841,7 +1939,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
         focus_theme  = daily_plan.get("focus_theme", "") if daily_plan else ""
         daily_intent = daily_plan.get("daily_intention", "") if daily_plan else ""
 
-        # ââ Pre-compute HTML fragments ââââââââââââââââââââââââââââââââââ
+        # Ã¢ÂÂÃ¢ÂÂ Pre-compute HTML fragments Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
         # Goals HTML
         goals_html = self._build_goals_html(goals_list)
@@ -1892,7 +1990,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 <div class="hero">
   <div class="hero-label">Execution Environment</div>
   <h1 class="hero-title">The mission begins, {display_name}.</h1>
-  <p class="hero-sub">Define your first goal. Helion will build the architecture — structured, sequenced, moving forward.</p>
+  <p class="hero-sub">Define your first goal. Helion will build the architecture â structured, sequenced, moving forward.</p>
 </div>"""
 
         # Plan section content
@@ -1909,7 +2007,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 <div class="empty">
   <div class="empty-icon">&#9672;</div>
   <div class="empty-title">Define the objective</div>
-  <div class="empty-text">Add your first goal and Helion will build you a personalized daily execution plan â sequenced, prioritized, and focused on what actually moves you forward.</div>
+  <div class="empty-text">Add your first goal and Helion will build you a personalized daily execution plan Ã¢ÂÂ sequenced, prioritized, and focused on what actually moves you forward.</div>
 </div>"""
         else:
             plan_content = tasks_html
@@ -2090,7 +2188,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 <!-- Artemis is now at /artemis -->
 
 <script>
-// ââ Task completion âââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Task completion Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function toggleTask(box) {{
   const item = box.closest('.task-item');
   const done = item.classList.toggle('done');
@@ -2125,7 +2223,7 @@ function doSave() {{
 }}
 window.addEventListener('beforeunload', doSave);
 
-// ââ Add Goal Modal ââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Add Goal Modal Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function showAddGoal() {{
   document.getElementById('addGoalModal').classList.add('open');
   document.getElementById('goalTitle').focus();
@@ -2162,7 +2260,7 @@ document.getElementById('goalTitle').addEventListener('keydown', e => {{
   if (e.key === 'Enter') submitGoal();
 }});
 
-// ââ Remove Goal âââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Remove Goal Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 async function removeGoal(goalId) {{
   if (!confirm('Remove this goal? This cannot be undone.')) return;
   try {{
@@ -2178,7 +2276,7 @@ async function removeGoal(goalId) {{
   }} catch(e) {{ alert('Connection error.'); }}
 }}
 
-// ââ Generate Plan âââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Generate Plan Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 async function generatePlan() {{
   const btn = document.getElementById('genPlanBtn');
   if (btn) {{ btn.disabled = true; btn.textContent = 'Generating...'; }}
@@ -2209,7 +2307,7 @@ async function generatePlan() {{
 </body>
 </html>"""
 
-    # ââ HTML fragment builders ââââââââââââââââââââââââââââââââââââââââââââ
+    # Ã¢ÂÂÃ¢ÂÂ HTML fragment builders Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
     @staticmethod
     def _snow_mountain_html() -> str:
@@ -2465,44 +2563,44 @@ requestAnimationFrame(frame);
         return round(sum(rates) / len(rates), 2) if rates else 0.0
 
 
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 # DEMO DATA (for --demo mode)
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 DEMO_PLAN = {
     "date": datetime.now().strftime("%Y-%m-%d"),
-    "focus_theme": "Build momentum on your product launch â small moves compound.",
+    "focus_theme": "Build momentum on your product launch Ã¢ÂÂ small moves compound.",
     "daily_intention": "Every task you finish today is a vote for the person you are becoming.",
     "tasks": [
         {"id": "t1", "title": "Write 3 cold outreach emails to potential beta users",
          "goal_link": "Launch SaaS product", "estimated_minutes": 45,
          "priority": "high", "is_momentum_task": False,
-         "why_today": "You are 2 days behind on outreach targets â close the gap now"},
+         "why_today": "You are 2 days behind on outreach targets Ã¢ÂÂ close the gap now"},
         {"id": "t2", "title": "Finalize onboarding flow wireframes (screens 1-3 only)",
          "goal_link": "Launch SaaS product", "estimated_minutes": 60,
          "priority": "high", "is_momentum_task": False,
-         "why_today": "Dev handoff is tomorrow â this blocks the sprint"},
+         "why_today": "Dev handoff is tomorrow Ã¢ÂÂ this blocks the sprint"},
         {"id": "t3", "title": "Read 20 pages of The Mom Test and take notes",
          "goal_link": "Learn customer discovery", "estimated_minutes": 30,
          "priority": "medium", "is_momentum_task": True,
-         "why_today": "Easy win to start â builds momentum for the rest of the day"},
+         "why_today": "Easy win to start Ã¢ÂÂ builds momentum for the rest of the day"},
         {"id": "t4", "title": "Update LinkedIn with your new role and one insight post",
          "goal_link": "Build personal brand", "estimated_minutes": 25,
          "priority": "low", "is_momentum_task": False,
-         "why_today": "Compound visibility â 10 minutes of writing now equals weeks of reach"},
+         "why_today": "Compound visibility Ã¢ÂÂ 10 minutes of writing now equals weeks of reach"},
     ]
 }
 
-DEMO_COACHING = """You are showing up, which is more than most people do â but showing up
+DEMO_COACHING = """You are showing up, which is more than most people do Ã¢ÂÂ but showing up
 isn't enough anymore. Your 7-day completion rate of 62% tells a specific story:
 you start strong on Mondays, stall mid-week, then sprint on Fridays trying to
 catch up. That is not a motivation problem. That is a planning problem.
 
-The pattern holding you back is task inflation â you are consistently
+The pattern holding you back is task inflation Ã¢ÂÂ you are consistently
 over-scheduling yourself by 40%, then feeling like a failure when you cannot
 finish. Your brain is lying to you about how long things take.
 
-Here is what you have not considered: the tasks you keep deferring are not hard â
+Here is what you have not considered: the tasks you keep deferring are not hard Ã¢ÂÂ
 they are ambiguous. "Work on pitch deck" is not a task. It is a category. That is
 why it keeps getting skipped.
 
@@ -2529,9 +2627,9 @@ DEMO_HABITS_DATA = {
 }
 
 
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 # ARTEMIS PAGE GENERATOR (full-page chat UI)
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 class ArtemisPageGenerator:
     """Generates the full-screen Artemis AI chat page."""
@@ -2544,7 +2642,7 @@ class ArtemisPageGenerator:
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Artemis â Helion AI</title>
+  <title>Artemis Ã¢ÂÂ Helion AI</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
 *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0;}}
@@ -2755,7 +2853,7 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
       <div class="suggestion-chips">
         <div class="chip" onclick="sendChip(this)">What should I focus on today?</div>
         <div class="chip" onclick="sendChip(this)">Where am I falling behind?</div>
-        <div class="chip" onclick="sendChip(this)">I'm stuck â help me think through this</div>
+        <div class="chip" onclick="sendChip(this)">I'm stuck Ã¢ÂÂ help me think through this</div>
         <div class="chip" onclick="sendChip(this)">Give me an honest assessment</div>
         <div class="chip" onclick="sendChip(this)">Help me plan my next 7 days</div>
       </div>
@@ -2890,9 +2988,9 @@ async function sendMessage() {{
 </body>
 </html>"""
 
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 # ORCHESTRATOR
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 class LifeOSOrchestrator:
     def __init__(self, api_key: str, username: str = None):
@@ -2954,9 +3052,9 @@ class LifeOSOrchestrator:
         print(f"\nCheck-in recorded. Completion: {int(rate*100)}%")
 
 
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 # HTTP SERVER
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 class LifeOSServer(http.server.SimpleHTTPRequestHandler):
 
@@ -3021,7 +3119,7 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
 
         return plan, coaching, replan
 
-    # ââ GET handlers âââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    # Ã¢ÂÂÃ¢ÂÂ GET handlers Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
     def do_GET(self):
         path = urllib.parse.urlparse(self.path).path
@@ -3093,7 +3191,7 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
             })
             return
 
-        # ââ Google OAuth ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+        # Ã¢ÂÂÃ¢ÂÂ Google OAuth Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
         if path == "/auth/google":
             cid    = os.environ.get("GOOGLE_CLIENT_ID", "")
             host   = self.headers.get("Host", "localhost")
@@ -3148,13 +3246,13 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
         self.send_response(404)
         self.end_headers()
 
-    # ââ POST handlers ââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    # Ã¢ÂÂÃ¢ÂÂ POST handlers Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
     def do_POST(self):
         path = urllib.parse.urlparse(self.path).path
         body = self._body()
 
-        # ââ Auth ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+        # Ã¢ÂÂÃ¢ÂÂ Auth Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
         if path == "/api/auth/login":
             try:
@@ -3197,7 +3295,7 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
                 self._json({"success": False, "error": str(e)})
             return
 
-        # ââ All other endpoints require auth ââââââââââââââââââââââââââââââ
+        # Ã¢ÂÂÃ¢ÂÂ All other endpoints require auth Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
         user = self._user()
         if not user and path not in ("/api/auth/login", "/api/auth/register"):
@@ -3221,7 +3319,7 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
                 self._json({"success": False, "error": str(e)})
             return
 
-        # ââ Goals management ââââââââââââââââââââââââââââââââââââââââââââââ
+        # Ã¢ÂÂÃ¢ÂÂ Goals management Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
         if path == "/api/goals/add":
             try:
@@ -3255,7 +3353,7 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
                 self._json({"success": False, "error": str(e)})
             return
 
-        # ââ Plan generation âââââââââââââââââââââââââââââââââââââââââââââââ
+        # Ã¢ÂÂÃ¢ÂÂ Plan generation Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
         if path == "/api/plan/generate":
             api_key = get_api_key()
@@ -3298,12 +3396,12 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
                 self._json({"success": False, "error": str(e)})
             return
 
-        # ââ Artemis Chat ââââââââââââââââââââââââââââââââââââââââââââââââââ
+        # Ã¢ÂÂÃ¢ÂÂ Artemis Chat Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
         if path == "/api/chat":
             api_key = get_api_key()
             if not api_key:
-                self._json({"reply": "I'm not available right now â the API key is not configured on this server."})
+                self._json({"reply": "I'm not available right now Ã¢ÂÂ the API key is not configured on this server."})
                 return
             try:
                 d        = json.loads(body)
@@ -3346,13 +3444,13 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
 
 
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 # SETUP WIZARD (CLI only)
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 def run_setup():
     print("\n" + "="*50)
-    print("   Helion AI â Setup Wizard")
+    print("   Helion AI Ã¢ÂÂ Setup Wizard")
     print("="*50 + "\n")
 
     api_key = input("Enter your Anthropic API key (sk-ant-...): ").strip()
@@ -3387,13 +3485,13 @@ def run_setup():
     print("Run: python3 life_os_agent.py --run\n")
 
 
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 # CLI ENTRYPOINT
-# âââââââââââââââââââââââââââââââââââââââââââââ
+# Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Helion AI â Execution Environment (v4)",
+        description="Helion AI Ã¢ÂÂ Execution Environment (v4)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""Examples:
   python3 life_os_agent.py --setup          First-time setup
@@ -3462,7 +3560,7 @@ def main():
             print("\nServer stopped.")
         return
 
-    # Real mode â need API key
+    # Real mode Ã¢ÂÂ need API key
     api_key = (API_KEY_FILE.read_text().strip() if API_KEY_FILE.exists()
                else os.environ.get("ANTHROPIC_API_KEY", ""))
 
