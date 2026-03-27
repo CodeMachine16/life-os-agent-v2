@@ -36,7 +36,10 @@ import urllib.parse
 # ─────────────────────────────────────────────
 
 BASE_DIR = Path(__file__).parent
-DATA_DIR  = Path(os.environ.get("DATA_PATH", str(BASE_DIR / "data")))
+# On Railway, use /data (persistent volume mount point) unless overridden.
+# Set up a volume in Railway dashboard mounted at /data.
+_on_railway = bool(os.environ.get("RAILWAY_ENVIRONMENT") or os.environ.get("RAILWAY_PROJECT_ID"))
+DATA_DIR = Path(os.environ.get("DATA_PATH", "/data" if _on_railway else str(BASE_DIR / "data")))
 
 GOALS_FILE     = BASE_DIR / "goals.json"
 MEMORY_FILE    = BASE_DIR / "memory.json"
@@ -572,6 +575,502 @@ class SessionManager:
 
 
 # ─────────────────────────────────────────────
+# LANDING PAGE GENERATOR
+# ─────────────────────────────────────────────
+
+class LandingPageGenerator:
+    @staticmethod
+    def generate() -> str:
+        return """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Helion AI — Your Personal Execution Engine</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --night:#050c1a;--deep:#081428;--sky:#eaf3ff;
+      --accent:#5aabdf;--text:#ffffff;--muted:rgba(255,255,255,0.52);
+      --sans:'Inter',system-ui,sans-serif;--serif:'Playfair Display',Georgia,serif;
+    }
+    html{scroll-behavior:smooth;}
+    body{font-family:var(--sans);background:var(--night);color:var(--text);overflow-x:hidden;}
+
+    /* NAV */
+    nav{
+      position:fixed;top:0;left:0;right:0;z-index:100;
+      padding:18px 48px;
+      display:flex;align-items:center;justify-content:space-between;
+      transition:background .4s,backdrop-filter .4s,border-color .4s;
+      border-bottom:1px solid transparent;
+    }
+    nav.scrolled{
+      background:rgba(5,12,26,0.88);
+      backdrop-filter:blur(20px);
+      border-bottom-color:rgba(90,171,223,0.1);
+    }
+    .nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+    .nav-logo-text{font-size:13px;font-weight:600;letter-spacing:.10em;text-transform:uppercase;color:#fff;}
+    .nav-links{display:flex;gap:30px;align-items:center;}
+    .nav-links a{color:var(--muted);text-decoration:none;font-size:13px;transition:color .2s;letter-spacing:.02em;}
+    .nav-links a:hover{color:var(--text);}
+    .nav-cta{
+      background:rgba(90,171,223,0.12);border:1px solid rgba(90,171,223,0.28);
+      color:var(--accent);padding:8px 20px;border-radius:4px;
+      font-size:13px;font-weight:500;cursor:pointer;text-decoration:none;
+      transition:all .2s;
+    }
+    .nav-cta:hover{background:rgba(90,171,223,0.22);color:#fff;border-color:rgba(90,171,223,0.5);}
+
+    /* HERO */
+    .hero{
+      min-height:100vh;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:120px 40px 80px;text-align:center;position:relative;overflow:hidden;
+    }
+    .hero-bg{
+      position:absolute;inset:0;z-index:0;
+      background:
+        radial-gradient(ellipse 70% 60% at 50% 35%,rgba(90,171,223,0.13) 0%,transparent 100%),
+        radial-gradient(ellipse 50% 40% at 20% 75%,rgba(60,110,220,0.08) 0%,transparent 100%),
+        radial-gradient(ellipse 40% 35% at 80% 15%,rgba(40,90,200,0.06) 0%,transparent 100%);
+      transition:transform .1s linear;
+    }
+    .hero-stars{
+      position:absolute;inset:0;z-index:0;pointer-events:none;
+      background-image:
+        radial-gradient(1px 1px at 15% 10%,rgba(255,255,255,0.7) 0%,transparent 100%),
+        radial-gradient(1px 1px at 72% 8%,rgba(255,255,255,0.5) 0%,transparent 100%),
+        radial-gradient(1.5px 1.5px at 40% 22%,rgba(255,255,255,0.6) 0%,transparent 100%),
+        radial-gradient(1px 1px at 88% 30%,rgba(255,255,255,0.4) 0%,transparent 100%),
+        radial-gradient(1px 1px at 55% 5%,rgba(255,255,255,0.5) 0%,transparent 100%),
+        radial-gradient(1.5px 1.5px at 30% 40%,rgba(255,255,255,0.3) 0%,transparent 100%),
+        radial-gradient(1px 1px at 65% 18%,rgba(255,255,255,0.6) 0%,transparent 100%),
+        radial-gradient(1px 1px at 8% 55%,rgba(255,255,255,0.4) 0%,transparent 100%),
+        radial-gradient(1.5px 1.5px at 92% 12%,rgba(255,255,255,0.5) 0%,transparent 100%),
+        radial-gradient(1px 1px at 48% 35%,rgba(255,255,255,0.3) 0%,transparent 100%);
+    }
+    .hero-label{
+      font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);
+      margin-bottom:22px;position:relative;z-index:1;
+      opacity:0;transform:translateY(18px);
+      transition:opacity .9s .15s,transform .9s .15s;
+    }
+    .hero-title{
+      font-family:var(--serif);font-size:clamp(56px,9vw,118px);font-weight:700;
+      line-height:1.0;letter-spacing:-.02em;
+      background:linear-gradient(145deg,#ffffff 0%,#c8dff8 45%,#5aabdf 100%);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      margin-bottom:26px;position:relative;z-index:1;
+      opacity:0;transform:translateY(32px);
+      transition:opacity 1.1s .35s,transform 1.1s .35s;
+    }
+    .hero-sub{
+      font-size:clamp(16px,2.2vw,21px);color:var(--muted);font-weight:300;
+      max-width:580px;line-height:1.65;margin-bottom:52px;
+      position:relative;z-index:1;
+      opacity:0;transform:translateY(20px);
+      transition:opacity .9s .65s,transform .9s .65s;
+    }
+    .hero-ctas{
+      display:flex;gap:14px;justify-content:center;flex-wrap:wrap;
+      position:relative;z-index:1;
+      opacity:0;transform:translateY(18px);
+      transition:opacity .8s .95s,transform .8s .95s;
+    }
+    .btn-primary{
+      background:linear-gradient(135deg,#5aabdf 0%,#3a8bc4 100%);
+      border:none;color:#fff;padding:15px 34px;
+      border-radius:4px;font-size:15px;font-weight:500;font-family:var(--sans);
+      cursor:pointer;text-decoration:none;
+      transition:transform .25s,box-shadow .25s;
+      box-shadow:0 4px 28px rgba(90,171,223,0.32);letter-spacing:.02em;
+    }
+    .btn-primary:hover{transform:translateY(-3px);box-shadow:0 10px 36px rgba(90,171,223,0.44);}
+    .btn-secondary{
+      background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);
+      color:var(--text);padding:15px 34px;
+      border-radius:4px;font-size:15px;font-weight:400;font-family:var(--sans);
+      cursor:pointer;text-decoration:none;
+      transition:all .25s;letter-spacing:.02em;
+    }
+    .btn-secondary:hover{background:rgba(255,255,255,0.10);border-color:rgba(255,255,255,0.28);}
+    .hero-badge{
+      position:relative;z-index:1;margin-top:60px;
+      display:inline-flex;align-items:center;gap:9px;
+      background:rgba(90,171,223,0.07);border:1px solid rgba(90,171,223,0.18);
+      border-radius:24px;padding:9px 20px;
+      font-size:12px;color:var(--accent);letter-spacing:.04em;
+      opacity:0;transform:translateY(10px);
+      transition:opacity .7s 1.35s,transform .7s 1.35s;
+    }
+    .badge-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:bdpulse 2s infinite;}
+    @keyframes bdpulse{0%,100%{opacity:1;}50%{opacity:.25;}}
+
+    /* LOADED */
+    .loaded .hero-label,.loaded .hero-title,.loaded .hero-sub,
+    .loaded .hero-ctas,.loaded .hero-badge{opacity:1;transform:translateY(0);}
+
+    /* SCROLL REVEAL */
+    .reveal{opacity:0;transform:translateY(44px);transition:opacity .85s,transform .85s;}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    .d1{transition-delay:.08s;}.d2{transition-delay:.18s;}.d3{transition-delay:.28s;}.d4{transition-delay:.38s;}
+
+    /* SECTIONS */
+    section{padding:110px 48px;}
+    .container{max-width:1040px;margin:0 auto;}
+
+    /* FEATURE SECTION */
+    .section-label{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
+    .section-title{font-family:var(--serif);font-size:clamp(30px,4.5vw,50px);font-weight:700;line-height:1.15;margin-bottom:18px;color:#fff;}
+    .section-sub{font-size:17px;color:var(--muted);line-height:1.65;max-width:560px;}
+
+    .feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:64px;}
+    @media(max-width:800px){.feature-grid{grid-template-columns:1fr;}}
+    @media(min-width:480px) and (max-width:800px){.feature-grid{grid-template-columns:1fr 1fr;}}
+    .feature-card{
+      background:rgba(255,255,255,0.03);border:1px solid rgba(90,171,223,0.10);
+      border-radius:8px;padding:32px 28px;
+      transition:background .25s,border-color .25s,transform .3s;
+    }
+    .feature-card:hover{
+      background:rgba(90,171,223,0.055);border-color:rgba(90,171,223,0.22);
+      transform:translateY(-5px);
+    }
+    .feature-icon{
+      width:42px;height:42px;border-radius:7px;
+      background:rgba(90,171,223,0.11);border:1px solid rgba(90,171,223,0.2);
+      display:flex;align-items:center;justify-content:center;
+      font-size:19px;margin-bottom:20px;color:var(--accent);
+    }
+    .feature-name{font-size:15px;font-weight:600;margin-bottom:10px;color:#fff;letter-spacing:-.01em;}
+    .feature-desc{font-size:13.5px;color:var(--muted);line-height:1.65;}
+
+    /* ARTEMIS SECTION */
+    .artemis-section{
+      background:rgba(255,255,255,0.018);
+      border-top:1px solid rgba(90,171,223,0.08);
+      border-bottom:1px solid rgba(90,171,223,0.08);
+    }
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
+    @media(max-width:800px){.split{grid-template-columns:1fr;gap:40px;}}
+    .chat-mockup{
+      background:rgba(8,20,40,0.95);border:1px solid rgba(90,171,223,0.15);
+      border-radius:10px;padding:24px;
+      box-shadow:0 24px 80px rgba(0,0,0,0.5),0 0 0 1px rgba(90,171,223,0.06);
+    }
+    .mock-header{display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(90,171,223,0.1);}
+    .mock-dot{width:8px;height:8px;border-radius:50%;background:#10b981;animation:bdpulse 2s infinite;}
+    .mock-name{font-size:13px;font-weight:600;color:#fff;letter-spacing:.02em;}
+    .mock-badge{font-size:10px;background:rgba(90,171,223,0.14);color:var(--accent);border:1px solid rgba(90,171,223,0.22);border-radius:10px;padding:2px 8px;letter-spacing:.04em;}
+    .mock-msg{display:flex;gap:10px;align-items:flex-start;margin-bottom:14px;}
+    .mock-msg.user{flex-direction:row-reverse;}
+    .mock-av{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+    .av-bot{background:rgba(90,171,223,0.16);border:1px solid rgba(90,171,223,0.22);color:var(--accent);}
+    .av-user{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:var(--muted);}
+    .mock-bubble{padding:10px 14px;border-radius:6px;font-size:12.5px;line-height:1.55;max-width:calc(100% - 40px);}
+    .bubble-bot{background:rgba(15,38,85,0.8);border:1px solid rgba(90,171,223,0.12);color:#e8f4ff;}
+    .bubble-user{background:rgba(90,171,223,0.11);border:1px solid rgba(90,171,223,0.18);color:#c8dff8;}
+
+    /* FREE SECTION */
+    .free-section{
+      background:linear-gradient(145deg,rgba(90,171,223,0.07) 0%,rgba(60,120,200,0.07) 100%);
+      border-top:1px solid rgba(90,171,223,0.12);
+      border-bottom:1px solid rgba(90,171,223,0.12);
+      text-align:center;padding:110px 40px;
+    }
+    .free-pill{
+      display:inline-block;background:rgba(90,171,223,0.13);
+      border:1px solid rgba(90,171,223,0.28);
+      border-radius:24px;padding:7px 22px;
+      font-size:11px;color:var(--accent);letter-spacing:.12em;
+      text-transform:uppercase;margin-bottom:32px;
+    }
+    .free-price{font-family:var(--serif);font-size:80px;font-weight:700;color:#fff;line-height:1;}
+    .free-price sup{font-size:28px;vertical-align:super;padding-top:10px;}
+
+    /* CTA SECTION */
+    .cta-section{text-align:center;padding:120px 40px;}
+    .cta-card{
+      background:radial-gradient(ellipse 80% 80% at 50% 50%,rgba(90,171,223,0.10) 0%,transparent 100%);
+      border:1px solid rgba(90,171,223,0.14);
+      border-radius:14px;padding:90px 40px;
+      max-width:740px;margin:0 auto;
+    }
+
+    /* HOW IT WORKS */
+    .steps{display:flex;flex-direction:column;gap:0;margin-top:60px;max-width:620px;}
+    .step{display:flex;gap:24px;align-items:flex-start;padding:28px 0;border-bottom:1px solid rgba(90,171,223,0.08);}
+    .step:last-child{border-bottom:none;}
+    .step-num{
+      font-family:var(--serif);font-size:36px;font-weight:700;color:rgba(90,171,223,0.25);
+      line-height:1;flex-shrink:0;width:44px;
+    }
+    .step-content h3{font-size:16px;font-weight:600;color:#fff;margin-bottom:7px;}
+    .step-content p{font-size:14px;color:var(--muted);line-height:1.6;}
+
+    /* FOOTER */
+    footer{border-top:1px solid rgba(255,255,255,0.05);padding:40px 48px;
+           display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+    .footer-brand{display:flex;align-items:center;gap:10px;}
+    .footer-text{font-size:12px;color:rgba(255,255,255,0.22);}
+    .footer-links{display:flex;gap:22px;}
+    .footer-links a{font-size:12px;color:rgba(255,255,255,0.22);text-decoration:none;transition:color .2s;}
+    .footer-links a:hover{color:rgba(255,255,255,0.5);}
+
+    @media(max-width:600px){
+      nav{padding:16px 20px;}
+      section{padding:80px 20px;}
+      .hero{padding:100px 20px 60px;}
+      footer{padding:32px 20px;flex-direction:column;align-items:center;text-align:center;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <a href="/" class="nav-brand">
+    <svg width="44" height="28" viewBox="0 0 100 62" fill="none">
+      <circle cx="35" cy="11" r="5.5" stroke="#5aabdf" stroke-width="1.9"/>
+      <path d="M1,58 C8,44 20,31 35,24 C43,28 51,34 57,38 C61,32 65,27 69,27 C77,33 88,40 99,50"
+            stroke="#5aabdf" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="nav-logo-text">Helion <strong>AI</strong></span>
+  </a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#artemis">Artemis</a>
+    <a href="#how">How It Works</a>
+    <a href="#free">Pricing</a>
+    <a href="/login" class="nav-cta">Sign In</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-stars"></div>
+  <p class="hero-label">Personal AI Execution Engine</p>
+  <h1 class="hero-title">Helion AI</h1>
+  <p class="hero-sub">Set goals. Build a plan. Stay on track.<br>Powered by Claude AI, designed for people who want to get things done.</p>
+  <div class="hero-ctas">
+    <a href="/login" class="btn-primary">Get Started &mdash; It&rsquo;s Free</a>
+    <a href="#features" class="btn-secondary">See How It Works</a>
+  </div>
+  <div class="hero-badge">
+    <span class="badge-dot"></span>
+    Free during early access &mdash; no credit card needed
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="container">
+    <p class="section-label reveal">Built for Achievers</p>
+    <h2 class="section-title reveal d1">Everything you need to<br>execute on your goals</h2>
+    <p class="section-sub reveal d2">Helion AI combines goal tracking, AI-generated daily plans, habit management, and personalized coaching in one seamless platform.</p>
+    <div class="feature-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon">&#9678;</div>
+        <div class="feature-name">Goal Engine</div>
+        <div class="feature-desc">Define your goals with clarity. Set deadlines, break them into milestones, and let AI keep you accountable every step of the way.</div>
+      </div>
+      <div class="feature-card reveal d1">
+        <div class="feature-icon">&#9638;</div>
+        <div class="feature-name">Daily Planning</div>
+        <div class="feature-desc">AI-generated daily action plans tailored to your specific goals. Know exactly what to focus on each morning &mdash; no guesswork.</div>
+      </div>
+      <div class="feature-card reveal d2">
+        <div class="feature-icon">&#11013;</div>
+        <div class="feature-name">Artemis AI Coach</div>
+        <div class="feature-desc">Your personal AI assistant that knows your goals, tracks progress, and helps you break through blockers in real time.</div>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">&#9670;</div>
+        <div class="feature-name">Habit Tracking</div>
+        <div class="feature-desc">Build the habits that compound into results. Track streaks, completion rates, and momentum across weeks and months.</div>
+      </div>
+      <div class="feature-card reveal d1">
+        <div class="feature-icon">&#9685;</div>
+        <div class="feature-name">Progress Dashboard</div>
+        <div class="feature-desc">A real-time dashboard showing your task completion, streaks, and goal progress &mdash; everything you need at a single glance.</div>
+      </div>
+      <div class="feature-card reveal d2">
+        <div class="feature-icon">&#9673;</div>
+        <div class="feature-name">Smart Coaching</div>
+        <div class="feature-desc">Receive honest assessments and proactive re-plans when life gets in the way. Your AI chief of staff, always in your corner.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARTEMIS AI -->
+<section class="artemis-section" id="artemis">
+  <div class="container">
+    <div class="split">
+      <div>
+        <p class="section-label reveal">Meet Artemis</p>
+        <h2 class="section-title reveal d1">Your AI that<br>actually knows you</h2>
+        <p class="section-sub reveal d2">Unlike generic chatbots, Artemis is built into your personal context. She knows your goals, your plans, your progress &mdash; and coaches you accordingly.</p>
+        <div class="reveal d3" style="margin-top:38px;">
+          <a href="/login" class="btn-primary">Talk to Artemis</a>
+        </div>
+      </div>
+      <div class="reveal d2">
+        <div class="chat-mockup">
+          <div class="mock-header">
+            <span class="mock-dot"></span>
+            <span class="mock-name">Artemis</span>
+            <span class="mock-badge">HELION AI</span>
+          </div>
+          <div class="mock-msg">
+            <div class="mock-av av-bot">A</div>
+            <div class="mock-bubble bubble-bot">Hello! I can see your goal is to launch your MVP by May. You&rsquo;ve completed 3 of today&rsquo;s 5 tasks &mdash; great momentum. What&rsquo;s blocking you on the last two?</div>
+          </div>
+          <div class="mock-msg user">
+            <div class="mock-av av-user">You</div>
+            <div class="mock-bubble bubble-user">I keep getting stuck on the onboarding flow design.</div>
+          </div>
+          <div class="mock-msg">
+            <div class="mock-av av-bot">A</div>
+            <div class="mock-bubble bubble-bot">Let&rsquo;s simplify it. What&rsquo;s the single most important thing a new user needs to understand in 30 seconds? Start there and ship it &mdash; you can iterate after launch.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="container">
+    <p class="section-label reveal">Simple &amp; Powerful</p>
+    <h2 class="section-title reveal d1">How Helion AI works</h2>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">01</div>
+        <div class="step-content">
+          <h3>Set your goals</h3>
+          <p>Add your goals with deadlines. Helion AI structures them into achievable milestones and tracks your progress automatically.</p>
+        </div>
+      </div>
+      <div class="step reveal d1">
+        <div class="step-num">02</div>
+        <div class="step-content">
+          <h3>Get your daily plan</h3>
+          <p>Each day, generate an AI action plan tailored to your goals and current progress. Know exactly what to do and in what order.</p>
+        </div>
+      </div>
+      <div class="step reveal d2">
+        <div class="step-num">03</div>
+        <div class="step-content">
+          <h3>Execute with Artemis</h3>
+          <p>When you get stuck, Artemis is there. Ask for advice, get re-plans, or just think through your blockers with an AI that knows your context.</p>
+        </div>
+      </div>
+      <div class="step reveal d3">
+        <div class="step-num">04</div>
+        <div class="step-content">
+          <h3>Track &amp; improve</h3>
+          <p>Monitor your streak, completion rate, and habit data on your dashboard. Watch your progress compound over time.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FREE / PRICING -->
+<section class="free-section" id="free">
+  <div class="container">
+    <div class="free-pill reveal">Early Access</div>
+    <p class="section-label reveal">Pricing</p>
+    <div class="free-price reveal d1"><sup>$</sup>0</div>
+    <p style="font-size:19px;color:var(--muted);margin-top:18px;font-weight:300;" class="reveal d2">Completely free during early stages.</p>
+    <p style="font-size:14px;color:rgba(255,255,255,0.28);margin-top:14px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.65;" class="reveal d3">
+      Helion AI is currently in early access. All features &mdash; AI planning, Artemis coaching, habit tracking, and the full dashboard &mdash; are available at no cost while we build and improve the platform.
+    </p>
+    <div style="margin-top:48px;" class="reveal d4">
+      <a href="/login" class="btn-primary" style="font-size:15px;padding:15px 36px;">Create Your Free Account</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-card">
+    <h2 class="section-title reveal" style="font-size:clamp(28px,4vw,46px);">Ready to execute<br>on your goals?</h2>
+    <p class="section-sub reveal d1" style="margin:18px auto 44px;text-align:center;max-width:480px;">
+      Join Helion AI today. Set your goals, get your plan, and start making real progress &mdash; free, right now.
+    </p>
+    <div class="reveal d2">
+      <a href="/login" class="btn-primary" style="font-size:16px;padding:16px 44px;">Get Started Free</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    <svg width="36" height="23" viewBox="0 0 100 62" fill="none">
+      <circle cx="35" cy="11" r="5.5" stroke="rgba(90,171,223,0.5)" stroke-width="1.9"/>
+      <path d="M1,58 C8,44 20,31 35,24 C43,28 51,34 57,38 C61,32 65,27 69,27 C77,33 88,40 99,50"
+            stroke="rgba(90,171,223,0.5)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="footer-text" style="font-weight:500;letter-spacing:.06em;">HELION AI</span>
+  </div>
+  <div class="footer-text">&copy; 2026 Helion AI &mdash; Powered by Claude AI</div>
+  <div class="footer-links">
+    <a href="/login">Sign In</a>
+    <a href="/login">Create Account</a>
+  </div>
+</footer>
+
+<script>
+// Nav scroll effect
+window.addEventListener('scroll', function() {
+  document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// Hero parallax
+window.addEventListener('scroll', function() {
+  var y = window.scrollY;
+  var bg = document.getElementById('heroBg');
+  if (bg) bg.style.transform = 'translateY(' + (y * 0.28) + 'px)';
+}, { passive: true });
+
+// Trigger hero load animations
+window.addEventListener('load', function() {
+  document.body.classList.add('loaded');
+});
+// Fallback: trigger after 100ms
+setTimeout(function() { document.body.classList.add('loaded'); }, 100);
+
+// Scroll reveal via IntersectionObserver
+(function() {
+  var els = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window)) {
+    els.forEach(function(el) { el.classList.add('visible'); });
+    return;
+  }
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  els.forEach(function(el) { obs.observe(el); });
+})();
+</script>
+</body>
+</html>"""
+
+
+# ─────────────────────────────────────────────
 # LOGIN PAGE GENERATOR
 # ─────────────────────────────────────────────
 
@@ -644,15 +1143,15 @@ class LoginPageGenerator:
   <form onsubmit="go(event)">
     <div class="field signup-only" id="fn">
       <label>Your Name</label>
-      <input type="text" id="display_name" placeholder="e.g. Akshat" autocomplete="name"/>
+      <input type="text" id="display_name" placeholder="e.g. Alex" autocomplete="name"/>
     </div>
     <div class="field signup-only" id="ef">
       <label>Email</label>
-      <input type="email" id="email" placeholder="e.g. akshat@example.com" autocomplete="email"/>
+      <input type="email" id="email" placeholder="e.g. user@example.com" autocomplete="email"/>
     </div>
     <div class="field">
       <label>Username</label>
-      <input type="text" id="username" placeholder="e.g. akshat" required autocomplete="username" autocapitalize="none"/>
+      <input type="text" id="username" placeholder="e.g. username" required autocomplete="username" autocapitalize="none"/>
     </div>
     <div class="field">
       <label>Password</label>
@@ -1843,7 +2342,7 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
 
 /* Input bar */
 .input-bar{{
-  padding:16px 10%;padding-bottom:300px;
+  padding:16px 10% 24px;
   background:transparent;flex-shrink:0;
 }}
 .input-wrap{{
@@ -1859,7 +2358,7 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
   resize:none;line-height:1.5;max-height:180px;min-height:24px;
   overflow-y:auto;
 }}
-.chat-input::placeholder{color:rgba(255,255,255,.5);}{{color:#111111;}}
+.chat-input::placeholder{{color:rgba(255,255,255,.5);}}
 .send-btn{{
   flex-shrink:0;width:36px;height:36px;border-radius:6px;
   background:rgba(90,171,223,.18);border:1px solid rgba(90,171,223,.3);
@@ -2213,6 +2712,13 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
         user = self._user()
 
         if path == "/":
+            if user:
+                self._redir("/dashboard")
+            else:
+                self._html(LandingPageGenerator.generate())
+            return
+
+        if path == "/login":
             if user:
                 self._redir("/dashboard")
             else:
