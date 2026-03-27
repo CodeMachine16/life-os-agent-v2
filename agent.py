@@ -11,7 +11,7 @@ New in v4:
   /api/goals/add       -> Add goals via UI
   /api/goals/remove    -> Remove goals via UI
   /api/plan/generate   -> Generate AI action plan from goals
-  /api/chat            -> Artemis multi-turn cha
+  /api/chat            -> Artemis multi-turn chat
 """
 
 import json
@@ -1338,7 +1338,7 @@ async function submitGoal() {{
   if (!title) {{ errEl.textContent = 'Please enter a goal title.'; return; }}
   const btn = document.getElentById('addGoalBtn');
   btn.disabled = true; btn.textContent = 'Adding...'; errEl.textContent = '';
-  try {
+  try {{
     const r = await fetch('/api/goals/add', {{
       method: 'POST',
       headers: {{'Content-Type': 'application/json'}},
