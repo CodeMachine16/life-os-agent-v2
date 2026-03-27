@@ -1303,141 +1303,107 @@ setTimeout(triggerHero, 120);
   var ctx = canvas.getContext('2d');
   var W, H, dpr = window.devicePixelRatio || 1;
   var progress = 0, targetProgress = 0, animId = null;
-  var flakes = [];
-  for (var fi = 0; fi < 160; fi++) {
-    flakes.push({x:Math.random(),y:Math.random(),r:0.4+Math.random()*1.8,sp:0.0002+Math.random()*0.0006,dr:(Math.random()-0.5)*0.0003,op:0.4+Math.random()*0.6});
-  }
+
+  // Stars
   var stars = [];
-  for (var si = 0; si < 200; si++) {
-    stars.push({x:Math.random(),y:Math.random()*0.6,r:0.3+Math.random()*1.2,tw:Math.random()*Math.PI*2});
+  for (var si = 0; si < 80; si++) {
+    stars.push({x: Math.random(), y: Math.random() * 0.6, r: 0.5 + Math.random() * 1.2, op: 0.4 + Math.random() * 0.6});
   }
+
+  // Minimal mountain layers — all peaks >= 0.65 (bottom 35% only)
+  var layers = [
+    // back ridge — very gentle
+    {pts: [[0,0.82],[0.15,0.75],[0.30,0.72],[0.45,0.68],[0.55,0.70],[0.70,0.74],[0.85,0.78],[1.0,0.82]], col: '#1a2535', par: 0.015},
+    // mid ridge
+    {pts: [[0,0.88],[0.10,0.82],[0.22,0.78],[0.35,0.72],[0.48,0.74],[0.60,0.70],[0.72,0.75],[0.85,0.80],[1.0,0.88]], col: '#0f1c2d', par: 0.025},
+    // front ridge
+    {pts: [[0,0.95],[0.12,0.88],[0.25,0.82],[0.40,0.78],[0.52,0.76],[0.65,0.80],[0.78,0.85],[1.0,0.95]], col: '#0a1520', par: 0.04},
+  ];
+
   function resize() {
     W = canvas.offsetWidth; H = canvas.offsetHeight;
-    canvas.width = W*dpr; canvas.height = H*dpr; ctx.scale(dpr,dpr);
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    ctx.scale(dpr, dpr);
   }
-  function lerp(a,b,t) { return a+(b-a)*t; }
-  function clamp(v,lo,hi) { return v<lo?lo:v>hi?hi:v; }
-  function lc(c1,c2,t) {
-    var fn=function(c,o){return parseInt(c.slice(o,o+2),16);};
-    return 'rgb('+Math.round(fn(c1,1)+(fn(c2,1)-fn(c1,1))*t)+','+Math.round(fn(c1,3)+(fn(c2,3)-fn(c1,3))*t)+','+Math.round(fn(c1,5)+(fn(c2,5)-fn(c1,5))*t)+')';
-  }
-  var skyt=['#020912','#040f22','#091830','#122040','#1e3060','#2d4a80','#4060a0'];
-  var skyh=['#020912','#091830','#162848','#223870','#3a5898','#5070b8','#7898d0'];
-  function getSky(p) {
-    var n=skyt.length-1,i=p*n,lo=Math.floor(i),hi=Math.min(lo+1,n),t=i-lo;
-    return {top:lc(skyt[lo],skyt[hi],t),bot:lc(skyh[lo],skyh[hi],t)};
-  }
-  var layers = [
-    {pts:[[0,.92],[.04,.80],[.10,.84],[.16,.72],[.22,.76],[.28,.62],[.33,.68],[.38,.50],[.42,.55],[.46,.42],[.50,.40],[.54,.43],[.58,.49],[.63,.56],[.68,.62],[.74,.57],[.80,.68],[.86,.74],[.92,.70],[1,.78],[1,.92]],dk:'#0c1828',lt:'#162438',par:.06,ss:0},
-    {pts:[[0,.94],[.06,.82],[.12,.86],[.18,.76],[.25,.80],[.32,.68],[.38,.74],[.44,.62],[.50,.65],[.56,.60],[.62,.66],[.68,.62],[.74,.70],[.80,.66],[.86,.75],[.92,.72],[1,.82],[1,.94]],dk:'#111e30',lt:'#1a2d45',par:.035,ss:.18},
-    {pts:[[0,.95],[.07,.85],[.14,.88],[.20,.81],[.28,.85],[.34,.77],[.40,.81],[.48,.74],[.54,.78],[.60,.73],[.66,.77],[.72,.71],[.78,.76],[.84,.73],[.90,.79],[.96,.76],[1,.85],[1,.95]],dk:'#162232',lt:'#203248',par:.018,ss:.30},
-    {pts:[[0,.97],[.08,.89],[.16,.91],[.24,.87],[.32,.90],[.40,.86],[.48,.89],[.56,.85],[.62,.88],[.70,.84],[.78,.87],[.86,.84],[.94,.88],[1,.91],[1,.97]],dk:'#1c2c40',lt:'#283c55',par:.008,ss:.45}
-  ];
-  function drawRidge(L,p,sy) {
-    var t=clamp(p*1.5,0,1),col=lc(L.dk,L.lt,t),off=sy*L.par;
-    ctx.save();ctx.beginPath();
-    ctx.moveTo(L.pts[0][0]*W,L.pts[0][1]*H-off);
-    for(var i=1;i<L.pts.length-2;i++){
-      var mx=(L.pts[i][0]+L.pts[i+1][0])/2*W,my=(L.pts[i][1]+L.pts[i+1][1])/2*H-off;
-      ctx.quadraticCurveTo(L.pts[i][0]*W,L.pts[i][1]*H-off,mx,my);
+
+  function drawMountain(pts, offsetY, col) {
+    ctx.beginPath();
+    ctx.moveTo(0, H);
+    ctx.lineTo(pts[0][0] * W, pts[0][1] * H + offsetY * H);
+    for (var i = 1; i < pts.length; i++) {
+      var px = pts[i][0] * W, py = pts[i][1] * H + offsetY * H;
+      var cpx = (pts[i-1][0] + pts[i][0]) / 2 * W;
+      var cpy = (pts[i-1][1] + pts[i][1]) / 2 * H + offsetY * H;
+      ctx.quadraticCurveTo(cpx, cpy, px, py);
     }
-    ctx.lineTo(L.pts[L.pts.length-1][0]*W,L.pts[L.pts.length-1][1]*H-off);
-    ctx.closePath();ctx.fillStyle=col;ctx.fill();
-    var sa=clamp((p-L.ss)/0.30,0,1);
-    if(sa>0){
-      var peakI=0,minY=L.pts[0][1];
-      for(var j=1;j<L.pts.length-2;j++){if(L.pts[j][1]<minY){minY=L.pts[j][1];peakI=j;}}
-      var px=L.pts[peakI][0]*W,py=L.pts[peakI][1]*H-off,sr=W*(0.018+sa*0.025);
-      var sg=ctx.createRadialGradient(px,py-sr*0.4,0,px,py,sr);
-      sg.addColorStop(0,'rgba(255,255,255,'+(0.85*sa)+')');
-      sg.addColorStop(0.5,'rgba(230,242,255,'+(0.5*sa)+')');
-      sg.addColorStop(1,'rgba(200,225,255,0)');
-      ctx.beginPath();ctx.arc(px,py,sr,0,Math.PI*2);ctx.fillStyle=sg;ctx.fill();
+    ctx.lineTo(W, H); ctx.closePath();
+    ctx.fillStyle = col; ctx.fill();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    var p = progress;
+
+    // Sky gradient: deep navy → twilight blue
+    var sky = ctx.createLinearGradient(0, 0, 0, H);
+    var r1 = Math.round(6 + p * 14), g1 = Math.round(16 + p * 30), b1 = Math.round(30 + p * 60);
+    var r2 = Math.round(10 + p * 30), g2 = Math.round(25 + p * 55), b2 = Math.round(50 + p * 90);
+    sky.addColorStop(0, 'rgb('+r1+','+g1+','+b1+')');
+    sky.addColorStop(1, 'rgb('+r2+','+g2+','+b2+')');
+    ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+
+    // Stars fade out as progress increases
+    var starOp = Math.max(0, 1 - p * 2);
+    if (starOp > 0) {
+      stars.forEach(function(s) {
+        ctx.beginPath();
+        ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,' + (s.op * starOp) + ')';
+        ctx.fill();
+      });
     }
-    ctx.restore();
-  }
-  function drawSun(p) {
-    var sy=lerp(H*1.1,H*0.10,p),sx=W*0.50,sr=lerp(32,48,p),sa=clamp(p*2.5,0,1);
-    if(sa<0.01)return;
-    var gl=ctx.createRadialGradient(sx,sy,0,sx,sy,sr*4);
-    gl.addColorStop(0,'rgba(255,235,150,'+(sa*0.5)+')');
-    gl.addColorStop(0.5,'rgba(255,200,80,'+(sa*0.18)+')');
-    gl.addColorStop(1,'rgba(255,160,40,0)');
-    ctx.fillStyle=gl;ctx.fillRect(0,0,W,H);
-    var disk=ctx.createRadialGradient(sx,sy-sr*0.1,sr*0.05,sx,sy,sr);
-    disk.addColorStop(0,'rgba(255,252,220,'+sa+')');
-    disk.addColorStop(0.7,'rgba(255,220,110,'+sa+')');
-    disk.addColorStop(1,'rgba(255,190,70,'+sa+')');
-    ctx.beginPath();ctx.arc(sx,sy,sr,0,Math.PI*2);ctx.fillStyle=disk;ctx.fill();
-  }
-  function drawStars(p) {
-    var a=clamp(1-p*3.5,0,1);if(a<0.01)return;
-    var t=Date.now()*0.001;
-    stars.forEach(function(s){
-      var op=a*(0.4+0.6*Math.sin(t+s.tw));
-      ctx.beginPath();ctx.arc(s.x*W,s.y*H,s.r,0,Math.PI*2);
-      ctx.fillStyle='rgba(255,255,255,'+op+')';ctx.fill();
+
+    // Sun — rises from below horizon to near top
+    var sunX = W * 0.62;
+    var sunY = H * (0.85 - p * 0.60);
+    var sunR = 20 + p * 8;
+    var sunOp = Math.min(1, p * 2);
+    if (sunOp > 0) {
+      var glow = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunR * 3);
+      glow.addColorStop(0, 'rgba(255,220,120,' + sunOp + ')');
+      glow.addColorStop(1, 'rgba(255,180,60,0)');
+      ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, sunR, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,235,150,' + sunOp + ')';
+      ctx.fill();
+    }
+
+    // Mountain layers with parallax
+    layers.forEach(function(L) {
+      var off = L.par * p;
+      drawMountain(L.pts, -off, L.col);
     });
   }
-  function drawSnow(p) {
-    var sa=clamp((p-0.65)/0.18,0,1);if(sa<0.01)return;
-    flakes.forEach(function(f){
-      f.y+=f.sp;f.x+=f.dr;
-      if(f.y>1){f.y=-0.02;f.x=Math.random();}
-      if(f.x>1)f.x=0;if(f.x<0)f.x=1;
-      ctx.beginPath();ctx.arc(f.x*W,f.y*H,f.r,0,Math.PI*2);
-      ctx.fillStyle='rgba(255,255,255,'+(f.op*sa)+')';ctx.fill();
-    });
+
+  function animate() {
+    progress += (targetProgress - progress) * 0.06;
+    draw();
+    animId = requestAnimationFrame(animate);
   }
-  var lastTs=0;
-  function draw(ts) {
-    if(!W||!H)resize();
-    lastTs=ts;
-    progress+=(targetProgress-progress)*0.07;
-    var p=progress,sy=p*H*0.4;
-    var sky=getSky(p);
-    var bg=ctx.createLinearGradient(0,0,0,H);
-    bg.addColorStop(0,sky.top);bg.addColorStop(1,sky.bot);
-    ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
-    drawStars(p);drawSun(p);
-    layers.forEach(function(L){drawRidge(L,p,sy);});
-    drawSnow(p);
-    animId=requestAnimationFrame(draw);
-  }
+
   function onScroll() {
-    var rect=section.getBoundingClientRect();
-    var scrolled=window.innerHeight-rect.top;
-    var total=section.offsetHeight+window.innerHeight;
-    targetProgress=clamp(scrolled/total,0,1);
+    var rect = section.getBoundingClientRect();
+    var total = section.offsetHeight - window.innerHeight;
+    var scrolled = -rect.top;
+    targetProgress = Math.max(0, Math.min(1, scrolled / total));
   }
-  var obs=new IntersectionObserver(function(entries){
-    if(entries[0].isIntersecting){
-      if(!animId){lastTs=performance.now();animId=requestAnimationFrame(draw);}
-    } else {
-      if(animId){cancelAnimationFrame(animId);animId=null;}
-    }
-  },{threshold:0});
-  obs.observe(section);
-  window.addEventListener('scroll',onScroll,{passive:true});
-  window.addEventListener('resize',resize);
-  resize();onScroll();
-  if(!animId){lastTs=performance.now();animId=requestAnimationFrame(draw);}
-})();// ââ SCROLL REVEAL âââââââââââââââââââââââââââââââââââââââââââ
-(function() {
-  var els = document.querySelectorAll('.reveal');
-  if (!('IntersectionObserver' in window)) {
-    for (var i = 0; i < els.length; i++) els[i].classList.add('visible');
-    return;
-  }
-  var obs = new IntersectionObserver(function(entries) {
-    for (var i = 0; i < entries.length; i++) {
-      if (entries[i].isIntersecting) {
-        entries[i].target.classList.add('visible');
-        obs.unobserve(entries[i].target);
-      }
-    }
-  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
-  for (var i = 0; i < els.length; i++) obs.observe(els[i]);
+
+  resize();
+  window.addEventListener('resize', function() { resize(); draw(); });
+  window.addEventListener('scroll', onScroll, {passive: true});
+  onScroll();
+  animate();
 })();
 </script>
 </body>
