@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Helion AI — Personal Execution Engine (v4 with Artemis AI)
+Helion AI â Execution Environment (v4 with Artemis AI)
 ==============================================================
 A multi-agent AI system that acts as your personal chief of staff.
 Breaks down goals, generates daily action plans, tracks progress,
-and now includes Artemis — a personalized AI assistant.
+and now includes Artemis â a personalized AI assistant.
 
 New in v4:
   ArtemisAgent         -> Personalized AI chatbot for goals & plans
@@ -31,9 +31,9 @@ import threading
 import urllib.parse
 
 
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 # CONFIG
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 
 BASE_DIR = Path(__file__).parent
 # On Railway, use /data (persistent volume mount point) unless overridden.
@@ -69,9 +69,9 @@ def get_api_key() -> str:
     return os.environ.get("ANTHROPIC_API_KEY", "")
 
 
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 # ANTHROPIC CLIENT
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 
 class AnthropicClient:
     """Minimal Anthropic API client using Python stdlib only."""
@@ -117,9 +117,9 @@ class AnthropicClient:
         })
 
 
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 # GOAL MANAGER
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 
 class GoalManager:
     def __init__(self, goals_file=None):
@@ -172,9 +172,9 @@ class GoalManager:
         self.save()
 
 
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 # MEMORY SYSTEM
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 
 class MemorySystem:
     def __init__(self, memory_file=None):
@@ -233,9 +233,9 @@ class MemorySystem:
         self.save()
 
 
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 # HABIT TRACKER
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 
 class HabitTracker:
     def __init__(self, memory, habits_file=None):
@@ -281,9 +281,9 @@ class HabitTracker:
         self.memory.save()
 
 
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 # PLANNER AGENT
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 
 class PlannerAgent:
     SYSTEM = """You are a world-class executive coach and productivity strategist.
@@ -340,9 +340,9 @@ Generate today's focused action plan."""
             raise ValueError(f"Planner returned non-JSON: {raw[:200]}")
 
 
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 # COACH AGENT
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 
 class CoachAgent:
     SYSTEM = """You are a direct, data-driven personal coach.
@@ -373,9 +373,9 @@ Deliver my coaching message."""
         return self.client.message(self.SYSTEM, user_msg, max_tokens=400)
 
 
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 # REPLANNER AGENT
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 
 class ReplannerAgent:
     SYSTEM = """You are a tactical replanning agent. When someone is falling behind
@@ -419,14 +419,14 @@ Assess status and replan."""
             return {"status": "unknown", "assessment": raw[:200], "hard_truth": ""}
 
 
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 # ARTEMIS AGENT (v4 new)
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 
 class ArtemisAgent:
-    """Artemis — the personalized Helion AI assistant."""
+    """Artemis â the personalized Helion AI assistant."""
 
-    BASE_SYSTEM = """You are Artemis, an intelligent and personalized AI assistant built into Helion AI — a personal productivity and goal execution platform.
+    BASE_SYSTEM = """You are Artemis, an intelligent and personalized AI assistant built into Helion AI â a personal productivity and goal execution platform.
 
 Your role is to help users:
 - Understand and make progress on their active goals
@@ -434,11 +434,11 @@ Your role is to help users:
 - Think clearly about priorities and next steps
 - Reflect on patterns in their productivity data
 
-Personality: Precise, warm, and direct. You give actionable guidance, not vague motivation. You speak like a trusted advisor — concise, honest, and genuinely invested in the user's success. You never use filler phrases like "Great question!" or "Certainly!". You get straight to what matters.
+Personality: Precise, warm, and direct. You give actionable guidance, not vague motivation. You speak like a trusted advisor â concise, honest, and genuinely invested in the user's success. You never use filler phrases like "Great question!" or "Certainly!". You get straight to what matters.
 
 When you have context about the user's goals and action plans, reference them specifically. If asked something outside productivity and goals, gently redirect while still being helpful.
 
-Keep responses under 180 words unless the user specifically asks for more detail. Write in clear, flowing sentences — no markdown headers or excessive bullet points."""
+Keep responses under 180 words unless the user specifically asks for more detail. Write in clear, flowing sentences â no markdown headers or excessive bullet points."""
 
     def __init__(self, client: AnthropicClient):
         self.client = client
@@ -459,9 +459,9 @@ Keep responses under 180 words unless the user specifically asks for more detail
             return f"I'm having trouble connecting right now. Please try again in a moment."
 
 
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 # USER MANAGER
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 
 class UserManager:
     def __init__(self):
@@ -524,9 +524,9 @@ class UserManager:
                 "created_at": u["created_at"]}
 
 
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 # SESSION MANAGER
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 
 class SessionManager:
     TTL = 86400
@@ -574,9 +574,9 @@ class SessionManager:
         self._save()
 
 
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 # LANDING PAGE GENERATOR
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 
 class LandingPageGenerator:
     @staticmethod
@@ -622,14 +622,15 @@ class LandingPageGenerator:
           justify-content:center;padding:140px 40px 100px;text-align:center;
           position:relative;overflow:hidden;}
     .hero-bg{position:absolute;inset:0;z-index:0;
-      background:radial-gradient(ellipse 60% 55% at 50% 30%,rgba(90,171,223,0.11) 0%,transparent 100%),
+      background:radial-gradient(ellipse 80% 60% at 50% 100%,rgba(240,168,85,0.06) 0%,transparent 55%),
+                radial-gradient(ellipse 60% 55% at 50% 30%,rgba(90,171,223,0.13) 0%,transparent 100%),
                 radial-gradient(ellipse 40% 35% at 18% 72%,rgba(50,100,200,0.07) 0%,transparent 100%),
                 radial-gradient(ellipse 35% 30% at 82% 18%,rgba(40,80,190,0.05) 0%,transparent 100%);}
     .star-field{position:absolute;inset:0;z-index:0;pointer-events:none;}
     .hero-content{position:relative;z-index:1;max-width:820px;}
-    .hero-eyebrow{font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--accent);
-                  margin-bottom:26px;opacity:0;transform:translateY(16px);
-                  transition:opacity .9s .1s,transform .9s .1s;}
+    .hero-sigil{width:72px;height:72px;margin:0 auto 44px;display:block;opacity:0;transform:translateY(20px) scale(0.94);transition:opacity 1.4s .05s,transform 1.4s .05s;}
+    .hero-coord{margin-top:28px;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,0.25);display:flex;gap:10px;justify-content:center;align-items:center;opacity:0;transition:opacity 1.2s .6s;}
+    .coord-sep{color:rgba(90,171,223,0.28);}
     .hero-headline{font-family:var(--serif);font-size:clamp(52px,8.5vw,108px);font-weight:700;
                    line-height:1.0;letter-spacing:-.025em;
                    background:linear-gradient(150deg,#ffffff 0%,#c5ddf8 40%,#7ab8e8 100%);
@@ -670,7 +671,7 @@ class LandingPageGenerator:
     /* REVEAL */
     .reveal{opacity:0;transform:translateY(40px);transition:opacity .85s,transform .85s;}
     .reveal.visible{opacity:1;transform:translateY(0);}
-    .d1{transition-delay:.10s;}.d2{transition-delay:.20s;}.d3{transition-delay:.30s;}.d4{transition-delay:.40s;}
+    .d1{transition-delay:.10s;}.d2{transition-delay:.20s;}.d3{transition-delay:.30s;}.d4{transition-delay:.40s;}.d5{transition-delay:.50s;}
 
     /* LAYOUT */
     section{padding:120px 56px;}
@@ -681,12 +682,10 @@ class LandingPageGenerator:
     .sec-sub{font-size:17px;color:var(--muted);line-height:1.68;max-width:540px;}
 
     /* TRUST STRIP */
-    .trust-strip{padding:0 56px 80px;text-align:center;}
-    .trust-label{font-size:11px;letter-spacing:.18em;text-transform:uppercase;
-                 color:var(--dim);margin-bottom:24px;}
-    .trust-pills{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
-    .trust-pill{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
-                border-radius:20px;padding:8px 20px;font-size:13px;color:var(--muted);
+    .ascent-marker{display:flex;align-items:center;gap:24px;padding:0 56px 60px;justify-content:center;}
+    .ascent-line{flex:1;max-width:100px;height:1px;background:linear-gradient(90deg,transparent,rgba(90,171,223,0.22),transparent);}
+    .ascent-text{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,0.22);}
+    .DEPRECATED_TRUST{padding:8px 20px;font-size:13px;color:var(--muted);
                 letter-spacing:.03em;}
 
     /* MOUNTAIN SECTION */
@@ -709,20 +708,17 @@ class LandingPageGenerator:
                       border-top:1px solid rgba(90,171,223,0.07);
                       border-bottom:1px solid rgba(90,171,223,0.07);}
     .features-intro{margin-bottom:70px;}
-    .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+    .feat-rows{border-top:1px solid rgba(90,171,223,0.12);margin-top:56px;}
     @media(max-width:900px){.feat-grid{grid-template-columns:1fr 1fr;}}
     @media(max-width:540px){.feat-grid{grid-template-columns:1fr;}}
-    .feat-card{background:var(--card-bg);border:1px solid var(--card-border);
-               border-radius:10px;padding:32px 28px;
-               transition:background .25s,border-color .25s,transform .3s;}
-    .feat-card:hover{background:rgba(90,171,223,0.048);
-                     border-color:rgba(90,171,223,0.20);transform:translateY(-4px);}
-    .feat-icon{width:44px;height:44px;border-radius:8px;
-               background:rgba(90,171,223,0.10);border:1px solid rgba(90,171,223,0.18);
-               display:flex;align-items:center;justify-content:center;
-               font-size:20px;margin-bottom:20px;}
-    .feat-title{font-size:15px;font-weight:600;margin-bottom:10px;letter-spacing:-.01em;}
-    .feat-desc{font-size:13.5px;color:var(--muted);line-height:1.65;}
+    .feat-row{display:grid;grid-template-columns:48px 1fr 32px;gap:0 40px;padding:30px 0;border-bottom:1px solid rgba(90,171,223,0.07);align-items:start;cursor:default;transition:background .2s;}
+    .feat-row:hover{background:rgba(90,171,223,0.022);}
+    .feat-num{font-size:10.5px;letter-spacing:.15em;color:rgba(255,255,255,0.18);padding-top:5px;font-variant-numeric:tabular-nums;}
+    .feat-name{font-family:var(--serif);font-size:22px;font-weight:700;color:#eaf5ff;margin-bottom:10px;letter-spacing:-.015em;transition:color .2s;}
+    .feat-row:hover .feat-name{color:#fff;}
+    .feat-text{font-size:13.5px;color:rgba(255,255,255,0.48);line-height:1.70;}
+    .feat-mark{color:rgba(90,171,223,0.22);font-size:18px;padding-top:4px;transition:color .2s,transform .2s;}
+    .feat-row:hover .feat-mark{color:var(--accent);transform:translate(3px,-3px);}
 
     /* MOCKUP WINDOW */
     .mockup-section{padding:0 56px 120px;}
@@ -826,22 +822,19 @@ class LandingPageGenerator:
 
     /* HOW IT WORKS */
     .steps{display:flex;flex-direction:column;gap:0;margin-top:60px;max-width:640px;}
-    .step{display:flex;gap:28px;align-items:flex-start;padding:32px 0;
-          border-bottom:1px solid rgba(90,171,223,0.07);}
+    .step{display:grid;grid-template-columns:56px 1fr;gap:0 40px;align-items:start;padding:38px 0;border-bottom:1px solid rgba(90,171,223,0.07);}
     .step:last-child{border-bottom:none;}
-    .step-num{font-family:var(--serif);font-size:38px;font-weight:700;
-              color:rgba(90,171,223,0.22);line-height:1;flex-shrink:0;width:46px;}
-    .step-body h3{font-size:16px;font-weight:600;color:#fff;margin-bottom:8px;letter-spacing:-.01em;}
-    .step-body p{font-size:14px;color:var(--muted);line-height:1.65;}
+    .step-num{font-family:var(--serif);font-size:48px;font-weight:700;color:rgba(90,171,223,0.18);line-height:1;letter-spacing:-.02em;}
+    .step-body h3{font-family:var(--serif);font-size:22px;font-weight:700;color:#eaf5ff;margin-bottom:10px;letter-spacing:-.01em;}
+    .step-body p{font-size:14px;color:rgba(255,255,255,0.50);line-height:1.70;}
 
     /* PRICING */
     .pricing-section{text-align:center;padding:120px 56px;
                      background:linear-gradient(160deg,rgba(90,171,223,0.06) 0%,rgba(50,100,180,0.05) 100%);
                      border-top:1px solid rgba(90,171,223,0.10);
                      border-bottom:1px solid rgba(90,171,223,0.10);}
-    .pricing-pill{display:inline-block;background:rgba(90,171,223,0.10);
-                  border:1px solid rgba(90,171,223,0.24);border-radius:20px;
-                  padding:7px 22px;font-size:11px;color:var(--accent);
+    .pricing-phase{display:inline-block;background:transparent;border:none;border-bottom:1px solid rgba(90,171,223,0.30);padding:4px 0 8px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:40px;}
+    .DEPRECATED_PILL{display:inline-block;background:rgba(90,171,223,0.10);border:1px solid rgba(90,171,223,0.24);border-radius:20px;padding:7px 22px;font-size:11px;color:var(--accent);
                   letter-spacing:.14em;text-transform:uppercase;margin-bottom:32px;}
     .price-tag{font-family:var(--serif);font-size:90px;font-weight:700;color:#fff;
                line-height:1;display:inline-flex;align-items:flex-start;gap:4px;}
@@ -914,31 +907,19 @@ class LandingPageGenerator:
   <div class="hero-bg"></div>
   <canvas class="star-field" id="starCanvas"></canvas>
   <div class="hero-content">
-    <p class="hero-eyebrow">Goal Execution Platform</p>
+    <div class="hero-sigil" aria-hidden="true"><svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="30" stroke="rgba(90,171,223,0.18)" stroke-width="0.6"/><circle cx="40" cy="40" r="18" stroke="rgba(90,171,223,0.10)" stroke-width="0.5"/><circle cx="40" cy="40" r="2.5" fill="rgba(90,171,223,0.50)"/><line x1="40" y1="5" x2="40" y2="19" stroke="rgba(90,171,223,0.50)" stroke-width="0.75"/><polygon points="40,6 37.5,13 42.5,13" fill="rgba(90,171,223,0.50)"/><line x1="40" y1="61" x2="40" y2="75" stroke="rgba(90,171,223,0.18)" stroke-width="0.5"/><line x1="5" y1="40" x2="19" y2="40" stroke="rgba(90,171,223,0.18)" stroke-width="0.5"/><line x1="61" y1="40" x2="75" y2="40" stroke="rgba(90,171,223,0.18)" stroke-width="0.5"/></svg></div>
     <h1 class="hero-headline">Ambition is easy.<br>Execution is everything.</h1>
-    <p class="hero-sub">Helion turns your biggest goals into a daily system that keeps moving&nbsp;&mdash;&nbsp;even when motivation doesn&rsquo;t. Built for people who are serious about what they want.</p>
+    <p class="hero-sub">Helion is a goal operating system. It turns ambition into a disciplined daily system&nbsp;&mdash;&nbsp;structured, sequenced, and always moving forward.</p>
     <div class="hero-ctas">
-      <a href="/login" class="btn-primary">Start Executing &mdash; Free</a>
-      <a href="#how" class="btn-ghost">See How It Works</a>
+      <a href="/login" class="btn-primary">Enter Helion</a>
+      <a href="#features" class="btn-ghost">See the system &#8595;</a>
     </div>
-    <div class="hero-signal">
-      <span class="signal-dot"></span>
-      Free during early access &mdash; no credit card needed
-    </div>
+    <div class="hero-coord"><span>36&#176;34&prime;N</span><span class="coord-sep">&middot;</span><span>4,200&thinsp;m</span><span class="coord-sep">&middot;</span><span>ASCENDING</span></div>
   </div>
 </section>
 
-<!-- TRUST STRIP -->
-<div class="trust-strip reveal">
-  <p class="trust-label">Built for high-performers across every field</p>
-  <div class="trust-pills">
-    <div class="trust-pill">Founders &amp; Entrepreneurs</div>
-    <div class="trust-pill">Students &amp; Researchers</div>
-    <div class="trust-pill">Professionals &amp; Leaders</div>
-    <div class="trust-pill">Creators &amp; Athletes</div>
-    <div class="trust-pill">Anyone with ambitious goals</div>
-  </div>
-</div>
+<!-- ASCENT MARKER -->
+<div class="ascent-marker"><div class="ascent-line"></div><span class="ascent-text">The ascent begins</span><div class="ascent-line"></div></div>
 
 <!-- MOUNTAIN SCROLL ANIMATION -->
 <div class="mountain-section" id="mountainSection">
@@ -979,40 +960,16 @@ class LandingPageGenerator:
   <div class="container">
     <div class="features-intro">
       <p class="label reveal">The execution system</p>
-      <h2 class="sec-title reveal d1">Every layer you need<br>to stop starting over.</h2>
-      <p class="sec-sub reveal d2">Helion is not a task list. It is a complete execution architecture designed to move you from ambition to action, every single day.</p>
+      <h2 class="sec-title reveal d1">A complete system.<br>Not another tool.</h2>
+      <p class="sec-sub reveal d2">Six capabilities. One direction: forward. Helion is the operating system for people who refuse to stay stuck.</p>
     </div>
-    <div class="feat-grid">
-      <div class="feat-card reveal">
-        <div class="feat-icon">&#9678;</div>
-        <div class="feat-title">Goal Architecture</div>
-        <div class="feat-desc">Turn vague ambitions into structured milestones. Helion breaks your goal into a sequenced path with real deadlines and clear dependencies.</div>
-      </div>
-      <div class="feat-card reveal d1">
-        <div class="feat-icon">&#9638;</div>
-        <div class="feat-title">Daily Execution Brief</div>
-        <div class="feat-desc">Every morning, a precise action list calibrated to your current phase and priorities. No decision fatigue. You always know what to do today.</div>
-      </div>
-      <div class="feat-card reveal d2">
-        <div class="feat-icon">&#9734;</div>
-        <div class="feat-title">Artemis AI Coach</div>
-        <div class="feat-desc">Not a generic chatbot. An embedded coach who knows your goals, your timeline, your blockers, and your patterns. Context-first intelligence.</div>
-      </div>
-      <div class="feat-card reveal">
-        <div class="feat-icon">&#9670;</div>
-        <div class="feat-title">Intelligent Replanning</div>
-        <div class="feat-desc">Fell off track? Helion rebuilds without guilt. Miss a week and you get a recovery plan, not a blank page. Consistency is survivable.</div>
-      </div>
-      <div class="feat-card reveal d1">
-        <div class="feat-icon">&#9685;</div>
-        <div class="feat-title">Progress Intelligence</div>
-        <div class="feat-desc">Streaks, completion rates, goal velocity. Data that motivates rather than overwhelms. See momentum building in real time.</div>
-      </div>
-      <div class="feat-card reveal d2">
-        <div class="feat-icon">&#9673;</div>
-        <div class="feat-title">Habit Architecture</div>
-        <div class="feat-desc">Build the daily behaviors that compound into results. Helion tracks your consistency so discipline becomes your default, not your exception.</div>
-      </div>
+    <div class="feat-rows">
+      <div class="feat-row reveal"><span class="feat-num">01</span><div class="feat-body"><h3 class="feat-name">Goal Architecture</h3><p class="feat-text">Turn vague ambitions into structured milestones. Helion breaks your goal into a sequenced path with real deadlines and clear dependencies.</p></div><div class="feat-mark">&#8599;</div></div>
+      <div class="feat-row reveal d1"><span class="feat-num">02</span><div class="feat-body"><h3 class="feat-name">Daily Execution Brief</h3><p class="feat-text">Every morning, a precise action list calibrated to your current phase and priorities. No decision fatigue. Always know what to work on first.</p></div><div class="feat-mark">&#8599;</div></div>
+      <div class="feat-row reveal d2"><span class="feat-num">03</span><div class="feat-body"><h3 class="feat-name">Artemis &mdash; Strategic Intelligence</h3><p class="feat-text">Not a chatbot. An embedded execution coach who knows your goals, your timeline, your blockers, and your patterns. Context-first, always.</p></div><div class="feat-mark">&#8599;</div></div>
+      <div class="feat-row reveal d3"><span class="feat-num">04</span><div class="feat-body"><h3 class="feat-name">Intelligent Replanning</h3><p class="feat-text">Fell off track? Helion rebuilds without guilt. You get a recovery plan, not a blank page. Consistency is survivable.</p></div><div class="feat-mark">&#8599;</div></div>
+      <div class="feat-row reveal d4"><span class="feat-num">05</span><div class="feat-body"><h3 class="feat-name">Progress Intelligence</h3><p class="feat-text">Streaks, completion rates, goal velocity. Data that motivates. See momentum building &mdash; slow at first, then undeniable.</p></div><div class="feat-mark">&#8599;</div></div>
+      <div class="feat-row reveal d5"><span class="feat-num">06</span><div class="feat-body"><h3 class="feat-name">Habit Architecture</h3><p class="feat-text">Build the daily behaviors that compound into results. Helion tracks consistency so discipline becomes your default.</p></div><div class="feat-mark">&#8599;</div></div>
     </div>
   </div>
 </section>
@@ -1114,13 +1071,13 @@ class LandingPageGenerator:
       <div>
         <div class="artemis-badge reveal">
           <span class="artemis-dot"></span>
-          Artemis AI Coach
+          Artemis &mdash; Embedded Intelligence
         </div>
-        <h2 class="sec-title reveal d1">Not a chatbot.<br>An execution coach.</h2>
-        <p class="sec-sub reveal d2">Artemis is built into your personal context. She knows your goals, your plans, your progress, and your patterns. Every conversation is grounded in what you&rsquo;re actually working toward &mdash; not a blank session.</p>
-        <p class="sec-sub reveal d3" style="margin-top:18px;">When you&rsquo;re stuck, she helps you move. When you&rsquo;ve slipped, she rebuilds your path. When you need honest coaching, she delivers it.</p>
+        <h2 class="sec-title reveal d1">Your context.<br>Her intelligence.</h2>
+        <p class="sec-sub reveal d2">Artemis isn&rsquo;t a chatbot layered on top of Helion. She is woven into it. She knows your goals, your milestones, your patterns, and your momentum. Every exchange is grounded in your actual situation &mdash; not a blank slate.</p>
+        <p class="sec-sub reveal d3" style="margin-top:18px;">When you&rsquo;re stuck, she moves you. When you&rsquo;ve slipped, she rebuilds the path. When you need honest direction, she gives it without softening the truth.</p>
         <div class="reveal d4" style="margin-top:40px;">
-          <a href="/login" class="btn-primary">Talk to Artemis</a>
+          <a href="/login" class="btn-primary">Activate Artemis</a>
         </div>
       </div>
       <div class="reveal d2">
@@ -1161,8 +1118,8 @@ class LandingPageGenerator:
 <!-- HOW IT WORKS -->
 <section id="how">
   <div class="container">
-    <p class="label reveal">How Helion works</p>
-    <h2 class="sec-title reveal d1">From ambition to action<br>in four steps.</h2>
+    <p class="label reveal">The operating sequence</p>
+    <h2 class="sec-title reveal d1">Four phases.<br>One unbroken line forward.</h2>
     <div class="steps">
       <div class="step reveal">
         <div class="step-num">01</div>
@@ -1199,14 +1156,14 @@ class LandingPageGenerator:
 <!-- PRICING -->
 <section class="pricing-section" id="pricing">
   <div class="container">
-    <div class="pricing-pill reveal">Early Access</div>
+    <div class="pricing-phase reveal">Early Access</div>
     <div class="price-tag reveal d1">
       <span class="price-currency">$</span>0
     </div>
     <p class="price-note reveal d2">Completely free during early access. Every feature, no limits.</p>
     <p class="price-detail reveal d3">Helion is in early access and fully free &mdash; goal planning, daily briefs, Artemis coaching, habit tracking, and your full dashboard. No credit card. No time limit. We&rsquo;re building this in public and you&rsquo;re invited.</p>
     <div style="margin-top:52px;" class="reveal d4">
-      <a href="/login" class="btn-primary" style="font-size:15px;padding:16px 40px;">Create Your Free Account</a>
+      <a href="/login" class="btn-primary" style="font-size:15px;padding:16px 40px;">Begin Your Ascent</a>
     </div>
   </div>
 </section>
@@ -1241,17 +1198,17 @@ class LandingPageGenerator:
 </footer>
 
 <script>
-// ââ NAV SCROLL ââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ NAV SCROLL Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 window.addEventListener('scroll', function() {
   document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 60);
 }, { passive: true });
 
-// ââ HERO LOAD âââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ HERO LOAD Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function triggerHero() { document.body.classList.add('loaded'); }
 window.addEventListener('load', triggerHero);
 setTimeout(triggerHero, 120);
 
-// ââ STAR FIELD ââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ STAR FIELD Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 (function() {
   var c = document.getElementById('starCanvas');
   if (!c) return;
@@ -1291,14 +1248,14 @@ setTimeout(triggerHero, 120);
   draw();
 })();
 
-// ââ MOUNTAIN ANIMATION ââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ MOUNTAIN ANIMATION Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 (function() {
   var section = document.getElementById('mountainSection');
   if (!section) return;
-  // Use the existing canvas — already styled in CSS (position:absolute, inset:0, 100%x100%)
+  // Use the existing canvas â already styled in CSS (position:absolute, inset:0, 100%x100%)
   var canvas = document.getElementById('mtnCanvas');
   if (!canvas) return;
-  // DO NOT touch mountainSticky position — CSS has position:sticky which must be preserved
+  // DO NOT touch mountainSticky position â CSS has position:sticky which must be preserved
   var ctx = canvas.getContext('2d');
   var W = 0, H = 0, dpr = window.devicePixelRatio || 1;
   var progress = 0, targetProgress = 0;
@@ -1308,7 +1265,7 @@ setTimeout(triggerHero, 120);
   for (var i = 0; i < 90; i++)
     stars.push({x:Math.random(), y:Math.random()*0.65, r:0.4+Math.random()*1.2, op:0.4+Math.random()*0.6});
 
-  // Gentle ridges — all peaks in bottom 28% of canvas
+  // Gentle ridges â all peaks in bottom 28% of canvas
   var layers = [
     {pts:[[0,.84],[.15,.77],[.30,.73],[.45,.69],[.58,.71],[.72,.75],[.86,.79],[1,.84]], col:'#1a2840', par:0.010},
     {pts:[[0,.90],[.12,.83],[.26,.78],[.40,.73],[.52,.75],[.65,.71],[.78,.76],[.90,.81],[1,.89]], col:'#0f1c2e', par:0.020},
@@ -1360,7 +1317,7 @@ setTimeout(triggerHero, 120);
       ctx.beginPath(); ctx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2);
       ctx.fillStyle='rgba(255,255,255,'+(s.op*sOp)+')'; ctx.fill();
     });
-    // Sun rises y=0.90 → y=0.18
+    // Sun rises y=0.90 â y=0.18
     var sunX=W*0.64, sunY=H*(0.90-p*0.72), sunR=16+p*12, sOp2=Math.min(1,p*2.5);
     if (sOp2>0.02) {
       var glow=ctx.createRadialGradient(sunX,sunY,0,sunX,sunY,sunR*4.5);
@@ -1405,7 +1362,7 @@ setTimeout(triggerHero, 120);
   }, {threshold: 0.12});
   document.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
 
-  // Hero entrance animations — trigger after short delay on load
+  // Hero entrance animations â trigger after short delay on load
   var heroClasses = ['.hero-eyebrow','.hero-headline','.hero-sub','.hero-ctas','.hero-signal'];
   heroClasses.forEach(function(sel, i) {
     var el = document.querySelector(sel);
@@ -1424,7 +1381,7 @@ class LoginPageGenerator:
 <html lang="en">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Helion AI — Sign In</title>
+  <title>Helion AI â Sign In</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -1586,7 +1543,7 @@ resize();window.addEventListener('resize',resize);requestAnimationFrame(frame);
 <div id="sun-qt" style="position:fixed;display:none;background:rgba(255,255,255,0.93);color:#1a2e4a;font-size:12px;font-weight:500;padding:7px 14px;border-radius:10px;box-shadow:0 2px 16px rgba(0,0,0,.13);pointer-events:none;z-index:11;max-width:220px;text-align:center;line-height:1.5;letter-spacing:0.01em;"></div>
 <script>
 (function(){
-  var qs=['Every peak is within reach — just keep climbing.','You are doing better than you think.','Small steps every day lead to big change.','The view from the top is worth every step.','Believe in the magic of new beginnings.','Your effort today is your strength tomorrow.','Progress, not perfection.','You have got this — one step at a time.','Shine on, even on cloudy days.','You are exactly where you need to be.'];
+  var qs=['Every peak is within reach â just keep climbing.','You are doing better than you think.','Small steps every day lead to big change.','The view from the top is worth every step.','Believe in the magic of new beginnings.','Your effort today is your strength tomorrow.','Progress, not perfection.','You have got this â one step at a time.','Shine on, even on cloudy days.','You are exactly where you need to be.'];
   var hz=document.getElementById('sun-hz');
   var qt=document.getElementById('sun-qt');
   function pos(){
@@ -1640,13 +1597,13 @@ async function go(e){
 </body></html>"""
 
 
-# ─────────────────────────────────────────────
-# DASHBOARD GENERATOR (v4 — clean, no emojis, Artemis chat)
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
+# DASHBOARD GENERATOR (v4 â clean, no emojis, Artemis chat)
+# âââââââââââââââââââââââââââââââââââââââââââââ
 
 class DashboardGenerator:
 
-    # ── CSS (defined as a regular string — no f-string escaping needed) ──
+    # ââ CSS (defined as a regular string â no f-string escaping needed) ââ
     _CSS = """
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -1677,25 +1634,27 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .nav-link:hover{background:rgba(90,171,223,.1);}
 
 /* Hero */
-.hero{margin-bottom:24px;}
-.hero-label{font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:rgba(255,255,255,0.45);margin-bottom:8px;}
-.hero-title{font-family:var(--serif);font-size:30px;font-weight:700;color:#f0f8ff;margin-bottom:8px;line-height:1.25;letter-spacing:-.3px;}
-.hero-sub{font-size:14px;color:rgba(255,255,255,0.60);line-height:1.65;}
+.hero{margin-bottom:32px;padding:28px 0 26px;border-bottom:1px solid rgba(90,171,223,0.10);}
+.hero-label{font-size:9.5px;text-transform:uppercase;letter-spacing:.28em;color:rgba(255,255,255,0.28);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.hero-label::before{content:'';width:20px;height:1px;background:rgba(90,171,223,0.32);}
+.hero-title{font-family:var(--serif);font-size:40px;font-weight:700;color:#f0f8ff;margin-bottom:10px;line-height:1.18;letter-spacing:-.5px;}
+.hero-sub{font-size:13.5px;color:rgba(255,255,255,0.50);line-height:1.72;max-width:620px;}
 
 /* Stats */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:20px 24px;text-align:center;}
-.stat-value{font-size:38px;font-weight:800;color:#ffffff;line-height:1.1;margin-bottom:4px;letter-spacing:-.5px;}
-.stat-label{font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.12em;}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-bottom:32px;border:1px solid rgba(90,171,223,0.10);border-radius:2px;}
+.stat-card{padding:22px 28px;text-align:left;border-right:1px solid rgba(90,171,223,0.07);}
+.stat-card:last-child{border-right:none;}
+.stat-value{font-family:var(--serif);font-size:44px;font-weight:700;color:#ffffff;line-height:1;margin-bottom:6px;letter-spacing:-.6px;}
+.stat-label{font-size:9.5px;color:rgba(255,255,255,0.32);text-transform:uppercase;letter-spacing:.20em;}
 
 /* Grid */
 .grid{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:20px;}
 .grid-full{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
 
 /* Cards */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:24px;}.card.card-primary{border-top:2px solid var(--accent);background:rgba(255,255,255,0.09);}
-.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
-.card-title{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:rgba(255,255,255,0.5);font-weight:600;}
+.card{background:rgba(255,255,255,0.05);border:1px solid rgba(90,171,223,0.10);border-radius:2px;padding:26px;}.card.card-primary{border-left:3px solid var(--accent);background:rgba(90,171,223,0.04);}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid rgba(90,171,223,0.07);}
+.card-title{font-size:9.5px;text-transform:uppercase;letter-spacing:.22em;color:rgba(255,255,255,0.38);font-weight:600;}
 .card-action{font-size:12px;color:var(--accent);cursor:pointer;
              background:none;border:1px solid rgba(90,171,223,.25);border-radius:2px;
              padding:4px 10px;font-family:var(--sans);transition:all .2s;}
@@ -1882,7 +1841,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
         focus_theme  = daily_plan.get("focus_theme", "") if daily_plan else ""
         daily_intent = daily_plan.get("daily_intention", "") if daily_plan else ""
 
-        # ── Pre-compute HTML fragments ──────────────────────────────────
+        # ââ Pre-compute HTML fragments ââââââââââââââââââââââââââââââââââ
 
         # Goals HTML
         goals_html = self._build_goals_html(goals_list)
@@ -1924,16 +1883,16 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
         if has_plan:
             hero_html = f"""
 <div class="hero">
-  <div class="hero-label">Personal Execution Engine</div>
+  <div class="hero-label">Execution Environment</div>
   <h1 class="hero-title">{focus_theme}</h1>
   <p class="hero-sub">{daily_intent}</p>
 </div>"""
         else:
             hero_html = f"""
 <div class="hero">
-  <div class="hero-label">Personal Execution Engine</div>
-  <h1 class="hero-title">Good to see you, {display_name}.</h1>
-  <p class="hero-sub">Add your goals and generate your first action plan to get started.</p>
+  <div class="hero-label">Execution Environment</div>
+  <h1 class="hero-title">The mission begins, {display_name}.</h1>
+  <p class="hero-sub">Define your first goal. Helion will build the architecture — structured, sequenced, moving forward.</p>
 </div>"""
 
         # Plan section content
@@ -1941,16 +1900,16 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
             plan_content = """
 <div class="empty">
   <div class="empty-icon">&#10022;</div>
-  <div class="empty-title">Ready to build your day</div>
-  <div class="empty-text">Generate your AI-powered execution plan. Helion will prioritize your tasks by impact, sequence them intelligently, and tell you exactly what to focus on first.</div>
+  <div class="empty-title">Intelligence standing by</div>
+  <div class="empty-text">Generate your execution brief. Helion sequences your priorities by impact, eliminates decision fatigue, and tells you exactly what to move on first.</div>
   <button class="btn-primary" id="genPlanBtn" onclick="generatePlan()">Generate Today's Plan</button>
 </div>"""
         elif not has_goals:
             plan_content = """
 <div class="empty">
   <div class="empty-icon">&#9672;</div>
-  <div class="empty-title">Start with a goal</div>
-  <div class="empty-text">Add your first goal and Helion will build you a personalized daily execution plan — sequenced, prioritized, and focused on what actually moves you forward.</div>
+  <div class="empty-title">Define the objective</div>
+  <div class="empty-text">Add your first goal and Helion will build you a personalized daily execution plan â sequenced, prioritized, and focused on what actually moves you forward.</div>
 </div>"""
         else:
             plan_content = tasks_html
@@ -2131,7 +2090,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 <!-- Artemis is now at /artemis -->
 
 <script>
-// ── Task completion ───────────────────────────────────────
+// ââ Task completion âââââââââââââââââââââââââââââââââââââââ
 function toggleTask(box) {{
   const item = box.closest('.task-item');
   const done = item.classList.toggle('done');
@@ -2166,7 +2125,7 @@ function doSave() {{
 }}
 window.addEventListener('beforeunload', doSave);
 
-// ── Add Goal Modal ────────────────────────────────────────
+// ââ Add Goal Modal ââââââââââââââââââââââââââââââââââââââââ
 function showAddGoal() {{
   document.getElementById('addGoalModal').classList.add('open');
   document.getElementById('goalTitle').focus();
@@ -2203,7 +2162,7 @@ document.getElementById('goalTitle').addEventListener('keydown', e => {{
   if (e.key === 'Enter') submitGoal();
 }});
 
-// ── Remove Goal ───────────────────────────────────────────
+// ââ Remove Goal âââââââââââââââââââââââââââââââââââââââââââ
 async function removeGoal(goalId) {{
   if (!confirm('Remove this goal? This cannot be undone.')) return;
   try {{
@@ -2219,7 +2178,7 @@ async function removeGoal(goalId) {{
   }} catch(e) {{ alert('Connection error.'); }}
 }}
 
-// ── Generate Plan ─────────────────────────────────────────
+// ââ Generate Plan âââââââââââââââââââââââââââââââââââââââââ
 async function generatePlan() {{
   const btn = document.getElementById('genPlanBtn');
   if (btn) {{ btn.disabled = true; btn.textContent = 'Generating...'; }}
@@ -2250,7 +2209,7 @@ async function generatePlan() {{
 </body>
 </html>"""
 
-    # ── HTML fragment builders ────────────────────────────────────────────
+    # ââ HTML fragment builders ââââââââââââââââââââââââââââââââââââââââââââ
 
     @staticmethod
     def _snow_mountain_html() -> str:
@@ -2506,44 +2465,44 @@ requestAnimationFrame(frame);
         return round(sum(rates) / len(rates), 2) if rates else 0.0
 
 
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 # DEMO DATA (for --demo mode)
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 
 DEMO_PLAN = {
     "date": datetime.now().strftime("%Y-%m-%d"),
-    "focus_theme": "Build momentum on your product launch — small moves compound.",
+    "focus_theme": "Build momentum on your product launch â small moves compound.",
     "daily_intention": "Every task you finish today is a vote for the person you are becoming.",
     "tasks": [
         {"id": "t1", "title": "Write 3 cold outreach emails to potential beta users",
          "goal_link": "Launch SaaS product", "estimated_minutes": 45,
          "priority": "high", "is_momentum_task": False,
-         "why_today": "You are 2 days behind on outreach targets — close the gap now"},
+         "why_today": "You are 2 days behind on outreach targets â close the gap now"},
         {"id": "t2", "title": "Finalize onboarding flow wireframes (screens 1-3 only)",
          "goal_link": "Launch SaaS product", "estimated_minutes": 60,
          "priority": "high", "is_momentum_task": False,
-         "why_today": "Dev handoff is tomorrow — this blocks the sprint"},
+         "why_today": "Dev handoff is tomorrow â this blocks the sprint"},
         {"id": "t3", "title": "Read 20 pages of The Mom Test and take notes",
          "goal_link": "Learn customer discovery", "estimated_minutes": 30,
          "priority": "medium", "is_momentum_task": True,
-         "why_today": "Easy win to start — builds momentum for the rest of the day"},
+         "why_today": "Easy win to start â builds momentum for the rest of the day"},
         {"id": "t4", "title": "Update LinkedIn with your new role and one insight post",
          "goal_link": "Build personal brand", "estimated_minutes": 25,
          "priority": "low", "is_momentum_task": False,
-         "why_today": "Compound visibility — 10 minutes of writing now equals weeks of reach"},
+         "why_today": "Compound visibility â 10 minutes of writing now equals weeks of reach"},
     ]
 }
 
-DEMO_COACHING = """You are showing up, which is more than most people do — but showing up
+DEMO_COACHING = """You are showing up, which is more than most people do â but showing up
 isn't enough anymore. Your 7-day completion rate of 62% tells a specific story:
 you start strong on Mondays, stall mid-week, then sprint on Fridays trying to
 catch up. That is not a motivation problem. That is a planning problem.
 
-The pattern holding you back is task inflation — you are consistently
+The pattern holding you back is task inflation â you are consistently
 over-scheduling yourself by 40%, then feeling like a failure when you cannot
 finish. Your brain is lying to you about how long things take.
 
-Here is what you have not considered: the tasks you keep deferring are not hard —
+Here is what you have not considered: the tasks you keep deferring are not hard â
 they are ambiguous. "Work on pitch deck" is not a task. It is a category. That is
 why it keeps getting skipped.
 
@@ -2570,9 +2529,9 @@ DEMO_HABITS_DATA = {
 }
 
 
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 # ARTEMIS PAGE GENERATOR (full-page chat UI)
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 
 class ArtemisPageGenerator:
     """Generates the full-screen Artemis AI chat page."""
@@ -2585,7 +2544,7 @@ class ArtemisPageGenerator:
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Artemis — Helion AI</title>
+  <title>Artemis â Helion AI</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
 *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0;}}
@@ -2600,7 +2559,7 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
 .atm{{position:fixed;inset:0;pointer-events:none;z-index:0;}}
 .orb{{position:absolute;border-radius:50%;filter:blur(90px);opacity:.30;}}
 .o1{{width:700px;height:500px;top:-150px;left:-100px;background:radial-gradient(ellipse,rgba(90,171,223,0.12),transparent 70%);}}
-.o2{{width:600px;height:400px;bottom:-100px;right:-100px;background:radial-gradient(ellipse,rgba(90,171,223,0.08),transparent 70%);}}
+.o2{{width:600px;height:400px;bottom:-100px;right:-100px;background:radial-gradient(ellipse,rgba(110,80,200,0.10),transparent 70%);}}
 
 /* Sidebar */
 .sidebar{{
@@ -2619,9 +2578,9 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
 .sidebar-logo-text{{font-size:12px;font-weight:600;letter-spacing:.09em;
                     text-transform:uppercase;color:rgba(255,255,255,0.45);}}
 .sidebar-logo-text strong{{color:var(--text);}}
-.sidebar-title{{font-family:var(--serif);font-size:22px;font-weight:700;
-               color:var(--text);margin-top:20px;}}
-.sidebar-sub{{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5;font-weight:300;}}
+.sidebar-title{{font-family:var(--serif);font-size:26px;font-weight:700;
+               color:var(--text);margin-top:22px;letter-spacing:-.2px;}}
+.sidebar-sub{{font-size:11.5px;color:rgba(255,255,255,0.42);margin-top:8px;line-height:1.6;font-weight:300;letter-spacing:.01em;}}
 
 .sidebar-status{{padding:18px 20px;border-bottom:1px solid var(--border);}}
 .status-dot{{display:inline-block;width:7px;height:7px;border-radius:50%;
@@ -2731,15 +2690,15 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
   flex:1;display:flex;flex-direction:column;align-items:center;
   justify-content:center;padding:48px 24px;gap:14px;
 }}
-.empty-chat-title{{font-family:var(--serif);font-size:30px;color:var(--text);font-weight:700;letter-spacing:-.2px;}}
-.empty-chat-sub{{font-size:14px;color:rgba(255,255,255,0.62);text-align:center;max-width:460px;line-height:1.7;}}
+.empty-chat-title{{font-family:var(--serif);font-size:40px;color:var(--text);font-weight:700;letter-spacing:-.4px;margin-bottom:4px;}}
+.empty-chat-sub{{font-size:13.5px;color:rgba(255,255,255,0.52);text-align:center;max-width:500px;line-height:1.75;}}
 .suggestion-chips{{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;justify-content:center;max-width:560px;}}
 .chip{{
-  padding:9px 18px;background:rgba(90,171,223,.09);
-  border:1px solid rgba(90,171,223,.22);border-radius:20px;
-  font-size:12px;color:rgba(255,255,255,0.72);cursor:pointer;transition:all .18s;font-weight:500;
+  padding:8px 18px;background:transparent;
+  border:1px solid rgba(90,171,223,.18);border-radius:1px;
+  font-size:11px;letter-spacing:.07em;color:rgba(255,255,255,0.55);cursor:pointer;transition:all .18s;font-weight:500;
 }}
-.chip:hover{{background:rgba(90,171,223,.18);color:var(--text);border-color:rgba(90,171,223,.4);transform:translateY(-1px);}}
+.chip:hover{{background:rgba(90,171,223,.09);color:var(--text);border-color:rgba(90,171,223,.42);}}
 
 @media(max-width:700px){{
   .sidebar{{display:none;}}
@@ -2763,11 +2722,11 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
       <span class="sidebar-logo-text">Helion <strong>AI</strong></span>
     </div>
     <div class="sidebar-title">Artemis</div>
-    <div class="sidebar-sub">Your personalized AI assistant. Ask about your goals, plans, and progress.</div>
+    <div class="sidebar-sub">Strategic intelligence. Woven into your execution system.</div>
   </div>
   <div class="sidebar-status">
     <span class="status-dot"></span>
-    <span class="status-text">Online &mdash; ready to help</span>
+    <span class="status-text">Online &mdash; context loaded</span>
   </div>
   <div class="convo-list">
     <div class="convo-item active">
@@ -2775,7 +2734,7 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
       <div class="convo-date" id="convDate"></div>
     </div>
   </div>
-  <div class="sidebar-footer">Artemis AI &bull; Helion AI</div>
+  <div class="sidebar-footer">ARTEMIS // HELION EXECUTION SYSTEM</div>
 </div>
 
 <!-- Chat area -->
@@ -2783,7 +2742,7 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
   <div class="chat-header">
     <div>
       <span class="chat-header-title">Artemis</span>
-      <span class="chat-header-badge">AI</span>
+      <span class="chat-header-badge">STRATEGIC INTEL</span>
     </div>
     <div class="chat-header-right" id="chatStatus">Ready</div>
   </div>
@@ -2791,12 +2750,12 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
   <div class="messages" id="messages">
     <!-- Empty state shown until first message -->
     <div class="empty-chat" id="emptyState">
-      <div class="empty-chat-title">Hi, {display_name}.</div>
-      <div class="empty-chat-sub">I'm Artemis — your Helion AI execution coach. I know your goals, your plan, and your patterns. Ask me anything about what to focus on, how to break through, or where to push harder.</div>
+      <div c      <div class="empty-chat-title">Intelligence active, {display_name}.</div>
+      <div class="empty-chat-sub">I am Artemis. I know your goals, your milestones, your patterns, and your momentum. Every exchange starts from your actual situation &mdash; not a blank slate. Where do you need to move?</div>
       <div class="suggestion-chips">
         <div class="chip" onclick="sendChip(this)">What should I focus on today?</div>
         <div class="chip" onclick="sendChip(this)">Where am I falling behind?</div>
-        <div class="chip" onclick="sendChip(this)">I'm stuck — help me think through this</div>
+        <div class="chip" onclick="sendChip(this)">I'm stuck â help me think through this</div>
         <div class="chip" onclick="sendChip(this)">Give me an honest assessment</div>
         <div class="chip" onclick="sendChip(this)">Help me plan my next 7 days</div>
       </div>
@@ -2806,7 +2765,7 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
   <div class="input-bar">
     <div class="input-wrap">
       <textarea class="chat-input" id="chatInput" rows="1"
-        placeholder="Message Artemis..."
+        placeholder="Speak your intent to Artemis..."
         onkeydown="handleKey(event)"
         oninput="autoResize(this)"></textarea>
       <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Send">
@@ -2931,9 +2890,9 @@ async function sendMessage() {{
 </body>
 </html>"""
 
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 # ORCHESTRATOR
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 
 class LifeOSOrchestrator:
     def __init__(self, api_key: str, username: str = None):
@@ -2995,9 +2954,9 @@ class LifeOSOrchestrator:
         print(f"\nCheck-in recorded. Completion: {int(rate*100)}%")
 
 
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 # HTTP SERVER
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 
 class LifeOSServer(http.server.SimpleHTTPRequestHandler):
 
@@ -3062,7 +3021,7 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
 
         return plan, coaching, replan
 
-    # ── GET handlers ─────────────────────────────────────────────────────
+    # ââ GET handlers âââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
     def do_GET(self):
         path = urllib.parse.urlparse(self.path).path
@@ -3134,7 +3093,7 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
             })
             return
 
-        # ── Google OAuth ──────────────────────────────────────────────────────
+        # ââ Google OAuth ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
         if path == "/auth/google":
             cid    = os.environ.get("GOOGLE_CLIENT_ID", "")
             host   = self.headers.get("Host", "localhost")
@@ -3189,13 +3148,13 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
         self.send_response(404)
         self.end_headers()
 
-    # ── POST handlers ────────────────────────────────────────────────────
+    # ââ POST handlers ââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
     def do_POST(self):
         path = urllib.parse.urlparse(self.path).path
         body = self._body()
 
-        # ── Auth ──────────────────────────────────────────────────────────
+        # ââ Auth ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
         if path == "/api/auth/login":
             try:
@@ -3238,7 +3197,7 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
                 self._json({"success": False, "error": str(e)})
             return
 
-        # ── All other endpoints require auth ──────────────────────────────
+        # ââ All other endpoints require auth ââââââââââââââââââââââââââââââ
 
         user = self._user()
         if not user and path not in ("/api/auth/login", "/api/auth/register"):
@@ -3262,7 +3221,7 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
                 self._json({"success": False, "error": str(e)})
             return
 
-        # ── Goals management ──────────────────────────────────────────────
+        # ââ Goals management ââââââââââââââââââââââââââââââââââââââââââââââ
 
         if path == "/api/goals/add":
             try:
@@ -3296,7 +3255,7 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
                 self._json({"success": False, "error": str(e)})
             return
 
-        # ── Plan generation ───────────────────────────────────────────────
+        # ââ Plan generation âââââââââââââââââââââââââââââââââââââââââââââââ
 
         if path == "/api/plan/generate":
             api_key = get_api_key()
@@ -3339,12 +3298,12 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
                 self._json({"success": False, "error": str(e)})
             return
 
-        # ── Artemis Chat ──────────────────────────────────────────────────
+        # ââ Artemis Chat ââââââââââââââââââââââââââââââââââââââââââââââââââ
 
         if path == "/api/chat":
             api_key = get_api_key()
             if not api_key:
-                self._json({"reply": "I'm not available right now — the API key is not configured on this server."})
+                self._json({"reply": "I'm not available right now â the API key is not configured on this server."})
                 return
             try:
                 d        = json.loads(body)
@@ -3387,13 +3346,13 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
 
 
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 # SETUP WIZARD (CLI only)
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 
 def run_setup():
     print("\n" + "="*50)
-    print("   Helion AI — Setup Wizard")
+    print("   Helion AI â Setup Wizard")
     print("="*50 + "\n")
 
     api_key = input("Enter your Anthropic API key (sk-ant-...): ").strip()
@@ -3428,13 +3387,13 @@ def run_setup():
     print("Run: python3 life_os_agent.py --run\n")
 
 
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 # CLI ENTRYPOINT
-# ─────────────────────────────────────────────
+# âââââââââââââââââââââââââââââââââââââââââââââ
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Helion AI — Personal Execution Engine (v4)",
+        description="Helion AI â Execution Environment (v4)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""Examples:
   python3 life_os_agent.py --setup          First-time setup
@@ -3503,7 +3462,7 @@ def main():
             print("\nServer stopped.")
         return
 
-    # Real mode — need API key
+    # Real mode â need API key
     api_key = (API_KEY_FILE.read_text().strip() if API_KEY_FILE.exists()
                else os.environ.get("ANTHROPIC_API_KEY", ""))
 
