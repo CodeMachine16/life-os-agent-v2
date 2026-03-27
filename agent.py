@@ -1296,114 +1296,122 @@ setTimeout(triggerHero, 120);
   var section = document.getElementById('mountainSection');
   if (!section) return;
   var canvas = document.createElement('canvas');
-  canvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;display:block;';
+  canvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;display:block;z-index:1;';
   section.style.position = 'relative';
   section.style.overflow = 'hidden';
   section.appendChild(canvas);
   var ctx = canvas.getContext('2d');
   var W, H, dpr = window.devicePixelRatio || 1;
-  var progress = 0, targetProgress = 0, animId = null;
+  var progress = 0, targetProgress = 0;
 
   // Stars
   var stars = [];
-  for (var si = 0; si < 80; si++) {
-    stars.push({x: Math.random(), y: Math.random() * 0.6, r: 0.5 + Math.random() * 1.2, op: 0.4 + Math.random() * 0.6});
+  for (var si = 0; si < 90; si++) {
+    stars.push({x:Math.random(), y:Math.random()*0.65, r:0.4+Math.random()*1.2, op:0.5+Math.random()*0.5});
   }
 
-  // Minimal mountain layers — all peaks >= 0.65 (bottom 35% only)
+  // Text panels — 5 phases tied to scroll progress
+  var panels = ['mtnT0','mtnT1','mtnT2','mtnT3','mtnT4'];
+  panels.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) { el.style.zIndex = '10'; el.style.transition = 'opacity 0.6s ease'; }
+  });
+
+  // Mountain layers — gentle ridges, all peaks in bottom 30%
   var layers = [
-    // back ridge — very gentle
-    {pts: [[0,0.82],[0.15,0.75],[0.30,0.72],[0.45,0.68],[0.55,0.70],[0.70,0.74],[0.85,0.78],[1.0,0.82]], col: '#1a2535', par: 0.015},
-    // mid ridge
-    {pts: [[0,0.88],[0.10,0.82],[0.22,0.78],[0.35,0.72],[0.48,0.74],[0.60,0.70],[0.72,0.75],[0.85,0.80],[1.0,0.88]], col: '#0f1c2d', par: 0.025},
-    // front ridge
-    {pts: [[0,0.95],[0.12,0.88],[0.25,0.82],[0.40,0.78],[0.52,0.76],[0.65,0.80],[0.78,0.85],[1.0,0.95]], col: '#0a1520', par: 0.04},
+    {pts:[[0,.83],[.12,.76],[.25,.72],[.40,.68],[.52,.70],[.66,.74],[.80,.78],[1,.83]], col:'#1a2840', par:0.012},
+    {pts:[[0,.89],[.10,.82],[.24,.77],[.38,.72],[.50,.74],[.63,.70],[.76,.75],[.88,.80],[1,.88]], col:'#0f1c2e', par:0.022},
+    {pts:[[0,.96],[.14,.88],[.28,.83],[.42,.78],[.55,.76],[.68,.80],[.82,.86],[1,.96]], col:'#09141f', par:0.038},
   ];
 
   function resize() {
     W = canvas.offsetWidth; H = canvas.offsetHeight;
-    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    canvas.width = Math.round(W*dpr); canvas.height = Math.round(H*dpr);
     ctx.scale(dpr, dpr);
   }
 
-  function drawMountain(pts, offsetY, col) {
+  function drawMtn(pts, offY, col) {
     ctx.beginPath();
     ctx.moveTo(0, H);
-    ctx.lineTo(pts[0][0] * W, pts[0][1] * H + offsetY * H);
-    for (var i = 1; i < pts.length; i++) {
-      var px = pts[i][0] * W, py = pts[i][1] * H + offsetY * H;
-      var cpx = (pts[i-1][0] + pts[i][0]) / 2 * W;
-      var cpy = (pts[i-1][1] + pts[i][1]) / 2 * H + offsetY * H;
-      ctx.quadraticCurveTo(cpx, cpy, px, py);
+    ctx.lineTo(pts[0][0]*W, pts[0][1]*H + offY*H);
+    for (var i=1; i<pts.length; i++) {
+      var cpx=(pts[i-1][0]+pts[i][0])/2*W, cpy=(pts[i-1][1]+pts[i][1])/2*H+offY*H;
+      ctx.quadraticCurveTo(cpx, cpy, pts[i][0]*W, pts[i][1]*H+offY*H);
     }
-    ctx.lineTo(W, H); ctx.closePath();
-    ctx.fillStyle = col; ctx.fill();
+    ctx.lineTo(W,H); ctx.closePath(); ctx.fillStyle=col; ctx.fill();
   }
 
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    var p = progress;
-
-    // Sky gradient: deep navy → twilight blue
-    var sky = ctx.createLinearGradient(0, 0, 0, H);
-    var r1 = Math.round(6 + p * 14), g1 = Math.round(16 + p * 30), b1 = Math.round(30 + p * 60);
-    var r2 = Math.round(10 + p * 30), g2 = Math.round(25 + p * 55), b2 = Math.round(50 + p * 90);
-    sky.addColorStop(0, 'rgb('+r1+','+g1+','+b1+')');
-    sky.addColorStop(1, 'rgb('+r2+','+g2+','+b2+')');
-    ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
-
-    // Stars fade out as progress increases
-    var starOp = Math.max(0, 1 - p * 2);
-    if (starOp > 0) {
-      stars.forEach(function(s) {
-        ctx.beginPath();
-        ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255,255,255,' + (s.op * starOp) + ')';
-        ctx.fill();
-      });
-    }
-
-    // Sun — rises from below horizon to near top
-    var sunX = W * 0.62;
-    var sunY = H * (0.85 - p * 0.60);
-    var sunR = 20 + p * 8;
-    var sunOp = Math.min(1, p * 2);
-    if (sunOp > 0) {
-      var glow = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunR * 3);
-      glow.addColorStop(0, 'rgba(255,220,120,' + sunOp + ')');
-      glow.addColorStop(1, 'rgba(255,180,60,0)');
-      ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
-      ctx.beginPath();
-      ctx.arc(sunX, sunY, sunR, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,235,150,' + sunOp + ')';
-      ctx.fill();
-    }
-
-    // Mountain layers with parallax
-    layers.forEach(function(L) {
-      var off = L.par * p;
-      drawMountain(L.pts, -off, L.col);
+  function updateText(p) {
+    // 5 panels across full scroll range, each active for 0.2 of progress
+    // crossfade at boundaries
+    panels.forEach(function(id, i) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      var start = i * 0.2, end = (i+1) * 0.2;
+      var fadeIn = 0.03, fadeOut = 0.03;
+      var op = 0;
+      if (p >= start && p < end) {
+        var inPct = (p - start) / fadeIn;
+        var outPct = (end - p) / fadeOut;
+        op = Math.min(1, Math.min(inPct, outPct));
+      }
+      el.style.opacity = op;
     });
   }
 
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    var p = progress;
+
+    // Sky: deep navy to pre-dawn blue
+    var sky = ctx.createLinearGradient(0,0,0,H);
+    var r1=Math.round(6+p*18), g1=Math.round(14+p*34), b1=Math.round(28+p*68);
+    var r2=Math.round(10+p*28), g2=Math.round(22+p*52), b2=Math.round(48+p*88);
+    sky.addColorStop(0,'rgb('+r1+','+g1+','+b1+')');
+    sky.addColorStop(1,'rgb('+r2+','+g2+','+b2+')');
+    ctx.fillStyle=sky; ctx.fillRect(0,0,W,H);
+
+    // Stars
+    var sOp = Math.max(0, 1-p*2.5);
+    if (sOp>0) stars.forEach(function(s) {
+      ctx.beginPath(); ctx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2);
+      ctx.fillStyle='rgba(255,255,255,'+(s.op*sOp)+')'; ctx.fill();
+    });
+
+    // Sun — rises from y=0.88 to y=0.22
+    var sunX=W*0.64, sunY=H*(0.88-p*0.66), sunR=18+p*10, sunOp=Math.min(1,p*2.2);
+    if (sunOp>0) {
+      var glow=ctx.createRadialGradient(sunX,sunY,0,sunX,sunY,sunR*4);
+      glow.addColorStop(0,'rgba(255,210,100,'+sunOp*0.5+')');
+      glow.addColorStop(1,'rgba(255,160,50,0)');
+      ctx.fillStyle=glow; ctx.fillRect(0,0,W,H);
+      ctx.beginPath(); ctx.arc(sunX,sunY,sunR,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,232,140,'+sunOp+')'; ctx.fill();
+    }
+
+    // Mountains
+    layers.forEach(function(L) { drawMtn(L.pts, -L.par*p, L.col); });
+
+    // Update text panels
+    updateText(p);
+  }
+
   function animate() {
-    progress += (targetProgress - progress) * 0.06;
+    progress += (targetProgress-progress)*0.055;
     draw();
-    animId = requestAnimationFrame(animate);
+    requestAnimationFrame(animate);
   }
 
   function onScroll() {
-    var rect = section.getBoundingClientRect();
-    var total = section.offsetHeight - window.innerHeight;
-    var scrolled = -rect.top;
-    targetProgress = Math.max(0, Math.min(1, scrolled / total));
+    var rect=section.getBoundingClientRect();
+    var total=section.offsetHeight-window.innerHeight;
+    targetProgress=Math.max(0,Math.min(1,-rect.top/total));
   }
 
   resize();
-  window.addEventListener('resize', function() { resize(); draw(); });
-  window.addEventListener('scroll', onScroll, {passive: true});
-  onScroll();
-  animate();
+  window.addEventListener('resize',function(){resize();draw();});
+  window.addEventListener('scroll',onScroll,{passive:true});
+  onScroll(); animate();
 })();
 </script>
 </body>
