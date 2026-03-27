@@ -1295,66 +1295,61 @@ setTimeout(triggerHero, 120);
 (function() {
   var section = document.getElementById('mountainSection');
   if (!section) return;
+  // Attach to the STICKY container (viewport height) not the tall scroll section
+  var sticky = document.getElementById('mountainSticky') || section;
+  // Hide existing static canvas to avoid duplicate
+  var existing = document.getElementById('mtnCanvas');
+  if (existing) existing.style.display = 'none';
   var canvas = document.createElement('canvas');
-  canvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;display:block;z-index:1;';
-  section.style.position = 'relative';
-  section.style.overflow = 'hidden';
-  section.appendChild(canvas);
+  canvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;display:block;z-index:1;pointer-events:none;';
+  sticky.style.position = 'relative';
+  sticky.appendChild(canvas);
   var ctx = canvas.getContext('2d');
   var W, H, dpr = window.devicePixelRatio || 1;
   var progress = 0, targetProgress = 0;
 
-  // Stars
-  var stars = [];
-  for (var si = 0; si < 90; si++) {
-    stars.push({x:Math.random(), y:Math.random()*0.65, r:0.4+Math.random()*1.2, op:0.5+Math.random()*0.5});
-  }
-
-  // Text panels — 5 phases tied to scroll progress
-  var panels = ['mtnT0','mtnT1','mtnT2','mtnT3','mtnT4'];
-  panels.forEach(function(id) {
+  // Ensure text panels sit above canvas
+  ['mtnT0','mtnT1','mtnT2','mtnT3','mtnT4'].forEach(function(id) {
     var el = document.getElementById(id);
-    if (el) { el.style.zIndex = '10'; el.style.transition = 'opacity 0.6s ease'; }
+    if (el) { el.style.zIndex = '10'; el.style.transition = 'opacity 0.7s ease'; }
   });
 
-  // Mountain layers — gentle ridges, all peaks in bottom 30%
+  // Stars
+  var stars = [];
+  for (var i = 0; i < 90; i++)
+    stars.push({x:Math.random(), y:Math.random()*0.65, r:0.4+Math.random()*1.2, op:0.4+Math.random()*0.6});
+
+  // Gentle ridges — all peaks in bottom 30% of canvas
   var layers = [
-    {pts:[[0,.83],[.12,.76],[.25,.72],[.40,.68],[.52,.70],[.66,.74],[.80,.78],[1,.83]], col:'#1a2840', par:0.012},
-    {pts:[[0,.89],[.10,.82],[.24,.77],[.38,.72],[.50,.74],[.63,.70],[.76,.75],[.88,.80],[1,.88]], col:'#0f1c2e', par:0.022},
-    {pts:[[0,.96],[.14,.88],[.28,.83],[.42,.78],[.55,.76],[.68,.80],[.82,.86],[1,.96]], col:'#09141f', par:0.038},
+    {pts:[[0,.83],[.15,.76],[.30,.72],[.45,.68],[.58,.70],[.72,.74],[.86,.78],[1,.83]], col:'#1a2840', par:0.012},
+    {pts:[[0,.89],[.12,.82],[.26,.77],[.40,.72],[.52,.74],[.65,.70],[.78,.75],[.90,.80],[1,.88]], col:'#0f1c2e', par:0.022},
+    {pts:[[0,.96],[.15,.88],[.30,.83],[.44,.78],[.56,.76],[.70,.80],[.84,.86],[1,.96]], col:'#091420', par:0.038},
   ];
 
   function resize() {
     W = canvas.offsetWidth; H = canvas.offsetHeight;
     canvas.width = Math.round(W*dpr); canvas.height = Math.round(H*dpr);
-    ctx.scale(dpr, dpr);
+    ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr);
   }
 
   function drawMtn(pts, offY, col) {
-    ctx.beginPath();
-    ctx.moveTo(0, H);
+    ctx.beginPath(); ctx.moveTo(0, H);
     ctx.lineTo(pts[0][0]*W, pts[0][1]*H + offY*H);
     for (var i=1; i<pts.length; i++) {
       var cpx=(pts[i-1][0]+pts[i][0])/2*W, cpy=(pts[i-1][1]+pts[i][1])/2*H+offY*H;
-      ctx.quadraticCurveTo(cpx, cpy, pts[i][0]*W, pts[i][1]*H+offY*H);
+      ctx.quadraticCurveTo(cpx,cpy,pts[i][0]*W,pts[i][1]*H+offY*H);
     }
     ctx.lineTo(W,H); ctx.closePath(); ctx.fillStyle=col; ctx.fill();
   }
 
-  function updateText(p) {
-    // 5 panels across full scroll range, each active for 0.2 of progress
-    // crossfade at boundaries
-    panels.forEach(function(id, i) {
+  function updatePanels(p) {
+    ['mtnT0','mtnT1','mtnT2','mtnT3','mtnT4'].forEach(function(id, i) {
       var el = document.getElementById(id);
       if (!el) return;
-      var start = i * 0.2, end = (i+1) * 0.2;
-      var fadeIn = 0.03, fadeOut = 0.03;
-      var op = 0;
-      if (p >= start && p < end) {
-        var inPct = (p - start) / fadeIn;
-        var outPct = (end - p) / fadeOut;
-        op = Math.min(1, Math.min(inPct, outPct));
-      }
+      // Each panel covers 0.22 of progress range, with overlap for smooth crossfade
+      var center = i * 0.22;
+      var dist = Math.abs(p - center);
+      var op = Math.max(0, 1 - dist/0.14);
       el.style.opacity = op;
     });
   }
@@ -1362,38 +1357,30 @@ setTimeout(triggerHero, 120);
   function draw() {
     ctx.clearRect(0,0,W,H);
     var p = progress;
-
-    // Sky: deep navy to pre-dawn blue
+    // Sky: deep navy → pre-dawn blue
     var sky = ctx.createLinearGradient(0,0,0,H);
-    var r1=Math.round(6+p*18), g1=Math.round(14+p*34), b1=Math.round(28+p*68);
-    var r2=Math.round(10+p*28), g2=Math.round(22+p*52), b2=Math.round(48+p*88);
-    sky.addColorStop(0,'rgb('+r1+','+g1+','+b1+')');
-    sky.addColorStop(1,'rgb('+r2+','+g2+','+b2+')');
+    sky.addColorStop(0,'rgb('+(6+Math.round(p*18))+','+(14+Math.round(p*34))+','+(28+Math.round(p*68))+')');
+    sky.addColorStop(1,'rgb('+(10+Math.round(p*28))+','+(22+Math.round(p*52))+','+(48+Math.round(p*88))+')');
     ctx.fillStyle=sky; ctx.fillRect(0,0,W,H);
-
-    // Stars
-    var sOp = Math.max(0, 1-p*2.5);
+    // Stars fade as sun rises
+    var sOp = Math.max(0,1-p*2.8);
     if (sOp>0) stars.forEach(function(s) {
-      ctx.beginPath(); ctx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2);
+      ctx.beginPath(); ctx.arc(s.x*W,s.y*H,s.r,0,Math.PI*2);
       ctx.fillStyle='rgba(255,255,255,'+(s.op*sOp)+')'; ctx.fill();
     });
-
-    // Sun — rises from y=0.88 to y=0.22
-    var sunX=W*0.64, sunY=H*(0.88-p*0.66), sunR=18+p*10, sunOp=Math.min(1,p*2.2);
-    if (sunOp>0) {
-      var glow=ctx.createRadialGradient(sunX,sunY,0,sunX,sunY,sunR*4);
-      glow.addColorStop(0,'rgba(255,210,100,'+sunOp*0.5+')');
+    // Sun rises from y=0.90 to y=0.18
+    var sunX=W*0.64, sunY=H*(0.90-p*0.72), sunR=16+p*12, sOp2=Math.min(1,p*2.5);
+    if (sOp2>0) {
+      var glow=ctx.createRadialGradient(sunX,sunY,0,sunX,sunY,sunR*4.5);
+      glow.addColorStop(0,'rgba(255,210,100,'+sOp2*0.45+')');
       glow.addColorStop(1,'rgba(255,160,50,0)');
       ctx.fillStyle=glow; ctx.fillRect(0,0,W,H);
       ctx.beginPath(); ctx.arc(sunX,sunY,sunR,0,Math.PI*2);
-      ctx.fillStyle='rgba(255,232,140,'+sunOp+')'; ctx.fill();
+      ctx.fillStyle='rgba(255,232,140,'+sOp2+')'; ctx.fill();
     }
-
-    // Mountains
-    layers.forEach(function(L) { drawMtn(L.pts, -L.par*p, L.col); });
-
-    // Update text panels
-    updateText(p);
+    // Mountains with subtle parallax
+    layers.forEach(function(L) { drawMtn(L.pts,-L.par*p,L.col); });
+    updatePanels(p);
   }
 
   function animate() {
