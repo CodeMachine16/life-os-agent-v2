@@ -1559,7 +1559,7 @@ setTimeout(triggerHero, 120);
 </script>
 </body>
 </html>
-"""──
+"""
 
 class LoginPageGenerator:
     def generate(self):
