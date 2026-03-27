@@ -1295,110 +1295,105 @@ setTimeout(triggerHero, 120);
 (function() {
   var section = document.getElementById('mountainSection');
   if (!section) return;
-  // Attach to the STICKY container (viewport height) not the tall scroll section
-  var sticky = document.getElementById('mountainSticky') || section;
-  // Hide existing static canvas to avoid duplicate
-  var existing = document.getElementById('mtnCanvas');
-  if (existing) existing.style.display = 'none';
-  var canvas = document.createElement('canvas');
-  canvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;display:block;z-index:1;pointer-events:none;';
-  sticky.style.position = 'relative';
-  sticky.appendChild(canvas);
+  // Use the existing canvas — already styled in CSS (position:absolute, inset:0, 100%x100%)
+  var canvas = document.getElementById('mtnCanvas');
+  if (!canvas) return;
+  // DO NOT touch mountainSticky position — CSS has position:sticky which must be preserved
   var ctx = canvas.getContext('2d');
-  var W, H, dpr = window.devicePixelRatio || 1;
+  var W = 0, H = 0, dpr = window.devicePixelRatio || 1;
   var progress = 0, targetProgress = 0;
-
-  // Ensure text panels sit above canvas
-  ['mtnT0','mtnT1','mtnT2','mtnT3','mtnT4'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) { el.style.zIndex = '10'; el.style.transition = 'opacity 0.7s ease'; }
-  });
 
   // Stars
   var stars = [];
   for (var i = 0; i < 90; i++)
     stars.push({x:Math.random(), y:Math.random()*0.65, r:0.4+Math.random()*1.2, op:0.4+Math.random()*0.6});
 
-  // Gentle ridges — all peaks in bottom 30% of canvas
+  // Gentle ridges — all peaks in bottom 28% of canvas
   var layers = [
-    {pts:[[0,.83],[.15,.76],[.30,.72],[.45,.68],[.58,.70],[.72,.74],[.86,.78],[1,.83]], col:'#1a2840', par:0.012},
-    {pts:[[0,.89],[.12,.82],[.26,.77],[.40,.72],[.52,.74],[.65,.70],[.78,.75],[.90,.80],[1,.88]], col:'#0f1c2e', par:0.022},
-    {pts:[[0,.96],[.15,.88],[.30,.83],[.44,.78],[.56,.76],[.70,.80],[.84,.86],[1,.96]], col:'#091420', par:0.038},
+    {pts:[[0,.84],[.15,.77],[.30,.73],[.45,.69],[.58,.71],[.72,.75],[.86,.79],[1,.84]], col:'#1a2840', par:0.010},
+    {pts:[[0,.90],[.12,.83],[.26,.78],[.40,.73],[.52,.75],[.65,.71],[.78,.76],[.90,.81],[1,.89]], col:'#0f1c2e', par:0.020},
+    {pts:[[0,.96],[.15,.89],[.30,.84],[.44,.79],[.56,.77],[.70,.81],[.84,.87],[1,.96]], col:'#09141f', par:0.036},
   ];
+
+  var panelIds = ['mtnT0','mtnT1','mtnT2','mtnT3','mtnT4'];
 
   function resize() {
     W = canvas.offsetWidth; H = canvas.offsetHeight;
-    canvas.width = Math.round(W*dpr); canvas.height = Math.round(H*dpr);
-    ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr);
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr, dpr);
   }
 
   function drawMtn(pts, offY, col) {
     ctx.beginPath(); ctx.moveTo(0, H);
     ctx.lineTo(pts[0][0]*W, pts[0][1]*H + offY*H);
     for (var i=1; i<pts.length; i++) {
-      var cpx=(pts[i-1][0]+pts[i][0])/2*W, cpy=(pts[i-1][1]+pts[i][1])/2*H+offY*H;
-      ctx.quadraticCurveTo(cpx,cpy,pts[i][0]*W,pts[i][1]*H+offY*H);
+      var cpx=(pts[i-1][0]+pts[i][0])/2*W, cpy=(pts[i-1][1]+pts[i][1])/2*H + offY*H;
+      ctx.quadraticCurveTo(cpx, cpy, pts[i][0]*W, pts[i][1]*H + offY*H);
     }
     ctx.lineTo(W,H); ctx.closePath(); ctx.fillStyle=col; ctx.fill();
   }
 
   function updatePanels(p) {
-    ['mtnT0','mtnT1','mtnT2','mtnT3','mtnT4'].forEach(function(id, i) {
+    panelIds.forEach(function(id, i) {
       var el = document.getElementById(id);
       if (!el) return;
-      // Each panel covers 0.22 of progress range, with overlap for smooth crossfade
       var center = i * 0.22;
       var dist = Math.abs(p - center);
-      var op = Math.max(0, 1 - dist/0.14);
+      var op = Math.max(0, 1 - dist / 0.13);
       el.style.opacity = op;
+      el.style.transform = op > 0.01 ? 'translateY(0px)' : 'translateY(18px)';
     });
   }
 
   function draw() {
+    if (!W || !H) return;
     ctx.clearRect(0,0,W,H);
     var p = progress;
-    // Sky: deep navy → pre-dawn blue
+    // Sky gradient
     var sky = ctx.createLinearGradient(0,0,0,H);
-    sky.addColorStop(0,'rgb('+(6+Math.round(p*18))+','+(14+Math.round(p*34))+','+(28+Math.round(p*68))+')');
-    sky.addColorStop(1,'rgb('+(10+Math.round(p*28))+','+(22+Math.round(p*52))+','+(48+Math.round(p*88))+')');
+    sky.addColorStop(0, 'rgb('+(6+Math.round(p*20))+','+(14+Math.round(p*36))+','+(28+Math.round(p*72))+')');
+    sky.addColorStop(1, 'rgb('+(10+Math.round(p*30))+','+(22+Math.round(p*54))+','+(48+Math.round(p*90))+')');
     ctx.fillStyle=sky; ctx.fillRect(0,0,W,H);
-    // Stars fade as sun rises
-    var sOp = Math.max(0,1-p*2.8);
+    // Stars fade
+    var sOp = Math.max(0, 1-p*2.8);
     if (sOp>0) stars.forEach(function(s) {
-      ctx.beginPath(); ctx.arc(s.x*W,s.y*H,s.r,0,Math.PI*2);
+      ctx.beginPath(); ctx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2);
       ctx.fillStyle='rgba(255,255,255,'+(s.op*sOp)+')'; ctx.fill();
     });
-    // Sun rises from y=0.90 to y=0.18
+    // Sun rises y=0.90 → y=0.18
     var sunX=W*0.64, sunY=H*(0.90-p*0.72), sunR=16+p*12, sOp2=Math.min(1,p*2.5);
-    if (sOp2>0) {
+    if (sOp2>0.02) {
       var glow=ctx.createRadialGradient(sunX,sunY,0,sunX,sunY,sunR*4.5);
-      glow.addColorStop(0,'rgba(255,210,100,'+sOp2*0.45+')');
+      glow.addColorStop(0,'rgba(255,210,100,'+(sOp2*0.45)+')');
       glow.addColorStop(1,'rgba(255,160,50,0)');
       ctx.fillStyle=glow; ctx.fillRect(0,0,W,H);
       ctx.beginPath(); ctx.arc(sunX,sunY,sunR,0,Math.PI*2);
       ctx.fillStyle='rgba(255,232,140,'+sOp2+')'; ctx.fill();
     }
-    // Mountains with subtle parallax
-    layers.forEach(function(L) { drawMtn(L.pts,-L.par*p,L.col); });
+    // Mountains
+    layers.forEach(function(L) { drawMtn(L.pts, -L.par*p, L.col); });
+    // Text panels
     updatePanels(p);
   }
 
-  function animate() {
-    progress += (targetProgress-progress)*0.055;
+  function tick() {
+    progress += (targetProgress - progress) * 0.055;
     draw();
-    requestAnimationFrame(animate);
+    requestAnimationFrame(tick);
   }
 
   function onScroll() {
-    var rect=section.getBoundingClientRect();
-    var total=section.offsetHeight-window.innerHeight;
-    targetProgress=Math.max(0,Math.min(1,-rect.top/total));
+    var rect = section.getBoundingClientRect();
+    var total = section.offsetHeight - window.innerHeight;
+    if (total <= 0) return;
+    targetProgress = Math.max(0, Math.min(1, -rect.top / total));
   }
 
   resize();
-  window.addEventListener('resize',function(){resize();draw();});
-  window.addEventListener('scroll',onScroll,{passive:true});
-  onScroll(); animate();
+  window.addEventListener('resize', function() { resize(); });
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+  tick();
 })();
 </script>
 </body>
