@@ -1395,6 +1395,24 @@ setTimeout(triggerHero, 120);
   onScroll();
   tick();
 })();
+
+// Scroll-reveal: add .visible to .reveal elements when they enter viewport
+(function() {
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+    });
+  }, {threshold: 0.12});
+  document.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
+
+  // Hero entrance animations — trigger after short delay on load
+  var heroClasses = ['.hero-eyebrow','.hero-headline','.hero-sub','.hero-ctas','.hero-signal'];
+  heroClasses.forEach(function(sel, i) {
+    var el = document.querySelector(sel);
+    if (!el) return;
+    setTimeout(function() { el.style.opacity='1'; el.style.transform='translateY(0)'; }, 80 + i * 120);
+  });
+})();
 </script>
 </body>
 </html>
