@@ -1440,10 +1440,10 @@ class LoginPageGenerator:
     .card{position:relative;z-index:1;width:100%;max-width:420px;background:var(--surface);
           border:1px solid var(--border);border-radius:4px;padding:44px 40px 40px;backdrop-filter:blur(24px);}
     .logo{display:flex;align-items:center;gap:10px;margin-bottom:36px;}
-    .logo-text{font-size:13px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#1a2e4a;}
+    .logo-text{font-size:13px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,0.45);}
     .logo-text strong{color:var(--text);}
-    .card-title{font-family:var(--serif);font-size:28px;font-weight:700;color:#1a2e4a;margin-bottom:8px;}
-    .card-sub{font-size:13px;color:var(--muted);font-weight:300;margin-bottom:32px;line-height:1.5;}
+    .card-title{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--text);margin-bottom:8px;}
+    .card-sub{font-size:13px;color:rgba(255,255,255,0.62);font-weight:300;margin-bottom:32px;line-height:1.5;}
     .tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:28px;}
     .tab{flex:1;text-align:center;padding:10px 0;font-size:13px;font-weight:500;color:var(--muted);
          cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.04em;}
@@ -1455,7 +1455,7 @@ class LoginPageGenerator:
                   border-radius:2px;padding:11px 14px;font-size:14px;color:var(--text);
                   font-family:var(--sans);outline:none;transition:border-color .2s;}
     .field input:focus{border-color:var(--border-m);}
-    .field input::placeholder{color:#111111;}
+    .field input::placeholder{color:rgba(255,255,255,0.28);}
     .btn{width:100%;padding:13px;background:rgba(90,171,223,.15);border:1px solid rgba(90,171,223,.3);
          border-radius:2px;color:var(--text);font-size:13px;font-weight:600;letter-spacing:.06em;
          text-transform:uppercase;cursor:pointer;font-family:var(--sans);transition:all .2s;margin-top:8px;}
@@ -1511,7 +1511,7 @@ class LoginPageGenerator:
     </a>
 </div>
 
-<canvas id="snowMtn" style="position:fixed;bottom:0;left:0;width:100%;height:280px;pointer-events:none;z-index:0;"></canvas>
+<canvas id="snowMtn" style="position:fixed;bottom:0;left:0;width:100%;height:300px;pointer-events:none;z-index:0;"></canvas>
 <script>
 (function(){
 var cvs=document.getElementById('snowMtn');document.body.appendChild(cvs);
@@ -1565,11 +1565,15 @@ function drawSun(){
   ctx.fillStyle='rgba(140,190,255,0.18)';ctx.fill();
 }
 function drawSnow(){
+  var colors=['rgba(175,208,248,1)','rgba(210,228,252,1)','rgba(238,246,255,1)'];
   for(var i=0;i<flakes.length;i++){
     var f=flakes[i];
-    ctx.globalAlpha=f.op;ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,Math.PI*2);
-    ctx.fillStyle='rgba(220,235,255,1)';ctx.fill();
-    f.y+=f.speed;f.x+=f.drift;
+    f.t+=f.dFreq;
+    var dx=Math.sin(f.t+f.dPhase)*f.dAmp;
+    ctx.globalAlpha=f.op;
+    ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,Math.PI*2);
+    ctx.fillStyle=colors[f.layer];ctx.fill();
+    f.y+=f.speed; f.x+=dx;
     if(f.y>H+5){f.y=-5;f.x=Math.random()*W;}
     if(f.x>W+5) f.x=-5; if(f.x<-5) f.x=W+5;
   }
@@ -1646,9 +1650,9 @@ class DashboardGenerator:
     _CSS = """
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#06101e;--surface:rgba(255,255,255,0.06);--surface-2:rgba(255,255,255,0.09);
-  --border:rgba(90,171,223,.15);--border-m:rgba(90,171,223,.28);
-  --text:#e8f4ff;--muted:rgba(255,255,255,0.55);--accent:#5aabdf;
+  --bg:#06101e;--surface:rgba(255,255,255,0.08);--surface-2:rgba(255,255,255,0.11);
+  --border:rgba(90,171,223,.16);--border-m:rgba(90,171,223,.32);
+  --text:#eaf5ff;--muted:rgba(255,255,255,0.65);--accent:#5aabdf;
   --green:#10b981;--amber:#f59e0b;--red:#ef4444;
   --serif:'Playfair Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif;
 }
@@ -1667,31 +1671,31 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .nav-title{font-size:14px;font-weight:600;letter-spacing:-.3px;font-family:var(--serif);color:var(--text);}
 .nav-title span{color:var(--accent);}
 .nav-right{display:flex;gap:16px;align-items:center;}
-.nav-user{font-size:13px;color:var(--muted);}
+.nav-user{font-size:13px;color:rgba(255,255,255,0.58);}
 .nav-link{font-size:12px;color:var(--accent);text-decoration:none;
           padding:5px 12px;border:1px solid rgba(90,171,223,.25);border-radius:2px;transition:all .2s;}
 .nav-link:hover{background:rgba(90,171,223,.1);}
 
 /* Hero */
 .hero{margin-bottom:24px;}
-.hero-label{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:6px;}
-.hero-title{font-family:var(--serif);font-size:28px;font-weight:700;color:#1a2e4a;margin-bottom:6px;line-height:1.3;}
-.hero-sub{font-size:13px;color:var(--muted);line-height:1.6;font-style:italic;}
+.hero-label{font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:rgba(255,255,255,0.45);margin-bottom:8px;}
+.hero-title{font-family:var(--serif);font-size:30px;font-weight:700;color:#f0f8ff;margin-bottom:8px;line-height:1.25;letter-spacing:-.3px;}
+.hero-sub{font-size:14px;color:rgba(255,255,255,0.60);line-height:1.65;}
 
 /* Stats */
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:20px 24px;text-align:center;}
-.stat-value{font-size:36px;font-weight:800;color:#fff;line-height:1.1;margin-bottom:6px;}
-.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;}
+.stat-value{font-size:38px;font-weight:800;color:#ffffff;line-height:1.1;margin-bottom:4px;letter-spacing:-.5px;}
+.stat-label{font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.12em;}
 
 /* Grid */
 .grid{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:20px;}
 .grid-full{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
 
 /* Cards */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:22px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:24px;}.card.card-primary{border-top:2px solid var(--accent);background:rgba(255,255,255,0.09);}
 .card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
-.card-title{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:600;}
+.card-title{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:rgba(255,255,255,0.5);font-weight:600;}
 .card-action{font-size:12px;color:var(--accent);cursor:pointer;
              background:none;border:1px solid rgba(90,171,223,.25);border-radius:2px;
              padding:4px 10px;font-family:var(--sans);transition:all .2s;}
@@ -1709,7 +1713,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
             justify-content:center;font-size:10px;color:transparent;transition:all .15s;user-select:none;}
 .task-check.checked{background:var(--green);border-color:var(--green);color:#fff;}
 .task-body{flex:1;}
-.task-title{font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:5px;line-height:1.4;}
+.task-title{font-size:13px;font-weight:600;color:#eaf5ff;margin-bottom:5px;line-height:1.4;}
 .task-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:4px;}
 .tag{font-size:10px;padding:2px 7px;border-radius:8px;font-weight:500;white-space:nowrap;}
 .tag-high{background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.25);}
@@ -1717,7 +1721,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .tag-low{background:rgba(16,185,129,.12);color:#10b981;border:1px solid rgba(16,185,129,.25);}
 .tag-time{background:rgba(30,42,58,.8);color:#7dd3fc;border:1px solid rgba(125,211,252,.15);}
 .tag-start{background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2);}
-.task-goal{font-size:11px;color:#111111;}
+.task-goal{font-size:11px;color:rgba(255,255,255,0.38);}
 .task-why{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5;}
 
 /* Goals sidebar */
@@ -1728,12 +1732,12 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .goal-body{flex:1;}
 .goal-name{font-size:13px;font-weight:500;display:block;margin-bottom:2px;color:var(--text);}
 .goal-deadline{font-size:11px;color:var(--muted);}
-.goal-remove{background:none;border:none;color:#111111;cursor:pointer;
+.goal-remove{background:none;border:none;color:rgba(255,255,255,0.28);cursor:pointer;
              font-size:14px;padding:0 0 0 8px;line-height:1;transition:color .15s;flex-shrink:0;}
 .goal-remove:hover{color:#ef4444;}
 
 /* Coach */
-.coach-text{font-size:13px;line-height:1.75;color:var(--muted);white-space:pre-line;}
+.coach-text{font-size:13px;line-height:1.8;color:rgba(255,255,255,0.68);white-space:pre-line;}
 
 /* Status */
 .status-chip{display:inline-flex;align-items:center;gap:5px;
@@ -1747,12 +1751,12 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .bars{display:flex;align-items:flex-end;gap:5px;height:64px;padding-top:8px;}
 .bar-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;}
 .bar{width:20px;background:var(--accent);border-radius:2px 2px 0 0;min-height:3px;opacity:.8;}
-.bar-label{font-size:9px;color:#111111;}
+.bar-label{font-size:9px;color:var(--muted);}
 
 /* Empty states */
 .empty{text-align:center;padding:32px 20px;}
-.empty-icon{font-size:24px;color:#111111;margin-bottom:10px;line-height:1;}
-.empty-title{font-size:14px;font-weight:600;color:#111111;margin-bottom:6px;}
+.empty-icon{font-size:28px;color:rgba(255,255,255,0.22);margin-bottom:12px;line-height:1;}
+.empty-title{font-size:15px;font-weight:600;color:rgba(255,255,255,0.85);margin-bottom:8px;}
 .empty-text{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6;}
 
 /* Buttons */
@@ -1936,18 +1940,17 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
         if has_goals and not has_plan:
             plan_content = """
 <div class="empty">
-  <div class="empty-icon">&#9671;</div>
-  <div class="empty-title">No plan generated yet</div>
-  <div class="empty-text">Generate today's action plan based on your goals.<br>
-    This uses AI to create focused, specific tasks for you.</div>
+  <div class="empty-icon">&#10022;</div>
+  <div class="empty-title">Ready to build your day</div>
+  <div class="empty-text">Generate your AI-powered execution plan. Helion will prioritize your tasks by impact, sequence them intelligently, and tell you exactly what to focus on first.</div>
   <button class="btn-primary" id="genPlanBtn" onclick="generatePlan()">Generate Today's Plan</button>
 </div>"""
         elif not has_goals:
             plan_content = """
 <div class="empty">
-  <div class="empty-icon">&#9671;</div>
-  <div class="empty-title">No goals yet</div>
-  <div class="empty-text">Add at least one goal to generate your daily action plan.</div>
+  <div class="empty-icon">&#9672;</div>
+  <div class="empty-title">Start with a goal</div>
+  <div class="empty-text">Add your first goal and Helion will build you a personalized daily execution plan — sequenced, prioritized, and focused on what actually moves you forward.</div>
 </div>"""
         else:
             plan_content = tasks_html
@@ -1957,8 +1960,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
             goals_content = """
 <div class="empty">
   <div class="empty-icon">&#9651;</div>
-  <div class="empty-title">No active goals</div>
-  <div class="empty-text">Add your first goal to begin tracking your progress.</div>
+  <div class="empty-title">No goals yet</div>
+  <div class="empty-text">Define what you're working toward. Goals give Helion the context it needs to build your daily plan and coach you intelligently.</div>
 </div>"""
         else:
             goals_content = goals_html
@@ -2033,9 +2036,9 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
   <div class="nav">
     <div class="nav-brand">
       <svg viewBox="0 0 100 62" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="35" cy="11" r="5.5" stroke="#1a2e4a" stroke-width="1.9"/>
+        <circle cx="35" cy="11" r="5.5" stroke="rgba(90,171,223,0.75)" stroke-width="1.9"/>
         <path d="M1,58 C8,44 20,31 35,24 C43,28 51,34 57,38 C61,32 65,27 69,27 C77,33 88,40 99,50"
-              stroke="#1a2e4a" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+              stroke="rgba(90,171,223,0.75)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <div class="nav-title">Helion <span>AI</span></div>
     </div>
@@ -2073,7 +2076,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
   <!-- Main Grid: Plan + Goals -->
   <div class="grid">
     <div>
-      <div class="card">
+      <div class="card card-primary">
         <div class="card-head">
           <div class="card-title">Today's Action Plan</div>
           {regen_btn}
@@ -2271,17 +2274,25 @@ function resize(){
 
 function initFlakes(){
   flakes=[];
-  var n=Math.min(900,Math.floor(W/2.2));
-  for(var i=0;i<n;i++){
-    flakes.push({
-      x:Math.random()*W,
-      y:Math.random()*H,
-      r:(0.4+Math.random()*2.2)*dpr,
-      speed:(0.4+Math.random()*1.1)*dpr,
-      drift:(Math.random()-0.5)*0.5*dpr,
-      op:0.35+Math.random()*0.65
-    });
+  var n=Math.min(720,Math.floor(W/3.0));
+  // 3 depth layers: far(45%), mid(35%), near(20%)
+  var farN=Math.floor(n*0.45), midN=Math.floor(n*0.35), nearN=n-farN-midN;
+  function mk(rMin,rMax,sMin,sMax,opMin,opMax,dAmp,layer){
+    return{
+      x:Math.random()*W, y:Math.random()*H,
+      r:(rMin+Math.random()*(rMax-rMin))*dpr,
+      speed:(sMin+Math.random()*(sMax-sMin))*dpr,
+      op:opMin+Math.random()*(opMax-opMin),
+      dAmp:dAmp*dpr,
+      dFreq:0.004+Math.random()*0.009,
+      dPhase:Math.random()*Math.PI*2,
+      t:Math.random()*200,
+      layer:layer
+    };
   }
+  for(var i=0;i<farN;i++)  flakes.push(mk(0.25,0.75, 0.10,0.32, 0.08,0.22, 0.08, 0));
+  for(var i=0;i<midN;i++)  flakes.push(mk(0.85,1.65, 0.32,0.80, 0.25,0.50, 0.25, 1));
+  for(var i=0;i<nearN;i++) flakes.push(mk(1.80,3.20, 0.80,1.70, 0.48,0.82, 0.45, 2));
 }
 
 // Mountain layer definitions  (relative: x=0..1 of W, y=pixels from bottom)
@@ -2579,9 +2590,9 @@ class ArtemisPageGenerator:
   <style>
 *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0;}}
 :root{{
-  --bg:#06101e;--sidebar:rgba(8,18,32,0.97);--surface:rgba(255,255,255,0.06);
-  --border:rgba(90,171,223,.15);--border-m:rgba(90,171,223,.28);
-  --text:#e8f4ff;--muted:rgba(255,255,255,0.55);--accent:#5aabdf;
+  --bg:#06101e;--sidebar:rgba(8,18,32,0.97);--surface:rgba(255,255,255,0.08);
+  --border:rgba(90,171,223,.16);--border-m:rgba(90,171,223,.32);
+  --text:#eaf5ff;--muted:rgba(255,255,255,0.65);--accent:#5aabdf;
   --green:#10b981;--sans:'Inter',system-ui,sans-serif;--serif:'Playfair Display',Georgia,serif;
 }}
 html,body{{height:100%;overflow:hidden;}}
@@ -2606,29 +2617,29 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
 .back-arrow{{font-size:14px;}}
 .sidebar-brand{{display:flex;align-items:center;gap:10px;}}
 .sidebar-logo-text{{font-size:12px;font-weight:600;letter-spacing:.09em;
-                    text-transform:uppercase;color:#1a2e4a;}}
+                    text-transform:uppercase;color:rgba(255,255,255,0.45);}}
 .sidebar-logo-text strong{{color:var(--text);}}
 .sidebar-title{{font-family:var(--serif);font-size:22px;font-weight:700;
-               color:#1a2e4a;margin-top:20px;}}
+               color:var(--text);margin-top:20px;}}
 .sidebar-sub{{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5;font-weight:300;}}
 
 .sidebar-status{{padding:18px 20px;border-bottom:1px solid var(--border);}}
 .status-dot{{display:inline-block;width:7px;height:7px;border-radius:50%;
             background:var(--green);margin-right:8px;animation:pulse 2s infinite;}}
 @keyframes pulse{{0%,100%{{opacity:1;}}50%{{opacity:.4;}}}}
-.status-text{{font-size:12px;color:var(--muted);}}
+.status-text{{font-size:12px;color:rgba(255,255,255,0.58);}}
 
 .convo-list{{flex:1;overflow-y:auto;padding:16px 12px;}}
 .convo-list::-webkit-scrollbar{{width:3px;}}
 .convo-list::-webkit-scrollbar-thumb{{background:rgba(90,160,230,.15);border-radius:2px;}}
 .convo-item{{padding:10px 12px;border-radius:4px;cursor:pointer;font-size:13px;
             color:var(--muted);transition:all .15s;border:1px solid transparent;margin-bottom:4px;}}
-.convo-item.active{{background:rgba(90,171,223,.08);border-color:rgba(90,171,223,.15);color:var(--text);}}
+.convo-item.active{{background:rgba(90,171,223,.10);border-color:rgba(90,171,223,.22);color:#eaf5ff;}}
 .convo-item:hover:not(.active){{background:rgba(255,255,255,.03);color:var(--text);}}
-.convo-date{{font-size:10px;color:#111111;margin-top:3px;}}
+.convo-date{{font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px;}}
 
 .sidebar-footer{{padding:14px 16px;border-top:1px solid var(--border);font-size:11px;
-               color:#111111;letter-spacing:.04em;}}
+               color:rgba(255,255,255,0.30);letter-spacing:.04em;}}
 
 /* Main chat area */
 .chat-area{{
@@ -2638,9 +2649,9 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
 .chat-header{{
   padding:16px 28px;border-bottom:1px solid var(--border);
   display:flex;align-items:center;justify-content:space-between;
-  background:rgba(210,230,255,0.97);backdrop-filter:blur(12px);flex-shrink:0;
+  background:rgba(6,14,32,0.88);backdrop-filter:blur(12px);flex-shrink:0;
 }}
-.chat-header-title{{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.2px;}}
+.chat-header-title{{font-size:15px;font-weight:600;color:#eaf5ff;letter-spacing:-.2px;}}
 .chat-header-badge{{font-size:10px;background:rgba(90,171,223,.15);color:var(--accent);
                    border:1px solid rgba(90,171,223,.25);border-radius:10px;
                    padding:3px 9px;margin-left:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;}}
@@ -2671,7 +2682,8 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
   max-width:calc(100% - 50px)
 }}
 .bot-bubble{{
-  background:rgba(15,38,85,.75);border:1px solid var(--border);color:#ffffff;
+  background:rgba(12,30,72,.8);border:1px solid rgba(90,171,223,.18);color:#eaf5ff;
+  line-height:1.75;
 }}
 .user-bubble{{
   background:rgba(90,171,223,.12);border:1px solid rgba(90,171,223,.2);color:var(--text);
@@ -2691,10 +2703,10 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
 }}
 .input-wrap{{
   display:flex;gap:10px;align-items:flex-end;
-  background:rgba(10,28,70,.88);border:1px solid var(--border-m);
-  border-radius:8px;padding:12px 14px;
-  box-shadow:0 4px 24px rgba(0,0,0,.25);
-  backdrop-filter:blur(12px);
+  background:rgba(8,22,58,.92);border:1px solid rgba(90,171,223,.32);
+  border-radius:10px;padding:13px 16px;
+  box-shadow:0 4px 32px rgba(0,0,0,.35),0 0 0 1px rgba(90,171,223,.08);
+  backdrop-filter:blur(16px);
 }}
 .chat-input{{
   flex:1;background:transparent;border:none;outline:none;
@@ -2702,32 +2714,32 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
   resize:none;line-height:1.5;max-height:180px;min-height:24px;
   overflow-y:auto;
 }}
-.chat-input::placeholder{{color:rgba(255,255,255,.5);}}
+.chat-input::placeholder{{color:rgba(255,255,255,.38);}}
 .send-btn{{
-  flex-shrink:0;width:36px;height:36px;border-radius:6px;
-  background:rgba(90,171,223,.18);border:1px solid rgba(90,171,223,.3);
+  flex-shrink:0;width:38px;height:38px;border-radius:7px;
+  background:rgba(90,171,223,.20);border:1px solid rgba(90,171,223,.38);
   color:var(--accent);cursor:pointer;display:flex;align-items:center;
-  justify-content:center;transition:all .15s;font-size:16px;
+  justify-content:center;transition:all .18s;font-size:16px;
 }}
-.send-btn:hover{{background:rgba(90,171,223,.3);}}
+.send-btn:hover{{background:rgba(90,171,223,.35);transform:translateY(-1px);box-shadow:0 2px 8px rgba(90,171,223,.2);}}
 .send-btn:disabled{{opacity:.35;cursor:not-allowed;}}
-.input-hint{{font-size:11px;color:#111111;margin-top:8px;
+.input-hint{{font-size:11px;color:rgba(255,255,255,0.32);margin-top:8px;
             text-align:center;letter-spacing:.02em;}}
 
 /* Empty state */
 .empty-chat{{
   flex:1;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;padding:40px 20px;gap:12px;
+  justify-content:center;padding:48px 24px;gap:14px;
 }}
-.empty-chat-title{{font-family:var(--serif);font-size:26px;color:#1a2e4a;}}
-.empty-chat-sub{{font-size:14px;color:var(--muted);text-align:center;max-width:420px;line-height:1.6;}}
-.suggestion-chips{{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;justify-content:center;}}
+.empty-chat-title{{font-family:var(--serif);font-size:30px;color:var(--text);font-weight:700;letter-spacing:-.2px;}}
+.empty-chat-sub{{font-size:14px;color:rgba(255,255,255,0.62);text-align:center;max-width:460px;line-height:1.7;}}
+.suggestion-chips{{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;justify-content:center;max-width:560px;}}
 .chip{{
-  padding:8px 16px;background:rgba(90,171,223,.08);
-  border:1px solid rgba(90,171,223,.18);border-radius:20px;
-  font-size:12px;color:var(--muted);cursor:pointer;transition:all .15s;
+  padding:9px 18px;background:rgba(90,171,223,.09);
+  border:1px solid rgba(90,171,223,.22);border-radius:20px;
+  font-size:12px;color:rgba(255,255,255,0.72);cursor:pointer;transition:all .18s;font-weight:500;
 }}
-.chip:hover{{background:rgba(90,171,223,.16);color:var(--text);border-color:rgba(90,171,223,.3);}}
+.chip:hover{{background:rgba(90,171,223,.18);color:var(--text);border-color:rgba(90,171,223,.4);transform:translateY(-1px);}}
 
 @media(max-width:700px){{
   .sidebar{{display:none;}}
@@ -2780,12 +2792,13 @@ body{{font-family:var(--sans);background:var(--bg);color:var(--text);display:fle
     <!-- Empty state shown until first message -->
     <div class="empty-chat" id="emptyState">
       <div class="empty-chat-title">Hi, {display_name}.</div>
-      <div class="empty-chat-sub">I'm Artemis, your Helion AI. I can help you think through your goals, break through blockers, and stay on track.</div>
+      <div class="empty-chat-sub">I'm Artemis — your Helion AI execution coach. I know your goals, your plan, and your patterns. Ask me anything about what to focus on, how to break through, or where to push harder.</div>
       <div class="suggestion-chips">
         <div class="chip" onclick="sendChip(this)">What should I focus on today?</div>
-        <div class="chip" onclick="sendChip(this)">Review my current goals</div>
-        <div class="chip" onclick="sendChip(this)">I'm feeling stuck — help me</div>
-        <div class="chip" onclick="sendChip(this)">How am I progressing overall?</div>
+        <div class="chip" onclick="sendChip(this)">Where am I falling behind?</div>
+        <div class="chip" onclick="sendChip(this)">I'm stuck — help me think through this</div>
+        <div class="chip" onclick="sendChip(this)">Give me an honest assessment</div>
+        <div class="chip" onclick="sendChip(this)">Help me plan my next 7 days</div>
       </div>
     </div>
   </div>
