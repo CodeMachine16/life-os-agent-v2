@@ -1397,7 +1397,273 @@ setTimeout(triggerHero, 120);
     requestAnimationFrame(frame);
   }
   window.addEventListener('resize',resize);resize();requestAnimationFrame(frame);
-})();</script>
+})();
+// -- MOUNTAIN ANIMATION --------------------------------------
+(function() {
+  var section = document.getElementById('mountainSection');
+  var canvas = document.getElementById('mtnCanvas');
+  if (!section || !canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = 0, H = 0;
+  var progress = 0;
+  var texts = [
+    document.getElementById('mtnT0'),
+    document.getElementById('mtnT1'),
+    document.getElementById('mtnT2'),
+    document.getElementById('mtnT3'),
+    document.getElementById('mtnT4')
+  ];
+
+  // Mountain ridge data: [x_frac, height_frac_from_bottom]
+  var R0 = [[0,0],[0.08,0.04],[0.18,0.07],[0.28,0.05],[0.38,0.09],[0.48,0.07],[0.58,0.10],[0.68,0.06],[0.78,0.08],[0.88,0.05],[1,0]];
+  var R1 = [[0,0],[0.05,0.10],[0.14,0.18],[0.22,0.13],[0.32,0.20],[0.40,0.16],[0.48,0.24],[0.50,0.26],[0.52,0.24],[0.60,0.16],[0.68,0.22],[0.76,0.15],[0.85,0.18],[0.93,0.12],[1,0]];
+  var R2 = [[0,0],[0.04,0.08],[0.12,0.16],[0.20,0.22],[0.30,0.17],[0.37,0.24],[0.44,0.35],[0.48,0.52],[0.50,0.62],[0.52,0.52],[0.56,0.35],[0.63,0.24],[0.70,0.20],[0.80,0.24],[0.88,0.18],[0.95,0.12],[1,0]];
+  var R3 = [[0,0],[0.06,0.18],[0.15,0.25],[0.25,0.20],[0.35,0.26],[0.45,0.20],[0.55,0.18],[0.65,0.22],[0.75,0.28],[0.85,0.22],[0.93,0.18],[1,0]];
+
+  function resize() {
+    var dpr = window.devicePixelRatio || 1;
+    W = canvas.offsetWidth;
+    H = canvas.offsetHeight;
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    ctx.scale(dpr, dpr);
+  }
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+  function ease(t) { return t * t * (3 - 2 * t); }
+
+  function smoothPath(pts, dx, scale) {
+    ctx.beginPath();
+    ctx.moveTo(0, H);
+    ctx.lineTo(pts[0][0] * W + dx, H - pts[0][1] * H * scale);
+    for (var i = 0; i < pts.length - 1; i++) {
+      var ax = pts[i][0] * W + dx;
+      var ay = H - pts[i][1] * H * scale;
+      var bx = pts[i+1][0] * W + dx;
+      var by = H - pts[i+1][1] * H * scale;
+      var mx = (ax + bx) / 2;
+      var my = (ay + by) / 2;
+      ctx.quadraticCurveTo(ax, ay, mx, my);
+    }
+    var last = pts[pts.length - 1];
+    ctx.lineTo(last[0] * W + dx, H - last[1] * H * scale);
+    ctx.lineTo(W, H);
+    ctx.closePath();
+  }
+
+  function lerpC(c0, c1, t) {
+    return [
+      Math.round(lerp(c0[0], c1[0], t)),
+      Math.round(lerp(c0[1], c1[1], t)),
+      Math.round(lerp(c0[2], c1[2], t))
+    ];
+  }
+  function rgb(c) { return 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')'; }
+  function rgba(c, a) { return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a + ')'; }
+
+  function draw() {
+    if (!W || !H) return;
+    var p = ease(progress);
+    ctx.clearRect(0, 0, W, H);
+
+    // Sky gradient
+    var skyTop0 = [6, 10, 22];      var skyTop1 = [12, 8, 28];
+    var skyMid0 = [10, 20, 50];     var skyMid1 = [55, 18, 50];
+    var skyHrz0 = [12, 26, 60];     var skyHrz1 = [130, 50, 28];
+    var skyBot0 = [18, 36, 78];     var skyBot1 = [210, 100, 40];
+
+    var grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0.0, rgb(lerpC(skyTop0, skyTop1, p)));
+    grad.addColorStop(0.3, rgb(lerpC(skyMid0, skyMid1, p)));
+    grad.addColorStop(0.65, rgb(lerpC(skyHrz0, skyHrz1, p)));
+    grad.addColorStop(1.0, rgb(lerpC(skyBot0, skyBot1, p)));
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Stars fade out in first half
+    var starOp = clamp(1 - p * 2.2, 0, 1);
+    if (starOp > 0) {
+      // Simple procedural stars using sine hash
+      for (var i = 0; i < 180; i++) {
+        var sx = ((i * 137.508) % 1) * W;
+        var sy = ((i * 97.31) % 0.68) * H;
+        var sr = 0.5 + ((i * 53) % 10) * 0.13;
+        var sop = (0.3 + ((i * 73) % 10) * 0.07) * starOp;
+        ctx.beginPath();
+        ctx.arc(sx, sy, sr, 0, 6.2832);
+        ctx.fillStyle = 'rgba(255,255,255,' + sop + ')';
+        ctx.fill();
+      }
+    }
+
+    // Atmospheric horizon glow
+    var horizonOp = p * 0.6;
+    if (horizonOp > 0.01) {
+      var hg = ctx.createRadialGradient(W * 0.5, H * 0.62, 0, W * 0.5, H * 0.62, W * 0.6);
+      hg.addColorStop(0, 'rgba(220,80,20,' + horizonOp * 0.5 + ')');
+      hg.addColorStop(0.4, 'rgba(180,60,10,' + horizonOp * 0.3 + ')');
+      hg.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = hg;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    // Sun
+    var sunStartX = W * 0.72, sunStartY = H * 0.90;
+    var sunEndX   = W * 0.50, sunEndY   = H * 0.28;
+    var sunX = lerp(sunStartX, sunEndX, p);
+    var sunY = lerp(sunStartY, sunEndY, p);
+    var sunR = lerp(8, 20, p);
+    var sunGlowR = lerp(80, 160, p);
+    var sunOp = lerp(0.25, 1.0, p);
+
+    // Sun glow
+    var sg = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunGlowR);
+    sg.addColorStop(0,   'rgba(255,200,80,' + sunOp + ')');
+    sg.addColorStop(0.15,'rgba(255,160,40,' + sunOp * 0.7 + ')');
+    sg.addColorStop(0.40,'rgba(240,100,20,' + sunOp * 0.25 + ')');
+    sg.addColorStop(1,   'rgba(200,60,0,0)');
+    ctx.fillStyle = sg;
+    ctx.beginPath();
+    ctx.arc(sunX, sunY, sunGlowR, 0, 6.2832);
+    ctx.fill();
+
+    // Sun core
+    var sc = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunR);
+    sc.addColorStop(0,   'rgba(255,240,180,' + sunOp + ')');
+    sc.addColorStop(0.6, 'rgba(255,200,80,' + sunOp + ')');
+    sc.addColorStop(1,   'rgba(255,160,40,0)');
+    ctx.fillStyle = sc;
+    ctx.beginPath();
+    ctx.arc(sunX, sunY, sunR, 0, 6.2832);
+    ctx.fill();
+
+    // Mountain layers (back to front, parallax)
+    var parallax0 = p * (-18);
+    var parallax1 = p * (-10);
+    var parallax2 = p * 0;
+    var parallax3 = p * 14;
+
+    smoothPath(R0, parallax0, 0.82);
+    ctx.fillStyle = 'rgba(7,12,24,0.95)';
+    ctx.fill();
+
+    smoothPath(R1, parallax1, 0.82);
+    ctx.fillStyle = 'rgba(9,16,32,0.97)';
+    ctx.fill();
+
+    smoothPath(R2, parallax2, 0.82);
+    // Main mountain with subtle warm rim as sun rises
+    var rimOp = p * 0.45;
+    if (rimOp > 0.01) {
+      ctx.fillStyle = rgba([22, 12, 8], rimOp);
+    } else {
+      ctx.fillStyle = 'rgba(8,14,28,0.99)';
+    }
+    ctx.fill();
+    // Mountain silhouette solid fill on top
+    smoothPath(R2, parallax2, 0.82);
+    ctx.fillStyle = 'rgba(6,11,22,0.92)';
+    ctx.fill();
+
+    smoothPath(R3, parallax3, 0.82);
+    ctx.fillStyle = 'rgba(5,9,18,0.98)';
+    ctx.fill();
+
+    // Snow cap on main peak (subtle, always visible)
+    var pkX = W * 0.50 + parallax2;
+    var pkY = H - R2[8][1] * H * 0.82;
+    var snowOp = 0.06 + p * 0.12;
+    var snowG = ctx.createRadialGradient(pkX, pkY, 0, pkX, pkY, W * 0.025);
+    snowG.addColorStop(0, 'rgba(220,235,255,' + snowOp + ')');
+    snowG.addColorStop(1, 'rgba(220,235,255,0)');
+    ctx.fillStyle = snowG;
+    ctx.beginPath();
+    ctx.arc(pkX, pkY, W * 0.025, 0, 6.2832);
+    ctx.fill();
+  }
+
+  function updateProgress() {
+    var rect = section.getBoundingClientRect();
+    var sH = section.offsetHeight;
+    var vh = window.innerHeight;
+    var scrolled = -rect.top;
+    progress = clamp(scrolled / (sH - vh), 0, 1);
+  }
+
+  function updateTexts() {
+    var p = progress;
+    var ranges = [[0, 0.22], [0.22, 0.44], [0.44, 0.66], [0.66, 0.84], [0.84, 1.0]];
+    var fi = 0.06, fo = 0.06;
+    for (var i = 0; i < texts.length; i++) {
+      if (!texts[i]) continue;
+      var s = ranges[i][0], e = ranges[i][1];
+      var op = 0;
+      if (p >= s + fi && p <= e - fo) {
+        op = 1;
+      } else if (p >= s && p < s + fi) {
+        op = (p - s) / fi;
+      } else if (p > e - fo && p <= e) {
+        op = 1 - (p - (e - fo)) / fo;
+      }
+      op = clamp(op, 0, 1);
+      texts[i].style.opacity = op;
+      texts[i].style.transform = 'translateY(' + ((1 - op) * 22) + 'px)';
+    }
+  }
+
+  var rafId = null;
+  function tick() {
+    draw();
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function onScroll() {
+    updateProgress();
+    updateTexts();
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', function() {
+    resize();
+    draw();
+  });
+
+  // Init
+  resize();
+  updateProgress();
+  updateTexts();
+  tick();
+
+  // Pause RAF when section not visible
+  var visObs = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting) {
+      if (!rafId) tick();
+    } else {
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    }
+  }, { threshold: 0 });
+  visObs.observe(section);
+})();
+
+// -- SCROLL REVEAL -------------------------------------------
+(function() {
+  var els = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window)) {
+    for (var i = 0; i < els.length; i++) els[i].classList.add('visible');
+    return;
+  }
+  var obs = new IntersectionObserver(function(entries) {
+    for (var i = 0; i < entries.length; i++) {
+      if (entries[i].isIntersecting) {
+        entries[i].target.classList.add('visible');
+        obs.unobserve(entries[i].target);
+      }
+    }
+  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+  for (var i = 0; i < els.length; i++) obs.observe(els[i]);
+})();
+</script>
 </body>
 </html>
 """
