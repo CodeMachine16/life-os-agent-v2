@@ -2249,6 +2249,88 @@ async function generatePlan() {{
 // Artemis chat is now at /artemis page
 </script>
 {self._snow_mountain_html()}
+<!-- Artemis Intelligence Rail -->
+<div class="artemis-rail" id="artemisRail">
+  <div class="rail-header">
+    <div class="rail-brand">ARTEMIS / HELION AI</div>
+    <div class="rail-context" id="railContext"></div>
+  </div>
+  <div class="rail-messages" id="railMessages"></div>
+  <div class="rail-prompts" id="railPrompts"></div>
+  <div class="rail-footer">
+    <input class="rail-input" id="railInput" placeholder="Ask Artemis…"/>
+    <button class="rail-send" id="railSend" onclick="railSendMsg()">&#9658;</button>
+  </div>
+</div>
+<button class="rail-tab" id="railTab" onclick="toggleRail()">A R T E M I S</button>
+<script>
+const APP_STATE = {{
+  hasGoals: {'true' if has_goals else 'false'},
+  goalCount: {len(goals_list)},
+  hasPlan: {'true' if has_plan else 'false'},
+  planStatus: 'none',
+  displayName: '{display_name}',
+  compRate: 0
+}};
+var _railOpen=false;
+function openRail(){{
+  document.getElementById('artemisRail').classList.add('open');
+  document.getElementById('railTab').classList.add('hidden');
+  _railOpen=true;
+  renderRailContext();renderRailPrompts();
+  if(!document.getElementById('railMessages').children.length){{
+    appendRailMsg('ai',APP_STATE.displayName+(APP_STATE.hasGoals
+      ?'. '+APP_STATE.goalCount+' goal'+(APP_STATE.goalCount!==1?'s':'')+' active. What do you need?'
+      :'. No goals yet — add one and I’ll have something to work with.'));
+  }}
+}}
+function closeRail(){{
+  document.getElementById('artemisRail').classList.remove('open');
+  document.getElementById('railTab').classList.remove('hidden');
+  _railOpen=false;
+}}
+function toggleRail(){{_railOpen?closeRail():openRail();}}
+function renderRailContext(){{
+  var el=document.getElementById('railContext');if(!el)return;
+  var parts=[];
+  if(APP_STATE.hasGoals)parts.push(APP_STATE.goalCount+' goal'+(APP_STATE.goalCount!==1?'s':''));
+  el.textContent=parts.join(' · ')||'No active goals';
+}}
+function renderRailPrompts(){{
+  var el=document.getElementById('railPrompts');if(!el)return;
+  var chips=['How does Helion work?','Help me set a goal','What can Artemis do?'];
+  el.innerHTML=chips.map(function(c){{return'<button class="prompt-chip" onclick="railQuickPrompt(''+c.replace(/'/g,"\'")+''">'+c+'</button>';}}).join('');
+}}
+function appendRailMsg(role,text){{
+  var el=document.getElementById('railMessages');if(!el)return;
+  var d=document.createElement('div');d.className='rail-msg '+role;d.textContent=text;
+  el.appendChild(d);el.scrollTop=el.scrollHeight;
+}}
+function railQuickPrompt(text){{appendRailMsg('user',text);railSendToApi(text);}}
+async function railSendMsg(){{
+  var inp=document.getElementById('railInput');
+  var msg=inp?inp.value.trim():'';if(!msg)return;
+  inp.value='';appendRailMsg('user',msg);railSendToApi(msg);
+}}
+async function railSendToApi(msg){{
+  try{{
+    appendRailMsg('ai','…');
+    var msgsEl=document.getElementById('railMessages');
+    var loading=msgsEl?msgsEl.lastChild:null;
+    var resp=await fetch('/api/chat',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{message:msg}})}});
+    var data=await resp.json();
+    if(loading)loading.remove();
+    appendRailMsg('ai',data.response||data.error||'No response');
+  }}catch(e){{
+    var msgsEl=document.getElementById('railMessages');
+    if(msgsEl&&msgsEl.lastChild)msgsEl.lastChild.textContent='Connection error. Try again.';
+  }}
+}}
+document.addEventListener('DOMContentLoaded',function(){{
+  var inp=document.getElementById('railInput');
+  if(inp)inp.addEventListener('keydown',function(e){{if(e.key==='Enter'&&!e.shiftKey){{e.preventDefault();railSendMsg();}}}});
+}});
+</script>
 </body>
 </html>"""
 
