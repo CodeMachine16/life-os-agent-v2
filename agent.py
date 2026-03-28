@@ -2299,7 +2299,14 @@ function renderRailContext(){{
 function renderRailPrompts(){{
   var el=document.getElementById('railPrompts');if(!el)return;
   var chips=['How does Helion work?','Help me set a goal','What can Artemis do?'];
-  el.innerHTML=chips.map(function(c){{return'<button class="prompt-chip" onclick="railQuickPrompt(''+c.replace(/'/g,"\'")+''">'+c+'</button>';}}).join('');
+  el.innerHTML='';
+  chips.forEach(function(c){{
+    var btn=document.createElement('button');
+    btn.className='prompt-chip';
+    btn.textContent=c;
+    btn.onclick=function(){{railQuickPrompt(c);}};
+    el.appendChild(btn);
+  }});
 }}
 function appendRailMsg(role,text){{
   var el=document.getElementById('railMessages');if(!el)return;
@@ -2959,12 +2966,18 @@ function renderRailContext(){{
   el.textContent=parts.join(' · ')||'No active goals';
 }}
 function renderRailPrompts(){{
-  var el=document.getElementById('railPrompts');
-  if(!el)return;
+  var el=document.getElementById('railPrompts');if(!el)return;
   var chips=APP_STATE.hasGoals
-    ?['What should I focus on?','Review my plan','What’s blocking me?','Next action?']
+    ?['What should I focus on?','Review my plan',"What's blocking me?",'Next action?']
     :['How does Helion work?','Help me set a goal','What can Artemis do?'];
-  el.innerHTML=chips.map(function(c){{return'<button class="prompt-chip" onclick="railQuickPrompt(''+c.replace(/'/g,"\'")+''">'+c+'</button>';}}).join('');
+  el.innerHTML='';
+  chips.forEach(function(c){{
+    var btn=document.createElement('button');
+    btn.className='prompt-chip';
+    btn.textContent=c;
+    btn.onclick=function(){{railQuickPrompt(c);}};
+    el.appendChild(btn);
+  }});
 }}
 function appendRailMsg(role,text){{
   var el=document.getElementById('railMessages');
