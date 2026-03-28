@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-Helion AI — Personal Execution Engine (v4 with Artemis AI)
-==============================================================
+Helion AI — Personal Execution Engine (========================
 A multi-agent AI system that acts as your personal chief of staff.
 Breaks down goals, generates daily action plans, tracks progress,
 and now includes Artemis — a personalized AI assistant.
@@ -673,7 +672,7 @@ class LandingPageGenerator:
     /* REVEAL */
     .reveal{opacity:0;transform:translateY(40px);transition:opacity .85s,transform .85s;}
     .reveal.visible{opacity:1;transform:translateY(0);}
-    .d1{transition-delay:.10s;}.d2{transition-delay:.20s;}.d3{transition-delay:.30s;}.d4{transition-delay:.40s;}
+    .d1{transition-delay:.10s;}.d2{transition-delay:.20s;}.d3{transition-delay:.30s;}.d4{transition-delay:.40s;}.d5{transition-delay:.50s;}
 
     /* LAYOUT */
     section{padding:120px 56px;}
@@ -683,56 +682,38 @@ class LandingPageGenerator:
                line-height:1.12;margin-bottom:18px;color:#fff;}
     .sec-sub{font-size:17px;color:var(--muted);line-height:1.68;max-width:540px;}
 
-    /* TRUST STRIP */
-    .trust-strip{padding:0 56px 80px;text-align:center;}
-    .trust-label{font-size:11px;letter-spacing:.18em;text-transform:uppercase;
-                 color:var(--dim);margin-bottom:24px;}
-    .trust-pills{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
-    .trust-pill{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
-                border-radius:20px;padding:8px 20px;font-size:13px;color:var(--muted);
-                letter-spacing:.03em;}
-
-    /* MOUNTAIN SECTION */
-    .mountain-section{position:relative;height:500vh;}
-    .mountain-sticky{position:sticky;top:0;height:100vh;overflow:hidden;}
-    #mtnCanvas{position:absolute;inset:0;width:100%;height:100%;}
-    .mtn-texts{position:absolute;inset:0;display:flex;align-items:center;
-               justify-content:center;pointer-events:none;}
-    .mtn-text{position:absolute;text-align:center;padding:0 40px;
-              transition:opacity .5s,transform .5s;will-change:opacity,transform;opacity:0;
-              transform:translateY(18px);max-width:640px;}
-    .mtn-label{font-size:11px;letter-spacing:.24em;text-transform:uppercase;
-               color:rgba(240,168,85,0.8);margin-bottom:14px;}
-    .mtn-heading{font-family:var(--serif);font-size:clamp(32px,5vw,60px);font-weight:700;
-                 line-height:1.1;color:#fff;text-shadow:0 2px 40px rgba(0,0,0,0.6);}
-    .mtn-sub{font-size:17px;color:rgba(255,255,255,0.65);line-height:1.65;margin-top:16px;}
+    /* ASCENT MARKER */
+    .ascent-marker{display:flex;align-items:center;gap:28px;padding:72px 56px 52px;justify-content:center;}
+    .ascent-line{flex:1;max-width:140px;height:1px;background:linear-gradient(90deg,transparent,rgba(90,171,223,0.28),transparent);}
+    .ascent-text{font-size:10px;letter-spacing:.30em;text-transform:uppercase;color:rgba(255,255,255,0.28);white-space:nowrap;}
 
     /* FEATURES */
     .features-section{background:rgba(255,255,255,0.012);
                       border-top:1px solid rgba(90,171,223,0.07);
                       border-bottom:1px solid rgba(90,171,223,0.07);}
     .features-intro{margin-bottom:70px;}
-    .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
-    @media(max-width:900px){.feat-grid{grid-template-columns:1fr 1fr;}}
-    @media(max-width:540px){.feat-grid{grid-template-columns:1fr;}}
-    .feat-card{background:var(--card-bg);border:1px solid var(--card-border);
-               border-radius:10px;padding:32px 28px;
-               transition:background .25s,border-color .25s,transform .3s;}
-    .feat-card:hover{background:rgba(90,171,223,0.048);
-                     border-color:rgba(90,171,223,0.20);transform:translateY(-4px);}
-    .feat-icon{width:44px;height:44px;border-radius:8px;
-               background:rgba(90,171,223,0.10);border:1px solid rgba(90,171,223,0.18);
-               display:flex;align-items:center;justify-content:center;
-               font-size:20px;margin-bottom:20px;}
-    .feat-title{font-size:15px;font-weight:600;margin-bottom:10px;letter-spacing:-.01em;}
-    .feat-desc{font-size:13.5px;color:var(--muted);line-height:1.65;}
+    .feat-rows{border-top:1px solid rgba(90,171,223,0.12);margin-top:56px;}
+    .feat-row{display:grid;grid-template-columns:48px 1fr 32px;gap:0 40px;padding:30px 0;border-bottom:1px solid rgba(90,171,223,0.07);align-items:start;cursor:default;transition:background .2s;position:relative;}
+    .feat-row:hover{background:rgba(90,171,223,0.022);}
+    .feat-row::before{content:'';position:absolute;left:0;top:14%;height:72%;width:1.5px;background:linear-gradient(180deg,transparent,rgba(90,171,223,0.40),transparent);opacity:0;transform:scaleY(0);transform-origin:center;transition:opacity 0.5s,transform 0.55s cubic-bezier(0.16,1,0.3,1);}
+    .feat-row.visible::before{opacity:1;transform:scaleY(1);}
+    .feat-num{font-size:10.5px;letter-spacing:.15em;color:rgba(255,255,255,0.18);padding-top:5px;font-variant-numeric:tabular-nums;transition:color 0.7s 0.1s;}
+    .feat-row.visible .feat-num{color:rgba(90,171,223,0.50);}
+    .feat-name{font-family:var(--serif);font-size:22px;font-weight:700;color:#eaf5ff;margin-bottom:10px;letter-spacing:-.015em;transition:color .2s;}
+    .feat-row:hover .feat-name{color:#fff;}
+    .feat-text{font-size:13.5px;color:rgba(255,255,255,0.48);line-height:1.70;}
+    .feat-mark{color:rgba(90,171,223,0.22);font-size:18px;padding-top:4px;transition:color .2s,transform .2s;}
+    .feat-row:hover .feat-mark{color:var(--accent);transform:translate(3px,-3px);}
 
     /* MOCKUP WINDOW */
     .mockup-section{padding:0 56px 120px;}
     .mockup-wrap{max-width:980px;margin:0 auto;}
     .browser-window{background:rgba(8,18,36,0.98);border:1px solid rgba(90,171,223,0.14);
                     border-radius:12px;overflow:hidden;
-                    box-shadow:0 40px 120px rgba(0,0,0,0.6),0 0 0 1px rgba(90,171,223,0.05);}
+                    box-shadow:0 40px 120px rgba(0,0,0,0.6),0 0 0 1px rgba(90,171,223,0.05);
+                    transform:translateY(28px) perspective(900px) rotateX(3.5deg);opacity:0;
+                    transition:transform 1.15s cubic-bezier(0.16,1,0.3,1),opacity 1.15s;transform-origin:top center;}
+    .reveal.visible .browser-window{transform:translateY(0) perspective(900px) rotateX(0deg);opacity:1;}
     .browser-bar{background:rgba(12,24,50,0.99);padding:12px 16px;
                  display:flex;align-items:center;gap:12px;
                  border-bottom:1px solid rgba(90,171,223,0.10);}
@@ -829,13 +810,15 @@ class LandingPageGenerator:
 
     /* HOW IT WORKS */
     .steps{display:flex;flex-direction:column;gap:0;margin-top:60px;max-width:640px;}
-    .step{display:flex;gap:28px;align-items:flex-start;padding:32px 0;
-          border-bottom:1px solid rgba(90,171,223,0.07);}
+    .steps-wrap{position:relative;}
+    .steps-track{position:absolute;left:27px;top:38px;width:1px;height:calc(100% - 76px);background:linear-gradient(180deg,rgba(90,171,223,0.0) 0%,rgba(90,171,223,0.20) 15%,rgba(90,171,223,0.20) 85%,rgba(90,171,223,0.0) 100%);transform:scaleY(0);transform-origin:top center;transition:transform 1.6s cubic-bezier(0.16,1,0.3,1) 0.4s;}
+    .steps-wrap.line-active .steps-track{transform:scaleY(1);}
+    .step{display:grid;grid-template-columns:56px 1fr;gap:0 40px;align-items:start;padding:38px 0;border-bottom:1px solid rgba(90,171,223,0.07);}
     .step:last-child{border-bottom:none;}
-    .step-num{font-family:var(--serif);font-size:38px;font-weight:700;
-              color:rgba(90,171,223,0.22);line-height:1;flex-shrink:0;width:46px;}
-    .step-body h3{font-size:16px;font-weight:600;color:#fff;margin-bottom:8px;letter-spacing:-.01em;}
-    .step-body p{font-size:14px;color:var(--muted);line-height:1.65;}
+    .step-num{font-family:var(--serif);font-size:48px;font-weight:700;color:rgba(90,171,223,0.18);line-height:1;letter-spacing:-.02em;}
+    .step-body h3{font-family:var(--serif);font-size:22px;font-weight:700;color:#eaf5ff;margin-bottom:10px;letter-spacing:-.01em;}
+    .step-body p{font-size:14px;color:rgba(255,255,255,0.50);line-height:1.70;}
+    .step.visible .step-num{color:rgba(90,171,223,0.32);text-shadow:0 0 28px rgba(90,171,223,0.12);transition:color 0.9s,text-shadow 0.9s;}
 
     /* PRICING */
     .pricing-section{text-align:center;padding:120px 56px;
@@ -872,7 +855,7 @@ class LandingPageGenerator:
     @media(max-width:700px){
       nav{padding:16px 20px;}
       .nav-links{display:none;}
-      section,.mockup-section,.trust-strip,.cta-section,.pricing-section{padding-left:20px;padding-right:20px;}
+      section,.mockup-section,.ascent-marker,.cta-section,.pricing-section{padding-left:20px;padding-right:20px;}
       .app-shell{grid-template-columns:1fr;}
       .app-sidebar{display:none;}
       .dash-grid{grid-template-columns:1fr 1fr;}
@@ -931,17 +914,8 @@ class LandingPageGenerator:
   </div>
 </section>
 
-<!-- TRUST STRIP -->
-<div class="trust-strip reveal">
-  <p class="trust-label">Built for high-performers across every field</p>
-  <div class="trust-pills">
-    <div class="trust-pill">Founders &amp; Entrepreneurs</div>
-    <div class="trust-pill">Students &amp; Researchers</div>
-    <div class="trust-pill">Professionals &amp; Leaders</div>
-    <div class="trust-pill">Creators &amp; Athletes</div>
-    <div class="trust-pill">Anyone with ambitious goals</div>
-  </div>
-</div>
+<!-- ASCENT MARKER -->
+<div class="ascent-marker"><div class="ascent-line"></div><span class="ascent-text">The ascent begins</span><div class="ascent-line"></div></div>
 
 <!-- MOUNTAIN SCROLL ANIMATION -->
 <div class="mountain-section" id="mountainSection">
@@ -985,37 +959,14 @@ class LandingPageGenerator:
       <h2 class="sec-title reveal d1">Every layer you need<br>to stop starting over.</h2>
       <p class="sec-sub reveal d2">Helion is not a task list. It is a complete execution architecture designed to move you from ambition to action, every single day.</p>
     </div>
-    <div class="feat-grid">
-      <div class="feat-card reveal">
-        <div class="feat-icon">&#9678;</div>
-        <div class="feat-title">Goal Architecture</div>
-        <div class="feat-desc">Turn vague ambitions into structured milestones. Helion breaks your goal into a sequenced path with real deadlines and clear dependencies.</div>
-      </div>
-      <div class="feat-card reveal d1">
-        <div class="feat-icon">&#9638;</div>
-        <div class="feat-title">Daily Execution Brief</div>
-        <div class="feat-desc">Every morning, a precise action list calibrated to your current phase and priorities. No decision fatigue. You always know what to do today.</div>
-      </div>
-      <div class="feat-card reveal d2">
-        <div class="feat-icon">&#9734;</div>
-        <div class="feat-title">Artemis AI Coach</div>
-        <div class="feat-desc">Not a generic chatbot. An embedded coach who knows your goals, your timeline, your blockers, and your patterns. Context-first intelligence.</div>
-      </div>
-      <div class="feat-card reveal">
-        <div class="feat-icon">&#9670;</div>
-        <div class="feat-title">Intelligent Replanning</div>
-        <div class="feat-desc">Fell off track? Helion rebuilds without guilt. Miss a week and you get a recovery plan, not a blank page. Consistency is survivable.</div>
-      </div>
-      <div class="feat-card reveal d1">
-        <div class="feat-icon">&#9685;</div>
-        <div class="feat-title">Progress Intelligence</div>
-        <div class="feat-desc">Streaks, completion rates, goal velocity. Data that motivates rather than overwhelms. See momentum building in real time.</div>
-      </div>
-      <div class="feat-card reveal d2">
-        <div class="feat-icon">&#9673;</div>
-        <div class="feat-title">Habit Architecture</div>
-        <div class="feat-desc">Build the daily behaviors that compound into results. Helion tracks your consistency so discipline becomes your default, not your exception.</div>
-      </div>
+    <div class="feat-rows">
+      <div class="feat-row reveal"><span class="feat-num">01</span><div class="feat-body"><h3 class="feat-name">Goal Architecture</h3><p class="feat-text">Turn vague ambitions into structured milestones. Helion breaks your goal into a sequenced path with real deadlines and clear dependencies.</p></div><div class="feat-mark">&#8599;</div></div>
+      <div class="feat-row reveal d1"><span class="feat-num">02</span><div class="feat-body"><h3 class="feat-name">Daily Execution Brief</h3><p class="feat-text">Every morning, a precise action list calibrated to your current phase and priorities. No decision fatigue. Always know what to work on first.</p></div><div class="feat-mark">&#8599;</div></div>
+      <div class="feat-row reveal d2"><span class="feat-num">03</span><div class="feat-body"><h3 class="feat-name">Artemis — Strategic Intelligence</h3><p class="feat-text">Not a chatbot. An embedded execution coach who knows your goals, your timeline, your blockers, and your patterns. Context-first, always.</p></div><div class="feat-mark">&#8599;</div></div>
+      <div class="feat-row reveal d3"><span class="feat-num">04</span><div class="feat-body"><h3 class="feat-name">Intelligent Replanning</h3><p class="feat-text">Fell off track? Helion rebuilds without guilt. You get a recovery plan, not a blank page. Consistency is survivable.</p></div><div class="feat-mark">&#8599;</div></div>
+      <div class="feat-row reveal d4"><span class="feat-num">05</span><div class="feat-body"><h3 class="feat-name">Progress Intelligence</h3><p class="feat-text">Streaks, completion rates, goal velocity. Data that motivates. See momentum building — slow at first, then undeniable.</p></div><div class="feat-mark">&#8599;</div></div>
+      <div class="feat-row reveal d5"><span class="feat-num">06</span><div class="feat-body"><h3 class="feat-name">Habit Architecture</h3><p class="feat-text">Build the daily behaviors that compound into results. Helion tracks consistency so discipline becomes your default.</p></div><div class="feat-mark">&#8599;</div></div>
+    </div>
     </div>
   </div>
 </section>
@@ -1166,33 +1117,36 @@ class LandingPageGenerator:
   <div class="container">
     <p class="label reveal">How Helion works</p>
     <h2 class="sec-title reveal d1">From ambition to action<br>in four steps.</h2>
-    <div class="steps">
-      <div class="step reveal">
-        <div class="step-num">01</div>
-        <div class="step-body">
-          <h3>Define what matters</h3>
-          <p>Add your goals with deadlines and context. Helion structures them into milestone-based paths with clear dependencies. No blank page, no guesswork.</p>
+    <div class="steps-wrap" id="stepsWrap">
+      <div class="steps-track"></div>
+      <div class="steps">
+        <div class="step reveal">
+          <div class="step-num">01</div>
+          <div class="step-body">
+            <h3>Define what matters</h3>
+            <p>Add your goals with deadlines and context. Helion structures them into milestone-based paths with clear dependencies. No blank page, no guesswork.</p>
+          </div>
         </div>
-      </div>
-      <div class="step reveal d1">
-        <div class="step-num">02</div>
-        <div class="step-body">
-          <h3>Get your daily brief</h3>
-          <p>Each morning, a precise action list calibrated to your current phase, energy, and priorities. Always know what to work on and why it matters today.</p>
+        <div class="step reveal d1">
+          <div class="step-num">02</div>
+          <div class="step-body">
+            <h3>Get your daily brief</h3>
+            <p>Each morning, a precise action list calibrated to your current phase, energy, and priorities. Always know what to work on and why it matters today.</p>
+          </div>
         </div>
-      </div>
-      <div class="step reveal d2">
-        <div class="step-num">03</div>
-        <div class="step-body">
-          <h3>Execute with Artemis</h3>
-          <p>Stuck on something? Artemis helps you think through blockers, get replanned, and stay moving. A coach who knows your full context, always on hand.</p>
+        <div class="step reveal d2">
+          <div class="step-num">03</div>
+          <div class="step-body">
+            <h3>Execute with Artemis</h3>
+            <p>Stuck on something? Artemis helps you think through blockers, get replanned, and stay moving. A coach who knows your full context, always on hand.</p>
+          </div>
         </div>
-      </div>
-      <div class="step reveal d3">
-        <div class="step-num">04</div>
-        <div class="step-body">
-          <h3>Watch momentum compound</h3>
-          <p>Track streaks, goal velocity, and completion patterns. Over time, you stop relying on motivation and start relying on the system.</p>
+        <div class="step reveal d3">
+          <div class="step-num">04</div>
+          <div class="step-body">
+            <h3>Watch momentum compound</h3>
+            <p>Track streaks, goal velocity, and completion patterns. Over time, you stop relying on motivation and start relying on the system.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -1662,6 +1616,19 @@ setTimeout(triggerHero, 120);
     }
   }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
   for (var i = 0; i < els.length; i++) obs.observe(els[i]);
+})();
+
+// ── STEPS LINE OBSERVER ──────────────────────────────────────────
+(function() {
+  var sw = document.getElementById('stepsWrap');
+  if (!sw || !('IntersectionObserver' in window)) return;
+  var lineObs = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting) {
+      sw.classList.add('line-active');
+      lineObs.unobserve(sw);
+    }
+  }, { threshold: 0.20 });
+  lineObs.observe(sw);
 })();
 </script>
 </body>
