@@ -1251,7 +1251,7 @@ window.addEventListener('scroll', function() {
 
 // ââ HERO LOAD âââââââââââââââââââââââââââââââââââââââââââââââ
 function triggerHero() { document.body.classList.add('loaded'); }
-window.addEventListener('load', triggerHero);
+if(document.readyState==='complete'){triggerHero();}else{window.addEventListener('load',triggerHero);}
 setTimeout(triggerHero, 120);
 
 // ââ STAR FIELD ââââââââââââââââââââââââââââââââââââââââââââââ
