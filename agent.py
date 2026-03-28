@@ -1255,106 +1255,7 @@ window.addEventListener('load', triggerHero);
 setTimeout(triggerHero, 120);
 
 // ââ STAR FIELD ââââââââââââââââââââââââââââââââââââââââââââââ
-</script>
-</body>
-</html>
-"""
 
-class LoginPageGenerator:
-    def generate(self):
-        return """<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Helion AI — Sign In</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    :root{--bg:#06101e;--surface:rgba(255,255,255,0.06);--border:rgba(90,171,223,.18);
-          --border-m:rgba(90,171,223,.30);--text:#e8f4ff;--muted:rgba(255,255,255,0.55);
-          --accent:#5aabdf;--serif:'Playfair Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif;}
-    body{font-family:var(--sans);background:var(--bg);color:var(--text);
-         min-height:100vh;display:flex;align-items:center;justify-content:center;}
-    .atm{position:fixed;inset:0;pointer-events:none;}
-    .orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.38;}
-    .o1{width:700px;height:500px;top:-150px;left:-100px;background:radial-gradient(ellipse,rgba(90,171,223,0.12),transparent 70%);}
-    .o2{width:600px;height:400px;bottom:-100px;right:-100px;background:radial-gradient(ellipse,rgba(90,171,223,0.08),transparent 70%);}
-    .card{position:relative;z-index:1;width:100%;max-width:420px;background:var(--surface);
-          border:1px solid var(--border);border-radius:4px;padding:44px 40px 40px;backdrop-filter:blur(24px);}
-    .logo{display:flex;align-items:center;gap:10px;margin-bottom:36px;}
-    .logo-text{font-size:13px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,0.45);}
-    .logo-text strong{color:var(--text);}
-    .card-title{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--text);margin-bottom:8px;}
-    .card-sub{font-size:13px;color:rgba(255,255,255,0.62);font-weight:300;margin-bottom:32px;line-height:1.5;}
-    .tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:28px;}
-    .tab{flex:1;text-align:center;padding:10px 0;font-size:13px;font-weight:500;color:var(--muted);
-         cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.04em;}
-    .tab.active{color:var(--text);border-bottom-color:var(--accent);}
-    .field{margin-bottom:18px;}
-    .field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.1em;
-                  color:var(--muted);margin-bottom:8px;font-weight:500;}
-    .field input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);
-                  border-radius:2px;padding:11px 14px;font-size:14px;color:var(--text);
-                  font-family:var(--sans);outline:none;transition:border-color .2s;}
-    .field input:focus{border-color:var(--border-m);}
-    .field input::placeholder{color:rgba(255,255,255,0.28);}
-    .btn{width:100%;padding:13px;background:rgba(90,171,223,.15);border:1px solid rgba(90,171,223,.3);
-         border-radius:2px;color:var(--text);font-size:13px;font-weight:600;letter-spacing:.06em;
-         text-transform:uppercase;cursor:pointer;font-family:var(--sans);transition:all .2s;margin-top:8px;}
-    .btn:hover{background:rgba(90,171,223,.25);border-color:rgba(90,171,223,.5);}
-    .btn:disabled{opacity:.5;cursor:not-allowed;}
-    .err{font-size:12px;color:#c97b7b;margin-top:14px;text-align:center;min-height:18px;}
-    .signup-only{display:none;}
-  </style>
-</head>
-<body>
-<div class="atm"><div class="orb o1"></div><div class="orb o2"></div></div>
-<div class="card">
-  <div class="logo">
-    <svg width="50" height="32" viewBox="0 0 100 62" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="35" cy="11" r="5.5" stroke="#1a2e4a" stroke-width="1.9"/>
-      <path d="M1,58 C8,44 20,31 35,24 C43,28 51,34 57,38 C61,32 65,27 69,27 C77,33 88,40 99,50"
-            stroke="#1a2e4a" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    <span class="logo-text">Helion <strong>AI</strong></span>
-  </div>
-  <div class="tabs">
-    <div class="tab active" onclick="sw('login')">Sign In</div>
-    <div class="tab" onclick="sw('register')">Create Account</div>
-  </div>
-  <div id="tl" class="card-title">Welcome back.</div>
-  <div id="tr" class="card-title" style="display:none">Get started.</div>
-  <div id="sl" class="card-sub">Your goals and plans are waiting.</div>
-  <div id="sr" class="card-sub" style="display:none">Create your personal Helion AI account.</div>
-  <form onsubmit="go(event)">
-    <div class="field signup-only" id="fn">
-      <label>Your Name</label>
-      <input type="text" id="display_name" placeholder="e.g. Alex" autocomplete="name"/>
-    </div>
-    <div class="field signup-only" id="ef">
-      <label>Email</label>
-      <input type="email" id="email" placeholder="e.g. user@example.com" autocomplete="email"/>
-    </div>
-    <div class="field">
-      <label>Username</label>
-      <input type="text" id="username" placeholder="e.g. username" required autocomplete="username" autocapitalize="none"/>
-    </div>
-    <div class="field">
-      <label>Password</label>
-      <input type="password" id="password" placeholder="Min. 6 characters" required/>
-    </div>
-    <button class="btn" type="submit" id="sb">Sign In</button>
-  </form>
-  <div class="err" id="em"></div>
-    <div class="google-divider" id="gd">or</div>
-    <a class="btn-google" id="gb" href="/auth/google">
-      <svg width="20" height="20" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.33 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.67 14.62 48 24 48z"/></svg>
-      Continue with Google
-    </a>
-</div>
-
-<canvas id="snowMtn" style="position:fixed;bottom:0;left:0;width:100%;height:300px;pointer-events:none;z-index:0;"></canvas>
-<script>
 (function(){{
   var c=document.getElementById('starCanvas');if(!c)return;
   var ctx=c.getContext('2d'),W=0,H=0,t=0;
@@ -1497,6 +1398,105 @@ class LoginPageGenerator:
   }}
   window.addEventListener('resize',resize);resize();requestAnimationFrame(frame);
 }})();</script>
+</body>
+</html>
+"""
+
+class LoginPageGenerator:
+    def generate(self):
+        return """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Helion AI — Sign In</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--bg:#06101e;--surface:rgba(255,255,255,0.06);--border:rgba(90,171,223,.18);
+          --border-m:rgba(90,171,223,.30);--text:#e8f4ff;--muted:rgba(255,255,255,0.55);
+          --accent:#5aabdf;--serif:'Playfair Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif;}
+    body{font-family:var(--sans);background:var(--bg);color:var(--text);
+         min-height:100vh;display:flex;align-items:center;justify-content:center;}
+    .atm{position:fixed;inset:0;pointer-events:none;}
+    .orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.38;}
+    .o1{width:700px;height:500px;top:-150px;left:-100px;background:radial-gradient(ellipse,rgba(90,171,223,0.12),transparent 70%);}
+    .o2{width:600px;height:400px;bottom:-100px;right:-100px;background:radial-gradient(ellipse,rgba(90,171,223,0.08),transparent 70%);}
+    .card{position:relative;z-index:1;width:100%;max-width:420px;background:var(--surface);
+          border:1px solid var(--border);border-radius:4px;padding:44px 40px 40px;backdrop-filter:blur(24px);}
+    .logo{display:flex;align-items:center;gap:10px;margin-bottom:36px;}
+    .logo-text{font-size:13px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,0.45);}
+    .logo-text strong{color:var(--text);}
+    .card-title{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--text);margin-bottom:8px;}
+    .card-sub{font-size:13px;color:rgba(255,255,255,0.62);font-weight:300;margin-bottom:32px;line-height:1.5;}
+    .tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:28px;}
+    .tab{flex:1;text-align:center;padding:10px 0;font-size:13px;font-weight:500;color:var(--muted);
+         cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.04em;}
+    .tab.active{color:var(--text);border-bottom-color:var(--accent);}
+    .field{margin-bottom:18px;}
+    .field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.1em;
+                  color:var(--muted);margin-bottom:8px;font-weight:500;}
+    .field input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);
+                  border-radius:2px;padding:11px 14px;font-size:14px;color:var(--text);
+                  font-family:var(--sans);outline:none;transition:border-color .2s;}
+    .field input:focus{border-color:var(--border-m);}
+    .field input::placeholder{color:rgba(255,255,255,0.28);}
+    .btn{width:100%;padding:13px;background:rgba(90,171,223,.15);border:1px solid rgba(90,171,223,.3);
+         border-radius:2px;color:var(--text);font-size:13px;font-weight:600;letter-spacing:.06em;
+         text-transform:uppercase;cursor:pointer;font-family:var(--sans);transition:all .2s;margin-top:8px;}
+    .btn:hover{background:rgba(90,171,223,.25);border-color:rgba(90,171,223,.5);}
+    .btn:disabled{opacity:.5;cursor:not-allowed;}
+    .err{font-size:12px;color:#c97b7b;margin-top:14px;text-align:center;min-height:18px;}
+    .signup-only{display:none;}
+  </style>
+</head>
+<body>
+<div class="atm"><div class="orb o1"></div><div class="orb o2"></div></div>
+<div class="card">
+  <div class="logo">
+    <svg width="50" height="32" viewBox="0 0 100 62" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="35" cy="11" r="5.5" stroke="#1a2e4a" stroke-width="1.9"/>
+      <path d="M1,58 C8,44 20,31 35,24 C43,28 51,34 57,38 C61,32 65,27 69,27 C77,33 88,40 99,50"
+            stroke="#1a2e4a" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="logo-text">Helion <strong>AI</strong></span>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="sw('login')">Sign In</div>
+    <div class="tab" onclick="sw('register')">Create Account</div>
+  </div>
+  <div id="tl" class="card-title">Welcome back.</div>
+  <div id="tr" class="card-title" style="display:none">Get started.</div>
+  <div id="sl" class="card-sub">Your goals and plans are waiting.</div>
+  <div id="sr" class="card-sub" style="display:none">Create your personal Helion AI account.</div>
+  <form onsubmit="go(event)">
+    <div class="field signup-only" id="fn">
+      <label>Your Name</label>
+      <input type="text" id="display_name" placeholder="e.g. Alex" autocomplete="name"/>
+    </div>
+    <div class="field signup-only" id="ef">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="e.g. user@example.com" autocomplete="email"/>
+    </div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="e.g. username" required autocomplete="username" autocapitalize="none"/>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Min. 6 characters" required/>
+    </div>
+    <button class="btn" type="submit" id="sb">Sign In</button>
+  </form>
+  <div class="err" id="em"></div>
+    <div class="google-divider" id="gd">or</div>
+    <a class="btn-google" id="gb" href="/auth/google">
+      <svg width="20" height="20" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.33 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.67 14.62 48 24 48z"/></svg>
+      Continue with Google
+    </a>
+</div>
+
+<canvas id="snowMtn" style="position:fixed;bottom:0;left:0;width:100%;height:300px;pointer-events:none;z-index:0;"></canvas>
+<script></script>
 <div id="sun-hz" style="position:fixed;width:70px;height:70px;cursor:default;z-index:2;border-radius:50%;transform:translate(-50%,-50%);"></div>
 <div id="sun-qt" style="position:fixed;display:none;background:rgba(255,255,255,0.93);color:#1a2e4a;font-size:12px;font-weight:500;padding:7px 14px;border-radius:10px;box-shadow:0 2px 16px rgba(0,0,0,.13);pointer-events:none;z-index:11;max-width:220px;text-align:center;line-height:1.5;letter-spacing:0.01em;"></div>
 <script>
