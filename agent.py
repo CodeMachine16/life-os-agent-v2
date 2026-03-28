@@ -2115,7 +2115,6 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
     <div class="nav-right">
       <span class="nav-user">{display_name}</span>
       <span id="saveInd" class="save-ind"></span>
-      <a href="/artemis" class="nav-link" style="background:rgba(90,171,223,.12);border-color:rgba(90,171,223,.4);">&#9679; Artemis AI</a>
       <a href="/api/auth/logout" class="nav-link">Sign out</a>
     <button onclick="toggleRail()" class="nav-link" style="background:rgba(90,171,223,.10);border:1px solid rgba(90,171,223,.32);">&#9679; Artemis</button>
     </div>
@@ -2740,6 +2739,11 @@ class ArtemisPageGenerator:
     @staticmethod
     def generate(display_name: str = "there") -> str:
         snow = DashboardGenerator._snow_mountain_html()
+        has_goals  = False
+        goals_list = []
+        has_plan   = False
+        status     = ''
+        comp_rate  = 0
         return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
