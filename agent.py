@@ -687,6 +687,19 @@ class LandingPageGenerator:
     .ascent-line{flex:1;max-width:140px;height:1px;background:linear-gradient(90deg,transparent,rgba(90,171,223,0.28),transparent);}
     .ascent-text{font-size:10px;letter-spacing:.30em;text-transform:uppercase;color:rgba(255,255,255,0.28);white-space:nowrap;}
 
+    /* MOUNTAIN SCROLL ANIMATION */
+    .mountain-section{height:600vh;position:relative;}
+    .mountain-sticky{position:sticky;top:0;height:100vh;overflow:hidden;}
+    #mtnCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
+    .mtn-texts{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:10;}
+    .mtn-text{position:absolute;text-align:center;max-width:640px;padding:0 40px;
+              opacity:0;transition:opacity .6s,transform .6s;}
+    .mtn-label{font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--accent);margin-bottom:18px;}
+    .mtn-heading{font-family:var(--serif);font-size:clamp(32px,5vw,58px);font-weight:700;
+                 line-height:1.10;color:#fff;margin-bottom:20px;
+                 text-shadow:0 2px 40px rgba(0,0,0,0.5);}
+    .mtn-sub{font-size:clamp(15px,1.8vw,18px);color:rgba(255,255,255,0.72);line-height:1.65;max-width:480px;margin:0 auto;}
+
     /* FEATURES */
     .features-section{background:rgba(255,255,255,0.012);
                       border-top:1px solid rgba(90,171,223,0.07);
