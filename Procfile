@@ -1,1 +1,1 @@
-web: python3 life_os_agent.py --serve
+web: python3 agent.py --serve

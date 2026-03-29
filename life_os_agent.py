@@ -2551,7 +2551,7 @@ def run_setup():
             "deadline":  deadline or "open-ended",
             "status":    "active",
             "created":   datetime.now().isoformat(),
-            "sub_goals': [{"title": sg, "priority": "medium"} for sg in sub_goals],
+            "sub_goals": [{"title": sg, "priority": "medium"} for sg in sub_goals],
         })
 
     with open(GOALS_FILE, "w") as f:
@@ -2598,7 +2598,7 @@ def main():
                     {"id": "a1b2", "title": "Launch SaaS product MVP",
                      "deadline": "May 15, 2026", "status": "active",
                      "created": datetime.now().isoformat(),
-                     "sub_goals': [{"title": "Build onboarding flow", "priority": "high"},
+                     "sub_goals": [{"title": "Build onboarding flow", "priority": "high"},
                                    {"title": "Get 10 beta users", "priority": "high"}]},
                     {"id": "c3d4", "title": "Learn customer discovery",
                      "deadline": "ongoing", "status": "active",
