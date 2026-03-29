@@ -1240,19 +1240,63 @@ setTimeout(triggerHero, 120);
       ST.push({x:sx,y:sy,r:sr,op:sop,tw:stw,spd:spd});
     }
   })();
-  function mtnPts(bY,amp,freq,ph){
-    var p=[];
-    for(var i=0;i<=100;i++){
-      var nx=i/100;
-      var ny=bY+amp*(-Math.abs(Math.sin(nx*Math.PI*freq+ph))*0.85-0.15*Math.abs(Math.sin(nx*Math.PI*freq*1.6+ph*1.4)));
-      p.push({x:nx,y:ny});
-    }
-    return p;
-  }
+  // Premium layered mountain silhouettes – hand-crafted geology
+  // {x:0-1, y:fraction from TOP of canvas}; polygon fills downward
+  var hM0=[ // Distant atmospheric range
+    {x:0,y:.698},{x:.04,y:.689},{x:.08,y:.681},{x:.11,y:.673},{x:.14,y:.666},
+    {x:.16,y:.661},{x:.17,y:.658},{x:.185,y:.661},{x:.20,y:.665},{x:.23,y:.660},
+    {x:.26,y:.654},{x:.29,y:.648},{x:.32,y:.642},{x:.35,y:.637},{x:.37,y:.633},
+    {x:.38,y:.630},{x:.385,y:.633},{x:.40,y:.638},{x:.43,y:.633},{x:.46,y:.628},
+    {x:.48,y:.624},{x:.49,y:.621},{x:.50,y:.619},{x:.51,y:.621},{x:.53,y:.626},
+    {x:.56,y:.631},{x:.59,y:.636},{x:.62,y:.631},{x:.65,y:.636},{x:.68,y:.641},
+    {x:.72,y:.636},{x:.76,y:.641},{x:.80,y:.646},{x:.84,y:.641},{x:.88,y:.646},
+    {x:.92,y:.651},{x:.96,y:.656},{x:1,y:.660}
+  ];
+  var hM1=[ // Far-mid range with emergent peaks
+    {x:0,y:.723},{x:.03,y:.714},{x:.06,y:.704},{x:.09,y:.694},{x:.12,y:.684},
+    {x:.14,y:.675},{x:.16,y:.667},{x:.17,y:.661},{x:.175,y:.656},{x:.18,y:.651},
+    {x:.185,y:.648},{x:.19,y:.645},{x:.20,y:.648},{x:.21,y:.652},{x:.23,y:.647},
+    {x:.25,y:.641},{x:.27,y:.634},{x:.29,y:.627},{x:.31,y:.619},{x:.33,y:.611},
+    {x:.35,y:.603},{x:.36,y:.598},{x:.37,y:.593},{x:.375,y:.590},{x:.38,y:.587},
+    {x:.385,y:.590},{x:.39,y:.595},{x:.41,y:.590},{x:.43,y:.583},{x:.45,y:.576},
+    {x:.47,y:.569},{x:.48,y:.564},{x:.49,y:.560},{x:.50,y:.556},{x:.51,y:.560},
+    {x:.52,y:.565},{x:.54,y:.571},{x:.56,y:.566},{x:.58,y:.571},{x:.61,y:.577},
+    {x:.64,y:.572},{x:.67,y:.577},{x:.70,y:.583},{x:.73,y:.578},{x:.77,y:.583},
+    {x:.81,y:.589},{x:.85,y:.584},{x:.89,y:.589},{x:.93,y:.594},{x:.97,y:.599},{x:1,.60}
+  ];
+  var hM2=[ // Main range – iconic asymmetric central peak
+    {x:0,y:.765},{x:.02,y:.755},{x:.04,y:.744},{x:.07,y:.731},{x:.10,y:.717},
+    {x:.12,y:.706},{x:.14,y:.694},{x:.16,y:.682},{x:.17,y:.674},{x:.18,y:.667},
+    {x:.19,y:.660},{x:.20,y:.652},{x:.21,y:.645},{x:.22,y:.639},{x:.23,y:.633},
+    {x:.24,y:.627},{x:.25,y:.621},{x:.26,y:.614},{x:.27,y:.608},{x:.28,y:.601},
+    {x:.29,y:.594},{x:.30,y:.587},{x:.31,y:.580},{x:.32,y:.573},{x:.325,y:.569},
+    {x:.33,y:.572},{x:.335,y:.576},{x:.34,y:.580},{x:.36,y:.574},{x:.38,y:.567},
+    {x:.40,y:.559},{x:.42,y:.551},{x:.44,y:.542},{x:.45,y:.536},{x:.46,y:.529},
+    {x:.47,y:.522},{x:.475,y:.518},{x:.48,y:.513},{x:.485,y:.509},{x:.49,y:.505},
+    {x:.495,y:.501},{x:.498,y:.498},{x:.50,y:.494},{x:.502,y:.498},{x:.505,y:.502},
+    {x:.51,y:.507},{x:.515,y:.512},{x:.52,y:.518},{x:.525,y:.515},{x:.53,y:.521},
+    {x:.54,y:.527},{x:.545,y:.523},{x:.55,y:.530},{x:.56,y:.525},{x:.57,y:.531},
+    {x:.58,y:.537},{x:.59,y:.532},{x:.60,y:.538},{x:.62,y:.544},{x:.64,y:.539},
+    {x:.66,y:.545},{x:.68,y:.551},{x:.70,y:.546},{x:.73,y:.551},{x:.76,y:.557},
+    {x:.79,y:.552},{x:.82,y:.557},{x:.85,y:.563},{x:.88,y:.558},{x:.91,y:.563},
+    {x:.94,y:.568},{x:.97,y:.573},{x:1,y:.578}
+  ];
+  var hM3=[ // Near foreground – lower dark hills framing the scene
+    {x:0,y:.810},{x:.03,y:.802},{x:.06,y:.794},{x:.09,y:.786},{x:.12,y:.778},
+    {x:.14,y:.771},{x:.16,y:.764},{x:.17,y:.761},{x:.185,y:.764},{x:.20,y:.768},
+    {x:.22,y:.763},{x:.24,y:.757},{x:.26,y:.751},{x:.28,y:.746},{x:.30,y:.741},
+    {x:.31,y:.743},{x:.32,y:.746},{x:.33,y:.743},{x:.35,y:.737},{x:.37,y:.732},
+    {x:.38,y:.736},{x:.40,y:.740},{x:.41,y:.736},{x:.43,y:.731},{x:.45,y:.734},
+    {x:.47,y:.739},{x:.49,y:.734},{x:.51,y:.739},{x:.53,y:.743},{x:.55,y:.739},
+    {x:.57,y:.743},{x:.59,y:.747},{x:.61,y:.743},{x:.63,y:.747},{x:.66,y:.751},
+    {x:.69,y:.747},{x:.72,y:.751},{x:.75,y:.755},{x:.78,y:.751},{x:.81,y:.755},
+    {x:.84,y:.759},{x:.87,y:.755},{x:.90,y:.759},{x:.93,y:.763},{x:.96,y:.767},{x:1,y:.771}
+  ];
   MTN=[
-    {p:mtnPts(0.58,0.16,3.1,0.4),c:'#0d2040'},
-    {p:mtnPts(0.68,0.13,2.7,1.2),c:'#091628'},
-    {p:mtnPts(0.76,0.10,2.3,2.1),c:'#050c1a'}
+    {p:hM0,c:'rgba(20,38,88,0.65)'},
+    {p:hM1,c:'rgba(12,24,60,0.78)'},
+    {p:hM2,c:'rgba(6,13,34,0.93)'},
+    {p:hM3,c:'rgba(3,7,18,0.97)'}
   ];
   (function(){
     var s=24680;
@@ -1325,10 +1369,23 @@ setTimeout(triggerHero, 120);
       ctx.save();ctx.translate(mx,0);ctx.fillStyle=mi;ctx.fillRect(-W,my-28,W*3,56);ctx.restore();
     }
     for(var m=0;m<MTN.length;m++){
-      var mn=MTN[m];
+      var mn=MTN[m];var p=mn.p;
       ctx.beginPath();ctx.moveTo(0,H);
-      for(var i=0;i<mn.p.length;i++) ctx.lineTo(mn.p[i].x*W,mn.p[i].y*H);
-      ctx.lineTo(W,H);ctx.closePath();ctx.fillStyle=mn.c;ctx.fill();
+      ctx.lineTo(p[0].x*W,p[0].y*H);
+      for(var i=0;i<p.length-1;i++){
+        var cx=p[i].x*W,cy=p[i].y*H;
+        var nx=p[i+1].x*W,ny=p[i+1].y*H;
+        ctx.quadraticCurveTo(cx,cy,(cx+nx)/2,(cy+ny)/2);
+      }
+      var lp=p[p.length-1];
+      ctx.lineTo(lp.x*W,lp.y*H);ctx.lineTo(W,H);ctx.closePath();
+      // Atmospheric gradient per layer – distant=bluer, near=darker
+      var peakY=Math.min.apply(null,p.map(function(pt){return pt.y;}))*H;
+      var ag=ctx.createLinearGradient(0,peakY,0,H);
+      var idx=m/MTN.length;
+      ag.addColorStop(0,mn.c);
+      ag.addColorStop(1,'rgba('+(3+m*1)+','+(6+m*2)+','+(16+m*4)+',0.99)');
+      ctx.fillStyle=ag;ctx.fill();
     }
     var wy=H*.80;
     var wg=ctx.createLinearGradient(0,wy,0,H);
@@ -1382,10 +1439,53 @@ setTimeout(triggerHero, 120);
   ];
 
   // Mountain ridge data: [x_frac, height_frac_from_bottom]
-  var R0 = [[0,0],[0.08,0.04],[0.18,0.07],[0.28,0.05],[0.38,0.09],[0.48,0.07],[0.58,0.10],[0.68,0.06],[0.78,0.08],[0.88,0.05],[1,0]];
-  var R1 = [[0,0],[0.05,0.10],[0.14,0.18],[0.22,0.13],[0.32,0.20],[0.40,0.16],[0.48,0.24],[0.50,0.26],[0.52,0.24],[0.60,0.16],[0.68,0.22],[0.76,0.15],[0.85,0.18],[0.93,0.12],[1,0]];
-  var R2 = [[0,0],[0.04,0.08],[0.12,0.16],[0.20,0.22],[0.30,0.17],[0.37,0.24],[0.44,0.35],[0.48,0.52],[0.50,0.62],[0.52,0.52],[0.56,0.35],[0.63,0.24],[0.70,0.20],[0.80,0.24],[0.88,0.18],[0.95,0.12],[1,0]];
-  var R3 = [[0,0],[0.06,0.18],[0.15,0.25],[0.25,0.20],[0.35,0.26],[0.45,0.20],[0.55,0.18],[0.65,0.22],[0.75,0.28],[0.85,0.22],[0.93,0.18],[1,0]];
+  // 5 premium layers – distant atmospheric to near foreground
+  var R0 = [ // Distant haze – low, varied
+    [0,0],[0.04,0.03],[0.08,0.05],[0.11,0.04],[0.14,0.06],[0.17,0.04],
+    [0.20,0.07],[0.23,0.05],[0.26,0.08],[0.29,0.06],[0.32,0.09],
+    [0.35,0.07],[0.38,0.10],[0.41,0.08],[0.44,0.06],[0.47,0.09],
+    [0.50,0.07],[0.53,0.10],[0.56,0.08],[0.59,0.11],[0.62,0.08],
+    [0.65,0.10],[0.68,0.07],[0.71,0.09],[0.74,0.06],[0.77,0.08],
+    [0.80,0.05],[0.84,0.07],[0.88,0.05],[0.92,0.04],[0.96,0.03],[1,0]
+  ];
+  var R1 = [ // Mid-far – more defined secondary range
+    [0,0],[0.04,0.08],[0.07,0.12],[0.10,0.09],[0.13,0.14],[0.16,0.11],
+    [0.19,0.16],[0.21,0.13],[0.23,0.18],[0.25,0.15],[0.27,0.21],
+    [0.29,0.17],[0.31,0.22],[0.33,0.19],[0.35,0.24],[0.37,0.21],
+    [0.39,0.25],[0.41,0.22],[0.43,0.27],[0.45,0.24],[0.47,0.28],
+    [0.49,0.25],[0.50,0.24],[0.52,0.27],[0.54,0.23],[0.56,0.26],
+    [0.58,0.22],[0.60,0.24],[0.63,0.21],[0.66,0.23],[0.69,0.19],
+    [0.72,0.22],[0.75,0.18],[0.78,0.21],[0.81,0.16],[0.84,0.19],
+    [0.87,0.14],[0.90,0.12],[0.93,0.09],[0.96,0.06],[1,0]
+  ];
+  var R2 = [ // MAIN PEAK – the Helion summit, sharp and iconic
+    [0,0],[0.03,0.05],[0.07,0.10],[0.11,0.14],[0.15,0.17],[0.18,0.20],
+    [0.21,0.18],[0.23,0.21],[0.25,0.19],[0.27,0.23],[0.29,0.21],
+    [0.31,0.25],[0.33,0.24],[0.35,0.28],[0.37,0.26],[0.39,0.31],
+    [0.41,0.35],[0.43,0.40],[0.445,0.44],[0.46,0.49],[0.47,0.53],
+    [0.475,0.56],[0.48,0.59],[0.485,0.62],[0.49,0.64],[0.495,0.66],
+    [0.498,0.67],[0.50,0.68],[0.502,0.67],[0.505,0.66],[0.51,0.64],
+    [0.515,0.62],[0.52,0.59],[0.525,0.56],[0.53,0.53],[0.535,0.49],
+    [0.55,0.44],[0.57,0.40],[0.59,0.35],[0.61,0.30],[0.63,0.28],
+    [0.65,0.32],[0.67,0.28],[0.69,0.32],[0.71,0.28],[0.73,0.31],
+    [0.75,0.27],[0.78,0.29],[0.81,0.24],[0.84,0.21],[0.87,0.18],
+    [0.90,0.15],[0.93,0.12],[0.96,0.08],[1,0]
+  ];
+  var R3 = [ // Mid-close foreground range
+    [0,0],[0.04,0.14],[0.08,0.19],[0.11,0.15],[0.14,0.21],[0.17,0.16],
+    [0.20,0.23],[0.22,0.19],[0.25,0.25],[0.27,0.21],[0.30,0.27],
+    [0.32,0.23],[0.35,0.29],[0.37,0.25],[0.40,0.30],[0.43,0.27],
+    [0.46,0.24],[0.49,0.22],[0.52,0.25],[0.55,0.22],[0.58,0.27],
+    [0.61,0.23],[0.64,0.28],[0.67,0.24],[0.70,0.29],[0.72,0.25],
+    [0.75,0.28],[0.77,0.24],[0.80,0.27],[0.83,0.23],[0.86,0.26],
+    [0.89,0.21],[0.92,0.18],[0.95,0.15],[0.98,0.10],[1,0]
+  ];
+  var R4 = [ // Immediate foreground – darkest strip
+    [0,0],[0.05,0.08],[0.10,0.11],[0.15,0.09],[0.20,0.13],[0.25,0.10],
+    [0.30,0.14],[0.35,0.11],[0.40,0.15],[0.45,0.12],[0.50,0.10],
+    [0.55,0.13],[0.60,0.11],[0.65,0.14],[0.70,0.12],[0.75,0.10],
+    [0.80,0.13],[0.85,0.11],[0.90,0.09],[0.95,0.07],[1,0]
+  ];
 
   function resize() {
     var dpr = window.devicePixelRatio || 1;
@@ -1505,49 +1605,84 @@ setTimeout(triggerHero, 120);
     ctx.arc(sunX, sunY, sunR, 0, 6.2832);
     ctx.fill();
 
-    // Mountain layers (back to front, parallax)
-    var parallax0 = p * (-18);
-    var parallax1 = p * (-10);
+    // Mountain layers (back to front, cinematic depth + parallax)
+    var parallax0 = p * (-26);
+    var parallax1 = p * (-14);
     var parallax2 = p * 0;
-    var parallax3 = p * 14;
+    var parallax3 = p * 13;
+    var parallax4 = p * 25;
 
-    smoothPath(R0, parallax0, 0.82);
-    ctx.fillStyle = 'rgba(7,12,24,0.95)';
-    ctx.fill();
+    // Layer 0 – Distant atmospheric (lightest, most blue-shifted)
+    smoothPath(R0, parallax0, 0.80);
+    var g0 = ctx.createLinearGradient(0, H*0.28, 0, H);
+    g0.addColorStop(0, 'rgba(20,36,80,'+(0.58+p*0.14)+')');
+    g0.addColorStop(1, 'rgba(10,18,48,0.90)');
+    ctx.fillStyle = g0; ctx.fill();
 
+    // Haze band between L0 and L1
+    var hY0 = H*(1 - R1[Math.floor(R1.length*0.5)][1]*0.82) - 18;
+    var hz0 = ctx.createLinearGradient(0,hY0-20,0,hY0+20);
+    hz0.addColorStop(0,'rgba(0,0,0,0)');
+    hz0.addColorStop(0.5,'rgba(14,24,58,'+(0.08+p*0.07)+')');
+    hz0.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=hz0; ctx.fillRect(0,hY0-20,W,40);
+
+    // Layer 1 – Far-mid range
     smoothPath(R1, parallax1, 0.82);
-    ctx.fillStyle = 'rgba(9,16,32,0.97)';
-    ctx.fill();
+    var g1 = ctx.createLinearGradient(0, H*0.12, 0, H);
+    g1.addColorStop(0, 'rgba(13,23,55,'+(0.76+p*0.13)+')');
+    g1.addColorStop(0.7, 'rgba(8,15,38,0.94)');
+    g1.addColorStop(1, 'rgba(6,11,28,0.97)');
+    ctx.fillStyle = g1; ctx.fill();
 
+    // Haze band between L1 and L2
+    var hY1 = H*(1 - R2[Math.floor(R2.length*0.5)][1]*0.82) - 12;
+    var hz1 = ctx.createLinearGradient(0,hY1-16,0,hY1+16);
+    hz1.addColorStop(0,'rgba(0,0,0,0)');
+    hz1.addColorStop(0.5,'rgba(10,18,45,'+(0.06+p*0.06)+')');
+    hz1.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=hz1; ctx.fillRect(0,hY1-16,W,32);
+
+    // Layer 2 – MAIN PEAK (stationary, most detailed)
     smoothPath(R2, parallax2, 0.82);
-    // Main mountain with subtle warm rim as sun rises
-    var rimOp = p * 0.45;
-    if (rimOp > 0.01) {
-      ctx.fillStyle = rgba([22, 12, 8], rimOp);
-    } else {
-      ctx.fillStyle = 'rgba(8,14,28,0.99)';
+    var g2 = ctx.createLinearGradient(0, H*0.02, 0, H);
+    g2.addColorStop(0, rgba([8+Math.round(p*20),13+Math.round(p*10),30], 0.97));
+    g2.addColorStop(0.6, 'rgba(6,11,24,0.99)');
+    g2.addColorStop(1, 'rgba(4,8,18,1.0)');
+    ctx.fillStyle = g2; ctx.fill();
+
+    // Warm rim light on main peak as sun rises
+    if (p > 0.10) {
+      var pkX = W * 0.50 + parallax2;
+      var pkY = H * (1 - 0.68 * 0.82);
+      var rimStr = Math.min((p - 0.10) * 0.55, 0.38);
+      var rimRad = W * 0.10;
+      var rimG = ctx.createRadialGradient(pkX, pkY, 0, pkX, pkY, rimRad);
+      rimG.addColorStop(0, 'rgba(220,90,20,'+rimStr*0.22+')');
+      rimG.addColorStop(0.5, 'rgba(180,60,10,'+rimStr*0.10+')');
+      rimG.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = rimG;
+      ctx.beginPath(); ctx.arc(pkX, pkY, rimRad, 0, 6.2832); ctx.fill();
     }
-    ctx.fill();
-    // Mountain silhouette solid fill on top
-    smoothPath(R2, parallax2, 0.82);
-    ctx.fillStyle = 'rgba(6,11,22,0.92)';
-    ctx.fill();
 
-    smoothPath(R3, parallax3, 0.82);
-    ctx.fillStyle = 'rgba(5,9,18,0.98)';
-    ctx.fill();
-
-    // Snow cap on main peak (subtle, always visible)
-    var pkX = W * 0.50 + parallax2;
-    var pkY = H - R2[8][1] * H * 0.82;
-    var snowOp = 0.06 + p * 0.12;
-    var snowG = ctx.createRadialGradient(pkX, pkY, 0, pkX, pkY, W * 0.025);
-    snowG.addColorStop(0, 'rgba(220,235,255,' + snowOp + ')');
-    snowG.addColorStop(1, 'rgba(220,235,255,0)');
+    // Snow-cap highlight on summit
+    var snowPkX = W * 0.50 + parallax2;
+    var snowPkY = H * (1 - 0.68 * 0.82);
+    var snowOp = 0.05 + p * 0.08;
+    var snowG = ctx.createRadialGradient(snowPkX, snowPkY, 0, snowPkX, snowPkY, W*0.018);
+    snowG.addColorStop(0, 'rgba(230,240,255,'+snowOp+')');
+    snowG.addColorStop(1, 'rgba(230,240,255,0)');
     ctx.fillStyle = snowG;
-    ctx.beginPath();
-    ctx.arc(pkX, pkY, W * 0.025, 0, 6.2832);
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(snowPkX, snowPkY, W*0.018, 0, 6.2832); ctx.fill();
+
+    // Layer 3 – Mid foreground
+    smoothPath(R3, parallax3, 0.82);
+    ctx.fillStyle = 'rgba(5,9,20,0.99)'; ctx.fill();
+
+    // Layer 4 – Immediate foreground (darkest strip)
+    smoothPath(R4, parallax4, 0.82);
+    ctx.fillStyle = 'rgba(3,5,13,1.0)'; ctx.fill();
+
   }
 
   function updateProgress() {
@@ -2501,13 +2636,16 @@ async function railSendMsg(){{
 }}
 async function railSendToApi(msg){{
   try{{
-    appendRailMsg('ai','…');
+    appendRailMsg('ai','\u2026');
     var msgsEl=document.getElementById('railMessages');
     var loading=msgsEl?msgsEl.lastChild:null;
-    var resp=await fetch('/api/chat',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{message:msg}})}});
+    var rh=[];
+    if(msgsEl){{msgsEl.querySelectorAll('.rail-msg').forEach(function(m){{if(m!==loading)rh.push({{role:m.classList.contains('user')?'user':'assistant',content:m.textContent}});}});}}
+    rh.push({{role:'user',content:msg}});
+    var resp=await fetch('/api/chat',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{messages:rh}})}});
     var data=await resp.json();
     if(loading)loading.remove();
-    appendRailMsg('ai',data.response||data.error||'No response');
+    appendRailMsg('ai',data.reply||data.response||data.error||'No response');
   }}catch(e){{
     var msgsEl=document.getElementById('railMessages');
     if(msgsEl&&msgsEl.lastChild)msgsEl.lastChild.textContent='Connection error. Try again.';
@@ -3182,21 +3320,108 @@ async function railSendMsg(){{
 }}
 async function railSendToApi(msg){{
   try{{
-    appendRailMsg('ai','…');
+    appendRailMsg('ai','\u2026');
     var msgsEl=document.getElementById('railMessages');
     var loading=msgsEl?msgsEl.lastChild:null;
-    var resp=await fetch('/api/chat',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{message:msg}})}});
+    var rh=[];
+    if(msgsEl){{msgsEl.querySelectorAll('.rail-msg').forEach(function(m){{if(m!==loading)rh.push({{role:m.classList.contains('user')?'user':'assistant',content:m.textContent}});}});}}
+    rh.push({{role:'user',content:msg}});
+    var resp=await fetch('/api/chat',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{messages:rh}})}});
     var data=await resp.json();
     if(loading)loading.remove();
-    appendRailMsg('ai',data.response||data.error||'No response');
+    appendRailMsg('ai',data.reply||data.response||data.error||'No response');
   }}catch(e){{
     var msgsEl=document.getElementById('railMessages');
     if(msgsEl&&msgsEl.lastChild)msgsEl.lastChild.textContent='Connection error. Try again.';
   }}
 }}
+
+// ── MAIN CHAT FUNCTIONS ──────────────────────────────────────────────────────
+var _chatHistory=[];
+var _loadId=0;
+
+function autoResize(el){{
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,180)+'px';
+}}
+function handleKey(e){{
+  if(e.key==='Enter'&&!e.shiftKey){{e.preventDefault();sendMessage();}}
+}}
+function sendChip(el){{
+  var t=el.textContent.trim();
+  var inp=document.getElementById('chatInput');
+  if(inp)inp.value=t;
+  sendMessage();
+}}
+function appendMsg(role,text){{
+  var msgs=document.getElementById('messages');if(!msgs)return;
+  var isU=(role==='user');
+  var row=document.createElement('div');
+  row.className='msg-row '+(isU?'user-row':'bot-row');
+  var av=document.createElement('div');
+  av.className='msg-avatar '+(isU?'user-avatar':'bot-avatar');
+  av.textContent=isU?APP_STATE.displayName.slice(0,2).toUpperCase():'A';
+  var bub=document.createElement('div');
+  bub.className='msg-bubble '+(isU?'user-bubble':'bot-bubble');
+  bub.textContent=text;
+  if(isU){{row.appendChild(bub);row.appendChild(av);}}
+  else{{row.appendChild(av);row.appendChild(bub);}}
+  msgs.appendChild(row);
+  msgs.scrollTop=msgs.scrollHeight;
+}}
+function appendLoading(){{
+  var id='ld_'+(++_loadId);
+  var msgs=document.getElementById('messages');if(!msgs)return id;
+  var row=document.createElement('div');
+  row.className='msg-row bot-row';row.id=id;
+  var av=document.createElement('div');
+  av.className='msg-avatar bot-avatar';av.textContent='A';
+  var bub=document.createElement('div');
+  bub.className='msg-bubble bot-bubble';
+  bub.innerHTML='<div class="loading-dots"><span></span><span></span><span></span></div>';
+  row.appendChild(av);row.appendChild(bub);
+  msgs.appendChild(row);msgs.scrollTop=msgs.scrollHeight;
+  return id;
+}}
+function removeLoading(id){{var el=document.getElementById(id);if(el)el.remove();}}
+async function sendMessage(){{
+  var inp=document.getElementById('chatInput');
+  var msg=inp?inp.value.trim():'';
+  if(!msg)return;
+  inp.value='';inp.style.height='auto';
+  var empty=document.getElementById('emptyState');
+  if(empty)empty.style.display='none';
+  appendMsg('user',msg);
+  _chatHistory.push({{role:'user',content:msg}});
+  var btn=document.getElementById('sendBtn');
+  var stat=document.getElementById('chatStatus');
+  if(btn)btn.disabled=true;
+  if(stat)stat.textContent='Thinking\u2026';
+  var loadId=appendLoading();
+  try{{
+    var resp=await fetch('/api/chat',{{
+      method:'POST',
+      headers:{{'Content-Type':'application/json'}},
+      body:JSON.stringify({{messages:_chatHistory}})
+    }});
+    var data=await resp.json();
+    removeLoading(loadId);
+    var reply=data.reply||data.response||'No response.';
+    _chatHistory.push({{role:'assistant',content:reply}});
+    appendMsg('bot',reply);
+  }}catch(e){{
+    removeLoading(loadId);
+    appendMsg('bot','Connection error \u2014 please try again.');
+  }}
+  if(btn)btn.disabled=false;
+  if(stat)stat.textContent='Ready';
+}}
+
 document.addEventListener('DOMContentLoaded',function(){{
   var inp=document.getElementById('railInput');
   if(inp)inp.addEventListener('keydown',function(e){{if(e.key==='Enter'&&!e.shiftKey){{e.preventDefault();railSendMsg();}}}});
+  var cd=document.getElementById('convDate');
+  if(cd)cd.textContent=new Date().toLocaleDateString('en-US',{{month:'short',day:'numeric'}});
 }});
 </script>
 
