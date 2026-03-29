@@ -149,16 +149,88 @@ class GoalManager:
                 lines.append(f"    - Sub-goal: {sg['title']} | Priority: {sg.get('priority','medium')}")
         return "\n".join(lines) if lines else "No goals configured yet."
 
-    def add_goal(self, title: str, deadline: str = None, sub_goals: list = None):
+    def add_goal(self, title: str, deadline: str = None, sub_goals: list = None,
+                 priority: str = "medium", category: str = "general", notes: str = ""):
+        goal_id = hashlib.md5((title + datetime.now().isoformat()).encode()).hexdigest()[:8]
         self.data["goals"].append({
-            "id": hashlib.md5((title + datetime.now().isoformat()).encode()).hexdigest()[:8],
+            "id": goal_id,
             "title": title,
             "deadline": deadline or "open-ended",
             "status": "active",
+            "priority": priority,
+            "category": category,
+            "notes": notes,
+            "progress": 0,
             "created": datetime.now().isoformat(),
+            "updated": datetime.now().isoformat(),
             "sub_goals": [{"title": sg, "priority": "medium"} for sg in (sub_goals or [])],
+            "milestones": [],
         })
         self.save()
+        return goal_id
+
+    def update_goal(self, goal_id: str, **kwargs):
+        """Update fields on an existing goal."""
+        for g in self.data["goals"]:
+            if g.get("id") == goal_id:
+                allowed = {"title", "deadline", "priority", "category", "notes", "progress"}
+                for k, v in kwargs.items():
+                    if k in allowed:
+                        g[k] = v
+                g["updated"] = datetime.now().isoformat()
+                break
+        self.save()
+
+    def update_goal_status(self, goal_id: str, status: str):
+        """Update goal status: active, paused, archived, complete."""
+        valid = {"active", "paused", "archived", "complete"}
+        if status not in valid:
+            raise ValueError(f"Invalid status: {status}")
+        for g in self.data["goals"]:
+            if g.get("id") == goal_id:
+                g["status"] = status
+                g["updated"] = datetime.now().isoformat()
+                break
+        self.save()
+
+    def add_milestone(self, goal_id: str, title: str, deadline: str = None, order: int = None):
+        """Add a milestone to a goal."""
+        for g in self.data["goals"]:
+            if g.get("id") == goal_id:
+                milestones = g.setdefault("milestones", [])
+                mid = hashlib.md5((title + datetime.now().isoformat()).encode()).hexdigest()[:6]
+                milestones.append({
+                    "id": mid,
+                    "title": title,
+                    "deadline": deadline or "open-ended",
+                    "completed": False,
+                    "order": order if order is not None else len(milestones),
+                    "created": datetime.now().isoformat(),
+                })
+                # Update goal progress
+                self._recalc_progress(g)
+                break
+        self.save()
+
+    def complete_milestone(self, goal_id: str, milestone_id: str):
+        """Mark a milestone as completed and recalculate progress."""
+        for g in self.data["goals"]:
+            if g.get("id") == goal_id:
+                for m in g.get("milestones", []):
+                    if m.get("id") == milestone_id:
+                        m["completed"] = True
+                        m["completed_at"] = datetime.now().isoformat()
+                        break
+                self._recalc_progress(g)
+                break
+        self.save()
+
+    def _recalc_progress(self, goal: dict):
+        """Recalculate progress % from milestones."""
+        milestones = goal.get("milestones", [])
+        if milestones:
+            done = sum(1 for m in milestones if m.get("completed"))
+            goal["progress"] = int(done / len(milestones) * 100)
 
     def remove_goal(self, goal_id: str):
         self.data["goals"] = [g for g in self.data["goals"] if g.get("id") != goal_id]
@@ -1949,7 +2021,7 @@ class DashboardGenerator:
   --bg:#06101e;--surface:rgba(255,255,255,0.08);--surface-2:rgba(255,255,255,0.11);
   --border:rgba(90,171,223,.16);--border-m:rgba(90,171,223,.32);
   --text:#eaf5ff;--muted:rgba(255,255,255,0.65);--accent:#5aabdf;
-  --green:#10b981;--amber:#f59e0b;--red:#ef4444;
+  --green:#10b981;--amber:#f59e0b;--red:#ef4444;--purple:#a78bfa;
   --serif:'Playfair Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif;
 }
 body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 300px;}
@@ -1966,7 +2038,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .nav-brand svg{width:36px;height:24px;}
 .nav-title{font-size:14px;font-weight:600;letter-spacing:-.3px;font-family:var(--serif);color:var(--text);}
 .nav-title span{color:var(--accent);}
-.nav-right{display:flex;gap:16px;align-items:center;}
+.nav-right{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
 .nav-user{font-size:13px;color:rgba(255,255,255,0.58);}
 .nav-link{font-size:12px;color:var(--accent);text-decoration:none;
           padding:5px 12px;border:1px solid rgba(90,171,223,.25);border-radius:2px;transition:all .2s;}
@@ -1980,16 +2052,54 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 
 /* Stats */
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:20px 24px;text-align:center;}
-.stat-value{font-size:38px;font-weight:800;color:#ffffff;line-height:1.1;margin-bottom:4px;letter-spacing:-.5px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:18px 20px;text-align:center;position:relative;overflow:hidden;transition:border-color .2s;}
+.stat-card:hover{border-color:var(--border-m);}
+.stat-value{font-size:34px;font-weight:800;color:#ffffff;line-height:1.1;margin-bottom:4px;letter-spacing:-.5px;}
 .stat-label{font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.12em;}
+.stat-sublabel{font-size:10px;color:rgba(255,255,255,0.35);margin-top:4px;}
+.stat-trend{position:absolute;top:12px;right:12px;font-size:9px;padding:2px 6px;border-radius:8px;font-weight:600;}
+.trend-up{background:rgba(16,185,129,.15);color:#10b981;}
+.trend-down{background:rgba(239,68,68,.15);color:#ef4444;}
+.trend-flat{background:rgba(107,114,128,.15);color:#9ca3af;}
+
+/* Quick Actions Bar */
+.quick-actions{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;}
+.qa-btn{font-size:11px;padding:7px 14px;border-radius:2px;border:1px solid var(--border);
+        background:var(--surface);color:var(--muted);cursor:pointer;font-family:var(--sans);
+        transition:all .2s;display:flex;align-items:center;gap:5px;font-weight:500;}
+.qa-btn:hover{border-color:var(--border-m);color:var(--text);background:var(--surface-2);}
+.qa-btn.qa-primary{border-color:rgba(90,171,223,.35);color:var(--accent);background:rgba(90,171,223,.06);}
+.qa-btn.qa-primary:hover{background:rgba(90,171,223,.14);}
+
+/* Focus Banner */
+.focus-banner{background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.2);
+              border-radius:3px;padding:12px 18px;margin-bottom:20px;display:none;
+              justify-content:space-between;align-items:center;}
+.focus-banner.active{display:flex;}
+.focus-banner-left{display:flex;align-items:center;gap:10px;}
+.focus-task-name{font-size:13px;font-weight:600;color:#eaf5ff;}
+.focus-timer{font-size:22px;font-weight:800;color:var(--purple);font-variant-numeric:tabular-nums;letter-spacing:-.5px;}
+.focus-label{font-size:10px;color:rgba(167,139,250,.7);text-transform:uppercase;letter-spacing:.1em;}
+.focus-banner-right{display:flex;gap:8px;}
+.focus-end-btn{font-size:11px;padding:5px 12px;border-radius:2px;border:1px solid rgba(167,139,250,.3);
+               background:none;color:rgba(167,139,250,.8);cursor:pointer;transition:all .2s;}
+.focus-end-btn:hover{background:rgba(167,139,250,.12);}
+
+/* Nudge Banner */
+.nudge-strip{background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.2);border-radius:3px;
+             padding:10px 16px;margin-bottom:18px;display:none;
+             align-items:center;gap:10px;font-size:12px;color:rgba(245,158,11,.9);}
+.nudge-strip.show{display:flex;}
+.nudge-icon{font-size:14px;}
+.nudge-dismiss{margin-left:auto;background:none;border:none;color:rgba(245,158,11,.5);cursor:pointer;font-size:14px;}
 
 /* Grid */
 .grid{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:20px;}
 .grid-full{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
 
 /* Cards */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:24px;}.card.card-primary{border-top:2px solid var(--accent);background:rgba(255,255,255,0.09);}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:24px;}
+.card.card-primary{border-top:2px solid var(--accent);background:rgba(255,255,255,0.09);}
 .card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
 .card-title{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:rgba(255,255,255,0.5);font-weight:600;}
 .card-action{font-size:12px;color:var(--accent);cursor:pointer;
@@ -1997,16 +2107,22 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
              padding:4px 10px;font-family:var(--sans);transition:all .2s;}
 .card-action:hover{background:rgba(90,171,223,.12);}
 
+/* Task Progress Bar (header of plan card) */
+.plan-progress-bar-wrap{height:2px;background:rgba(255,255,255,.06);border-radius:2px;margin-bottom:16px;overflow:hidden;}
+.plan-progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:2px;transition:width .4s ease;}
+.plan-progress-label{font-size:10px;color:var(--muted);margin-bottom:10px;}
+
 /* Tasks */
-.task-item{background:var(--surface-2);border:1px solid var(--border);border-radius:2px;
-           padding:12px 14px;margin-bottom:8px;transition:border-color .15s;}
+.task-item{background:var(--surface-2);border:1px solid var(--border);border-radius:3px;
+           padding:12px 14px;margin-bottom:8px;transition:all .15s;position:relative;}
 .task-item:last-child{margin-bottom:0;}
-.task-item.done{opacity:.4;}
-.task-item.done .task-title{text-decoration:line-through;}
+.task-item.done{opacity:.45;border-color:rgba(16,185,129,.2);}
+.task-item.done .task-title{text-decoration:line-through;color:var(--muted);}
+.task-item.top-priority{border-left:2px solid var(--amber);}
 .task-row{display:flex;gap:10px;align-items:flex-start;}
-.task-check{width:16px;height:16px;border:1px solid rgba(90,160,230,.3);border-radius:2px;
-            cursor:pointer;flex-shrink:0;margin-top:2px;display:flex;align-items:center;
-            justify-content:center;font-size:10px;color:transparent;transition:all .15s;user-select:none;}
+.task-check{width:18px;height:18px;border:1.5px solid rgba(90,160,230,.35);border-radius:3px;
+            cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;
+            justify-content:center;font-size:11px;color:transparent;transition:all .15s;user-select:none;}
 .task-check.checked{background:var(--green);border-color:var(--green);color:#fff;}
 .task-body{flex:1;}
 .task-title{font-size:13px;font-weight:600;color:#eaf5ff;margin-bottom:5px;line-height:1.4;}
@@ -2019,18 +2135,77 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .tag-start{background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2);}
 .task-goal{font-size:11px;color:rgba(255,255,255,0.38);}
 .task-why{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5;}
+.task-item-actions{display:flex;gap:6px;margin-top:8px;}
+.task-micro-btn{font-size:10px;padding:3px 8px;border-radius:2px;border:1px solid var(--border);
+                background:none;color:var(--muted);cursor:pointer;font-family:var(--sans);transition:all .15s;}
+.task-micro-btn:hover{border-color:var(--border-m);color:var(--text);}
+.task-micro-btn.focus-btn{border-color:rgba(167,139,250,.25);color:rgba(167,139,250,.8);}
+.task-micro-btn.focus-btn:hover{background:rgba(167,139,250,.1);}
+.task-top-badge{position:absolute;top:-1px;left:8px;font-size:9px;font-weight:700;
+                letter-spacing:.08em;color:var(--amber);text-transform:uppercase;
+                background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);
+                border-top:none;padding:1px 6px;border-radius:0 0 4px 4px;}
 
-/* Goals sidebar */
+/* Goal items — upgraded */
 .goal-item{background:var(--surface-2);border-left:2px solid var(--accent);
-           border-radius:0 2px 2px 0;padding:10px 12px;margin-bottom:8px;
-           display:flex;justify-content:space-between;align-items:flex-start;}
+           border-radius:0 3px 3px 0;padding:12px 14px;margin-bottom:10px;
+           border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
 .goal-item:last-child{margin-bottom:0;}
-.goal-body{flex:1;}
-.goal-name{font-size:13px;font-weight:500;display:block;margin-bottom:2px;color:var(--text);}
-.goal-deadline{font-size:11px;color:var(--muted);}
-.goal-remove{background:none;border:none;color:rgba(255,255,255,0.28);cursor:pointer;
-             font-size:14px;padding:0 0 0 8px;line-height:1;transition:color .15s;flex-shrink:0;}
-.goal-remove:hover{color:#ef4444;}
+.goal-header-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.goal-name{font-size:13px;font-weight:600;color:var(--text);line-height:1.35;flex:1;margin-right:8px;}
+.goal-actions{display:flex;gap:4px;flex-shrink:0;}
+.goal-action-btn{background:none;border:1px solid var(--border);border-radius:2px;
+                 color:rgba(255,255,255,.35);cursor:pointer;font-size:10px;
+                 padding:2px 6px;transition:all .15s;}
+.goal-action-btn:hover{color:var(--text);border-color:var(--border-m);}
+.goal-remove{background:none;border:1px solid var(--border);border-radius:2px;
+             color:rgba(255,255,255,0.28);cursor:pointer;font-size:10px;
+             padding:2px 6px;line-height:1;transition:all .15s;flex-shrink:0;}
+.goal-remove:hover{color:#ef4444;border-color:rgba(239,68,68,.35);}
+.goal-meta-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:6px;}
+.goal-priority-badge{font-size:9px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:8px;}
+.pri-high{background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.25);}
+.pri-medium{background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.25);}
+.pri-low{background:rgba(16,185,129,.12);color:#10b981;border:1px solid rgba(16,185,129,.25);}
+.goal-category-tag{font-size:9px;color:rgba(255,255,255,.45);background:rgba(255,255,255,.05);
+                   border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:2px 7px;}
+.goal-deadline-tag{font-size:10px;color:rgba(255,255,255,.4);}
+.goal-status-badge{font-size:9px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:8px;}
+.goal-status-badge.paused{background:rgba(245,158,11,.1);color:var(--amber);border:1px solid rgba(245,158,11,.25);}
+.goal-ms-badge{font-size:10px;color:rgba(90,171,223,.7);}
+.goal-notes{font-size:11px;color:var(--muted);margin-bottom:6px;line-height:1.5;font-style:italic;}
+.goal-progress-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.goal-progress-bar-wrap{flex:1;height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;}
+.goal-progress-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:2px;transition:width .4s;}
+.goal-progress-pct{font-size:10px;color:var(--muted);white-space:nowrap;}
+.goal-milestones{margin-top:8px;border-top:1px solid rgba(255,255,255,.06);padding-top:8px;}
+.goal-ms-row{font-size:11px;color:var(--muted);padding:2px 0;display:flex;align-items:center;gap:5px;cursor:pointer;}
+.goal-ms-row:hover{color:var(--text);}
+.goal-ms-row.ms-done{color:rgba(16,185,129,.6);text-decoration:line-through;}
+.ms-check{font-size:10px;color:var(--accent);min-width:12px;}
+.goal-ms-more{font-size:10px;color:rgba(255,255,255,.3);margin-top:2px;}
+
+/* Add Milestone button */
+.add-ms-btn{font-size:10px;color:rgba(90,171,223,.6);background:none;border:none;
+            cursor:pointer;padding:3px 0;margin-top:4px;text-decoration:none;transition:.15s;}
+.add-ms-btn:hover{color:var(--accent);}
+
+/* Weekly Review & Reflection */
+.reflect-card{background:linear-gradient(135deg,rgba(16,185,129,.04),rgba(90,171,223,.04));
+              border:1px solid rgba(16,185,129,.15);border-radius:4px;padding:20px 24px;}
+.reflect-title{font-size:10px;text-transform:uppercase;letter-spacing:.14em;
+               color:rgba(16,185,129,.7);margin-bottom:14px;font-weight:600;}
+.reflect-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.reflect-item{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+              border-radius:3px;padding:12px 14px;}
+.reflect-item-label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px;}
+.reflect-item-val{font-size:13px;color:var(--text);line-height:1.4;}
+
+/* Friction / Blockers */
+.blocker-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;
+              background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.12);
+              border-radius:3px;margin-bottom:8px;font-size:12px;color:rgba(255,255,255,.75);line-height:1.5;}
+.blocker-icon{font-size:13px;flex-shrink:0;margin-top:1px;}
 
 /* Coach */
 .coach-text{font-size:13px;line-height:1.8;color:rgba(255,255,255,0.68);white-space:pre-line;}
@@ -2046,7 +2221,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 /* Bars */
 .bars{display:flex;align-items:flex-end;gap:5px;height:64px;padding-top:8px;}
 .bar-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;}
-.bar{width:20px;background:var(--accent);border-radius:2px 2px 0 0;min-height:3px;opacity:.8;}
+.bar{width:20px;background:var(--accent);border-radius:2px 2px 0 0;min-height:3px;opacity:.8;transition:height .3s;}
 .bar-label{font-size:9px;color:var(--muted);}
 
 /* Empty states */
@@ -2054,6 +2229,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .empty-icon{font-size:28px;color:rgba(255,255,255,0.22);margin-bottom:12px;line-height:1;}
 .empty-title{font-size:15px;font-weight:600;color:rgba(255,255,255,0.85);margin-bottom:8px;}
 .empty-text{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6;}
+.empty-cta{font-size:11px;color:var(--accent);margin-top:6px;}
 
 /* Buttons */
 .btn-primary{background:rgba(90,171,223,.15);border:1px solid rgba(90,171,223,.3);
@@ -2063,37 +2239,93 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .btn-primary:hover{background:rgba(90,171,223,.25);border-color:rgba(90,171,223,.5);}
 .btn-primary:disabled{opacity:.45;cursor:not-allowed;}
 
-.btn-google {
-  display:flex;align-items:center;justify-content:center;gap:10px;
+.btn-google{display:flex;align-items:center;justify-content:center;gap:10px;
   width:100%;padding:13px 16px;margin-top:14px;
   border:2px solid #d0d5dd;border-radius:10px;
   background:#fff;color:#1a1a2e;font-size:15px;font-weight:600;
   cursor:pointer;text-decoration:none;box-sizing:border-box;
-  transition:background .15s,border-color .15s;
-}
+  transition:background .15s,border-color .15s;}
 .btn-google:hover{background:#f4f6ff;border-color:#a0aec0;text-decoration:none;}
 .google-divider{display:flex;align-items:center;gap:10px;margin:18px 0 4px;color:#aaa;font-size:13px;font-weight:500;}
 .google-divider::before,.google-divider::after{content:'';flex:1;height:1px;background:#e8eaed;}
+
 /* Modal */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(10,20,50,.8);
                z-index:50;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 .modal-overlay.open{display:flex;}
-.modal{background:#0f2855;border:1px solid var(--border-m);border-radius:4px;
-       padding:32px;width:100%;max-width:440px;}
-.modal-title{font-family:var(--serif);font-size:20px;color:#ffffff;margin-bottom:20px;}
-.modal-field{margin-bottom:16px;}
-.modal-field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.1em;
-                    color:rgba(255,255,255,.75);margin-bottom:7px;font-weight:500;}
-.modal-field input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);
-                    border-radius:2px;padding:10px 12px;font-size:13px;color:var(--text);
-                    font-family:var(--sans);outline:none;transition:border-color .2s;}
-.modal-field input:focus{border-color:var(--border-m);}
-.modal-field input::placeholder{color:rgba(255,255,255,.4);}
-.modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;}
+.modal{background:#0a1a3d;border:1px solid var(--border-m);border-radius:6px;
+       padding:28px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
+.modal-title{font-family:var(--serif);font-size:20px;color:#ffffff;margin-bottom:18px;}
+.modal-field{margin-bottom:14px;}
+.modal-field label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;
+                    color:rgba(255,255,255,.65);margin-bottom:6px;font-weight:600;}
+.modal-field input,.modal-field select,.modal-field textarea{
+  width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);
+  border-radius:2px;padding:9px 12px;font-size:13px;color:var(--text);
+  font-family:var(--sans);outline:none;transition:border-color .2s;}
+.modal-field select option{background:#0a1a3d;}
+.modal-field textarea{resize:vertical;min-height:60px;line-height:1.5;}
+.modal-field input:focus,.modal-field select:focus,.modal-field textarea:focus{border-color:var(--border-m);}
+.modal-field input::placeholder,.modal-field textarea::placeholder{color:rgba(255,255,255,.3);}
+.modal-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.modal-actions{display:flex;gap:10px;margin-top:18px;justify-content:flex-end;}
 .btn-cancel{background:none;border:1px solid var(--border);border-radius:2px;color:var(--muted);
             font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);padding:8px 16px;transition:all .2s;}
 .btn-cancel:hover{border-color:var(--border-m);color:var(--text);}
 .modal-err{font-size:12px;color:#c97b7b;margin-top:8px;min-height:16px;}
+
+/* Goal Detail Drawer */
+.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(6,16,30,.6);z-index:60;backdrop-filter:blur(2px);}
+.drawer-overlay.open{display:block;}
+.goal-drawer{position:fixed;top:0;right:-520px;width:480px;height:100vh;overflow-y:auto;
+             background:#080e1e;border-left:1px solid var(--border-m);z-index:61;
+             transition:right .32s cubic-bezier(.4,0,.2,1);padding:28px;}
+.goal-drawer.open{right:0;}
+.drawer-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;margin-bottom:18px;display:block;}
+.drawer-close:hover{color:var(--text);}
+.drawer-goal-title{font-family:var(--serif);font-size:22px;color:#f0f8ff;margin-bottom:12px;line-height:1.3;}
+.drawer-section{margin-top:20px;}
+.drawer-section-title{font-size:10px;text-transform:uppercase;letter-spacing:.12em;
+                       color:rgba(255,255,255,.4);margin-bottom:10px;font-weight:600;}
+.drawer-milestone-row{display:flex;align-items:center;gap:8px;padding:8px 10px;
+                       background:var(--surface);border:1px solid var(--border);border-radius:3px;
+                       margin-bottom:6px;}
+.drawer-ms-check{width:16px;height:16px;border:1.5px solid var(--border-m);border-radius:3px;
+                  cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;}
+.drawer-ms-check.done{background:var(--green);border-color:var(--green);color:#fff;}
+.drawer-ms-title{flex:1;font-size:12px;color:var(--text);}
+.drawer-ms-dl{font-size:10px;color:var(--muted);}
+.drawer-add-ms{display:flex;gap:8px;margin-top:10px;}
+.drawer-add-ms input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);
+                      border-radius:2px;padding:7px 10px;font-size:12px;color:var(--text);
+                      font-family:var(--sans);outline:none;}
+.drawer-add-ms input:focus{border-color:var(--border-m);}
+.drawer-add-ms button{font-size:11px;padding:7px 12px;border-radius:2px;
+                       border:1px solid rgba(90,171,223,.3);background:rgba(90,171,223,.1);
+                       color:var(--accent);cursor:pointer;font-family:var(--sans);}
+
+/* Focus Mode Overlay */
+.focus-overlay{display:none;position:fixed;inset:0;background:rgba(4,8,18,.97);z-index:80;
+               flex-direction:column;align-items:center;justify-content:center;}
+.focus-overlay.active{display:flex;}
+.focus-session-task{font-family:var(--serif);font-size:28px;color:#f0f8ff;text-align:center;
+                     max-width:600px;line-height:1.35;margin-bottom:8px;}
+.focus-session-goal{font-size:13px;color:rgba(255,255,255,.4);margin-bottom:36px;}
+.focus-session-timer{font-size:72px;font-weight:800;color:#ffffff;letter-spacing:-2px;
+                      font-variant-numeric:tabular-nums;margin-bottom:36px;}
+.focus-session-controls{display:flex;gap:12px;}
+.focus-ctrl-btn{font-size:12px;padding:10px 24px;border-radius:2px;cursor:pointer;font-family:var(--sans);
+                border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:var(--text);}
+.focus-ctrl-btn.primary{border-color:rgba(90,171,223,.4);background:rgba(90,171,223,.12);color:var(--accent);}
+.focus-ctrl-btn:hover{background:rgba(255,255,255,.1);}
+.focus-progress-ring{margin-bottom:28px;}
+
+/* Weekly review card */
+.week-stat{display:flex;justify-content:space-between;align-items:center;
+           padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px;}
+.week-stat:last-child{border-bottom:none;}
+.week-stat-label{color:var(--muted);}
+.week-stat-val{color:var(--text);font-weight:600;}
 
 /* Artemis chat */
 .art-toggle{position:fixed;bottom:24px;right:24px;z-index:40;
@@ -2105,46 +2337,11 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .art-toggle:hover{background:rgba(25,55,110,.95);border-color:rgba(90,171,223,.4);}
 .art-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
-.art-panel{position:fixed;bottom:76px;right:24px;z-index:40;
-           width:360px;height:520px;background:rgba(10,25,60,.97);
-           border:1px solid var(--border-m);border-radius:4px;
-           display:none;flex-direction:column;
-           box-shadow:0 8px 40px rgba(0,0,0,.5);}
-.art-panel.open{display:flex;}
-.art-header{padding:14px 16px;border-bottom:1px solid var(--border);
-            display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
-.art-name{font-size:13px;font-weight:700;letter-spacing:.05em;color:var(--text);}
-.art-badge{font-size:9px;background:rgba(90,171,223,.2);color:var(--accent);
-           border:1px solid rgba(90,171,223,.3);border-radius:8px;padding:2px 6px;margin-left:6px;
-           font-weight:600;letter-spacing:.06em;text-transform:uppercase;}
-.art-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;
-           line-height:1;padding:0;transition:color .15s;}
-.art-close:hover{color:var(--text);}
-.art-messages{flex:1;overflow-y:auto;padding:14px 14px 8px;display:flex;flex-direction:column;gap:10px;}
-.art-messages::-webkit-scrollbar{width:4px;}
-.art-messages::-webkit-scrollbar-track{background:transparent;}
-.art-messages::-webkit-scrollbar-thumb{background:rgba(90,160,230,.2);border-radius:2px;}
-.art-msg{max-width:88%;line-height:1.55;font-size:13px;padding:9px 12px;border-radius:3px;}
-.art-msg-bot{background:rgba(20,45,95,.8);border:1px solid var(--border);color:var(--text);align-self:flex-start;}
-.art-msg-user{background:rgba(90,171,223,.15);border:1px solid rgba(90,171,223,.25);
-              color:var(--text);align-self:flex-end;}
-.art-loading{color:var(--muted);font-style:italic;}
-.art-footer{padding:10px 12px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;}
-.art-input{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:2px;
-           padding:8px 10px;font-size:13px;color:var(--text);font-family:var(--sans);outline:none;transition:border .15s;}
-.art-input:focus{border-color:var(--border-m);}
-.art-input::placeholder{color:rgba(255,255,255,.35);}
-.art-send{background:rgba(90,171,223,.15);border:1px solid rgba(90,171,223,.3);border-radius:2px;
-          color:var(--accent);font-size:12px;font-weight:600;cursor:pointer;
-          padding:8px 14px;font-family:var(--sans);transition:all .15s;white-space:nowrap;}
-.art-send:hover{background:rgba(90,171,223,.25);}
-.art-send:disabled{opacity:.4;cursor:not-allowed;}
 
 /* Loading */
 .plan-loading{text-align:center;padding:40px 20px;}
 .plan-loading-dots{display:flex;justify-content:center;gap:6px;margin-bottom:12px;}
-.plan-loading-dots span{width:6px;height:6px;border-radius:50%;background:var(--accent);
-                         animation:dot-bounce .9s infinite both;}
+.plan-loading-dots span{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:dot-bounce .9s infinite both;}
 .plan-loading-dots span:nth-child(2){animation-delay:.15s;}
 .plan-loading-dots span:nth-child(3){animation-delay:.3s;}
 @keyframes dot-bounce{0%,80%,100%{transform:scale(.6);opacity:.4;}40%{transform:scale(1);opacity:1;}}
@@ -2154,7 +2351,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 @media(max-width:800px){
   .grid,.grid-full{grid-template-columns:1fr;}
   .stats-row{grid-template-columns:repeat(2,1fr);}
-  .art-panel{width:calc(100vw - 32px);right:16px;}
+  .quick-actions{gap:6px;}
+  .goal-drawer{width:100%;right:-100%;}
 }
 
 /* Save indicator */
@@ -2314,9 +2512,76 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
         # Generate plan button (for header if plan exists)
         regen_btn = ""
         if has_goals and has_plan:
-            regen_btn = '<button class="card-action" id="genPlanBtn" onclick="generatePlan()">Regenerate</button>'
+            regen_btn = '<button class="card-action" id="genPlanBtn" onclick="generatePlan()">↺ Regenerate</button>'
 
         add_goal_btn = '<button class="card-action" onclick="showAddGoal()">+ Add Goal</button>'
+
+        # Plan completion progress
+        completed_tasks = sum(1 for t in tasks if t.get("completed")) if tasks else 0
+        total_tasks     = len(tasks)
+        plan_pct        = int(completed_tasks / total_tasks * 100) if total_tasks > 0 else 0
+        plan_progress_html = f"""
+<div class="plan-progress-bar-wrap">
+  <div class="plan-progress-bar-fill" id="planProgressFill" style="width:{plan_pct}%"></div>
+</div>
+<div class="plan-progress-label" id="planProgressLabel">{completed_tasks}/{total_tasks} tasks done today — {plan_pct}% complete</div>""" if total_tasks > 0 else ""
+
+        # Streak trend analysis
+        recent_sessions = sessions[-14:] if sessions else []
+        streak_trend    = "flat"
+        if len(recent_sessions) >= 7:
+            first_half  = sum(len(s.get("tasks_completed",[])) for s in recent_sessions[:7])
+            second_half = sum(len(s.get("tasks_completed",[])) for s in recent_sessions[7:])
+            if second_half > first_half * 1.1:
+                streak_trend = "up"
+            elif second_half < first_half * 0.9:
+                streak_trend = "down"
+        trend_badge = {"up": '<span class="stat-trend trend-up">↑ rising</span>',
+                       "down": '<span class="stat-trend trend-down">↓ slipping</span>',
+                       "flat": '<span class="stat-trend trend-flat">→ steady</span>'}
+
+        # Momentum state label
+        if comp_rate >= 80:
+            momentum_state = "On Track"
+            momentum_sub   = "Keep the pressure on"
+        elif comp_rate >= 50:
+            momentum_state = "Building"
+            momentum_sub   = "Room to accelerate"
+        else:
+            momentum_state = "Recovery Mode"
+            momentum_sub   = "Focus on 1-2 wins today"
+
+        # Weekly stats
+        this_week_sessions = sessions[-7:] if sessions else []
+        week_tasks_done = sum(len(s.get("tasks_completed",[])) for s in this_week_sessions)
+        week_plans_run  = len(this_week_sessions)
+
+        # Blocker detection
+        blockers_html = ""
+        if sessions:
+            # Detect stalled goals (goals with no recent completion spike)
+            if has_goals and comp_rate < 40:
+                blockers_html += '<div class="blocker-item"><span class="blocker-icon">⚠</span>Your completion rate is under 40%. Consider reducing today\'s task count to 2-3 high-impact items.</div>'
+            roll_count = sum(1 for s in sessions[-5:] if len(s.get("tasks_completed",[])) == 0)
+            if roll_count >= 3:
+                blockers_html += '<div class="blocker-item"><span class="blocker-icon">⚡</span>You\'ve had 3+ days with zero completions. Break the smallest possible task off your plan and do just that.</div>'
+
+        # Quick actions HTML
+        quick_actions_html = f"""
+<div class="quick-actions">
+  <button class="qa-btn qa-primary" onclick="showAddGoal()">+ Add Goal</button>
+  <button class="qa-btn qa-primary" id="genPlanBtnQA" onclick="generatePlan()">↺ Build Today's Plan</button>
+  <button class="qa-btn" onclick="toggleRail()">● Ask Artemis</button>
+  <button class="qa-btn" onclick="showWeeklyReview()">📊 Weekly Review</button>
+  {"<button class='qa-btn' onclick='startFocusMode()'>⊙ Focus Mode</button>" if has_plan and tasks else ""}
+</div>"""
+
+        # Nudge
+        nudge_html = ""
+        if has_goals and not has_plan:
+            nudge_html = '<div class="nudge-strip show" id="nudgeStrip"><span class="nudge-icon">💡</span>You have goals but no plan yet. Generate your first action plan to start executing.<button class="nudge-dismiss" onclick="this.closest(\'.nudge-strip\').classList.remove(\'show\')">✕</button></div>'
+        elif has_plan and total_tasks > 0 and plan_pct == 0:
+            nudge_html = '<div class="nudge-strip show" id="nudgeStrip"><span class="nudge-icon">🎯</span>Plan ready. Your top priority task is waiting — check one thing off to build momentum.<button class="nudge-dismiss" onclick="this.closest(\'.nudge-strip\').classList.remove(\'show\')">✕</button></div>'
 
         # Habits section
         habits_section = ""
@@ -2341,7 +2606,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Helion AI</title>
+  <title>Helion AI — {display_name}</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>{self._CSS}</style>
 </head>
@@ -2363,30 +2628,55 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
       <span class="nav-user">{display_name}</span>
       <span id="saveInd" class="save-ind"></span>
       <a href="/api/auth/logout" class="nav-link">Sign out</a>
-    <button onclick="toggleRail()" class="nav-link" style="background:rgba(90,171,223,.10);border:1px solid rgba(90,171,223,.32);">&#9679; Artemis</button>
+      <button onclick="toggleRail()" class="nav-link" style="background:rgba(90,171,223,.10);border:1px solid rgba(90,171,223,.32);">&#9679; Artemis</button>
     </div>
   </div>
 
   <!-- Hero -->
   {hero_html}
 
+  <!-- Quick Actions -->
+  {quick_actions_html}
+
+  <!-- Nudge -->
+  {nudge_html}
+
+  <!-- Focus Banner (shown during focus mode) -->
+  <div class="focus-banner" id="focusBanner">
+    <div class="focus-banner-left">
+      <div>
+        <div class="focus-label">FOCUS SESSION</div>
+        <div class="focus-task-name" id="focusBannerTask">—</div>
+      </div>
+      <div class="focus-timer" id="focusBannerTimer">00:00</div>
+    </div>
+    <div class="focus-banner-right">
+      <button class="focus-end-btn" onclick="endFocusSession()">End Session</button>
+    </div>
+  </div>
+
   <!-- Stats Row -->
   <div class="stats-row">
     <div class="stat-card">
       <div class="stat-value">{streak}</div>
       <div class="stat-label">Day Streak</div>
+      <div class="stat-sublabel">{("🔥 Keep going" if streak > 3 else "Start your streak")}</div>
+      {trend_badge.get(streak_trend, "")}
     </div>
     <div class="stat-card">
       <div class="stat-value">{comp_rate}%</div>
       <div class="stat-label">Completion Rate</div>
+      <div class="stat-sublabel">{momentum_state}</div>
     </div>
     <div class="stat-card">
       <div class="stat-value">{len(goals_list)}</div>
       <div class="stat-label">Active Goals</div>
+      <div class="stat-sublabel">{("Ready to execute" if goals_list else "Add your first goal")}</div>
     </div>
     <div class="stat-card">
       <div class="stat-value">{total_done}</div>
       <div class="stat-label">Tasks Completed</div>
+      <div class="stat-sublabel">{week_tasks_done} this week</div>
     </div>
   </div>
 
@@ -2398,6 +2688,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
           <div class="card-title">Today's Action Plan</div>
           {regen_btn}
         </div>
+        {plan_progress_html}
         <div id="planArea">{plan_content}</div>
       </div>
     </div>
@@ -2408,14 +2699,30 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
           <div class="card-title">Active Goals</div>
           {add_goal_btn}
         </div>
-        {goals_content}
+        <div id="goalsArea">{goals_content}</div>
       </div>
       {habits_section}
     </div>
   </div>
 
-  <!-- Activity -->
-  {activity_section}
+  <!-- Blockers -->
+  {{f'<div class="card" style="margin-bottom:20px;border-color:rgba(239,68,68,.18);"><div class="card-head"><div class="card-title" style="color:rgba(239,68,68,.7);">⚡ Friction Detection</div></div>{blockers_html}</div>' if blockers_html else ""}}
+
+  <!-- Activity + Weekly Review -->
+  <div class="grid-full">
+    {activity_section}
+    <div class="card reflect-card" id="weeklyReviewCard">
+      <div class="reflect-title">This Week's Momentum</div>
+      <div class="week-stat"><span class="week-stat-label">Plans generated</span><span class="week-stat-val">{week_plans_run}</span></div>
+      <div class="week-stat"><span class="week-stat-label">Tasks completed</span><span class="week-stat-val">{week_tasks_done}</span></div>
+      <div class="week-stat"><span class="week-stat-label">Completion rate</span><span class="week-stat-val">{comp_rate}%</span></div>
+      <div class="week-stat"><span class="week-stat-label">Momentum state</span><span class="week-stat-val">{momentum_state}</span></div>
+      <div class="week-stat"><span class="week-stat-label">Trend</span><span class="week-stat-val">{streak_trend.title()}</span></div>
+      <div style="margin-top:14px;">
+        <button class="card-action" onclick="openRail();railSendMsg('Give me a weekly review — what moved forward, what stalled, and what I should focus on next week.')">Ask Artemis for Review</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Coach + Status -->
   <div class="grid-full">
@@ -2425,17 +2732,43 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 
 </div>
 
-<!-- Add Goal Modal -->
+<!-- Add Goal Modal (upgraded) -->
 <div class="modal-overlay" id="addGoalModal">
   <div class="modal">
     <div class="modal-title">Add a New Goal</div>
     <div class="modal-field">
-      <label>Goal Title</label>
-      <input type="text" id="goalTitle" placeholder="e.g. Launch my product by Q3" maxlength="120"/>
+      <label>Goal Title *</label>
+      <input type="text" id="goalTitle" placeholder="e.g. Launch my SaaS to 100 paying customers" maxlength="140"/>
+    </div>
+    <div class="modal-row">
+      <div class="modal-field">
+        <label>Priority</label>
+        <select id="goalPriority">
+          <option value="high">🔴 High</option>
+          <option value="medium" selected>🟡 Medium</option>
+          <option value="low">🟢 Low</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Category</label>
+        <select id="goalCategory">
+          <option value="career">Career</option>
+          <option value="health">Health</option>
+          <option value="finance">Finance</option>
+          <option value="learning">Learning</option>
+          <option value="personal">Personal</option>
+          <option value="business">Business</option>
+          <option value="general" selected>General</option>
+        </select>
+      </div>
     </div>
     <div class="modal-field">
-      <label>Deadline (optional)</label>
+      <label>Target Date (optional)</label>
       <input type="text" id="goalDeadline" placeholder="e.g. June 30, 2026 or open-ended"/>
+    </div>
+    <div class="modal-field">
+      <label>Why this matters (optional)</label>
+      <textarea id="goalNotes" placeholder="Why is this goal important to you?"></textarea>
     </div>
     <div class="modal-err" id="goalErr"></div>
     <div class="modal-actions">
@@ -2445,16 +2778,75 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
   </div>
 </div>
 
-<!-- Artemis is now at /artemis -->
+<!-- Goal Detail Drawer -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="goal-drawer" id="goalDrawer">
+  <button class="drawer-close" onclick="closeDrawer()">✕ Close</button>
+  <div id="drawerContent"></div>
+</div>
+
+<!-- Focus Mode Overlay -->
+<div class="focus-overlay" id="focusOverlay">
+  <div class="focus-session-task" id="focusTaskTitle">Task</div>
+  <div class="focus-session-goal" id="focusTaskGoal"></div>
+  <div class="focus-session-timer" id="focusTimerDisplay">25:00</div>
+  <div class="focus-session-controls">
+    <button class="focus-ctrl-btn primary" id="focusPlayBtn" onclick="toggleFocusTimer()">▶ Start</button>
+    <button class="focus-ctrl-btn" onclick="endFocusSession()">✕ Exit</button>
+  </div>
+</div>
 
 <script>
-// ── Task completion ───────────────────────────────────────
-function toggleTask(box) {{
-  const item = box.closest('.task-item');
-  const done = item.classList.toggle('done');
+// ── APP STATE ────────────────────────────────────────────
+const APP_STATE = {{
+  hasGoals: {'true' if has_goals else 'false'},
+  goalCount: {len(goals_list)},
+  hasPlan: {'true' if has_plan else 'false'},
+  planStatus: '{status}',
+  displayName: {json.dumps(display_name)},
+  compRate: {comp_rate},
+  streak: {streak},
+  totalDone: {total_done},
+  weekTasksDone: {week_tasks_done},
+  goals: {json.dumps([{{"id": g.get("id",""), "title": g.get("title",""), "status": g.get("status","active"), "priority": g.get("priority","medium")}} for g in goals_list])},
+  tasks: {json.dumps([{{"id": t.get("id",""), "title": t.get("title",""), "completed": t.get("completed", False), "goal_link": t.get("goal_link","")}} for t in tasks])},
+  momentumState: {json.dumps(momentum_state)},
+  focusMode: false,
+  focusTaskId: null,
+  focusSeconds: 0,
+  focusInterval: null,
+  focusRunning: false,
+}};
+
+// ── TASK COMPLETION ─────────────────────────────────────
+async function toggleTask(box) {{
+  const item   = box.closest('.task-item');
+  const done   = item.classList.toggle('done');
   box.classList.toggle('checked', done);
-  box.textContent = done ? '\u2713' : '';
-  scheduleSave();
+  box.textContent = done ? '✓' : '';
+  const taskId = box.dataset.id || '';
+  if (taskId) {{
+    try {{
+      await fetch('/api/tasks/complete', {{
+        method: 'POST',
+        headers: {{'Content-Type': 'application/json'}},
+        credentials: 'include',
+        body: JSON.stringify({{ task_id: taskId, done }})
+      }});
+    }} catch(e) {{}}
+  }}
+  updatePlanProgress();
+}}
+
+function updatePlanProgress() {{
+  const checks = document.querySelectorAll('.task-check.checked');
+  const total  = document.querySelectorAll('.task-check').length;
+  const done   = checks.length;
+  const pct    = total > 0 ? Math.round(done / total * 100) : 0;
+  const fill   = document.getElementById('planProgressFill');
+  const label  = document.getElementById('planProgressLabel');
+  if (fill)  fill.style.width = pct + '%';
+  if (label) label.textContent = done + '/' + total + ' tasks done today — ' + pct + '% complete';
 }}
 
 let saveTimer = null;
@@ -2474,29 +2866,29 @@ function doSave() {{
     headers: {{'Content-Type': 'application/json'}},
     body: JSON.stringify(pendingChanges),
     credentials: 'include'
-  }}).then(r => r.json()).then(d => {{
+  }}).then(r => r.json()).then(() => {{
     if (ind) {{ ind.textContent = 'Saved'; setTimeout(() => {{ ind.textContent = ''; }}, 2000); }}
     pendingChanges = {{}};
-  }}).catch(() => {{
-    if (ind) ind.textContent = '';
-  }});
+  }}).catch(() => {{ if (ind) ind.textContent = ''; }});
 }}
 window.addEventListener('beforeunload', doSave);
 
-// ── Add Goal Modal ────────────────────────────────────────
+// ── ADD GOAL MODAL ───────────────────────────────────────
 function showAddGoal() {{
   document.getElementById('addGoalModal').classList.add('open');
-  document.getElementById('goalTitle').focus();
+  setTimeout(() => document.getElementById('goalTitle').focus(), 50);
 }}
 function hideAddGoal() {{
   document.getElementById('addGoalModal').classList.remove('open');
-  document.getElementById('goalTitle').value = '';
-  document.getElementById('goalDeadline').value = '';
+  ['goalTitle','goalDeadline','goalNotes'].forEach(id => {{ const el = document.getElementById(id); if(el) el.value=''; }});
   document.getElementById('goalErr').textContent = '';
 }}
 async function submitGoal() {{
   const title    = document.getElementById('goalTitle').value.trim();
   const deadline = document.getElementById('goalDeadline').value.trim();
+  const priority = document.getElementById('goalPriority').value;
+  const category = document.getElementById('goalCategory').value;
+  const notes    = document.getElementById('goalNotes').value.trim();
   const errEl    = document.getElementById('goalErr');
   if (!title) {{ errEl.textContent = 'Please enter a goal title.'; return; }}
   const btn = document.getElementById('addGoalBtn');
@@ -2506,23 +2898,19 @@ async function submitGoal() {{
       method: 'POST',
       headers: {{'Content-Type': 'application/json'}},
       credentials: 'include',
-      body: JSON.stringify({{ title, deadline: deadline || 'open-ended' }})
+      body: JSON.stringify({{ title, deadline: deadline || 'open-ended', priority, category, notes }})
     }});
     const d = await r.json();
     if (d.success) {{ location.reload(); }}
     else {{ errEl.textContent = d.error || 'Failed to add goal.'; }}
-  }} catch(e) {{
-    errEl.textContent = 'Connection error.';
-  }}
+  }} catch(e) {{ errEl.textContent = 'Connection error. Please try again.'; }}
   btn.disabled = false; btn.textContent = 'Add Goal';
 }}
-document.getElementById('goalTitle').addEventListener('keydown', e => {{
-  if (e.key === 'Enter') submitGoal();
-}});
+document.getElementById('goalTitle').addEventListener('keydown', e => {{ if (e.key === 'Enter') submitGoal(); }});
 
-// ── Remove Goal ───────────────────────────────────────────
+// ── REMOVE / PAUSE / ARCHIVE GOAL ───────────────────────
 async function removeGoal(goalId) {{
-  if (!confirm('Remove this goal? This cannot be undone.')) return;
+  if (!confirm('Permanently delete this goal? This cannot be undone.')) return;
   try {{
     const r = await fetch('/api/goals/remove', {{
       method: 'POST',
@@ -2531,39 +2919,214 @@ async function removeGoal(goalId) {{
       body: JSON.stringify({{ goal_id: goalId }})
     }});
     const d = await r.json();
-    if (d.success) location.reload();
-    else alert(d.error || 'Failed to remove goal.');
-  }} catch(e) {{ alert('Connection error.'); }}
+    if (d.success) {{ location.reload(); }}
+    else {{ showToast('Error: ' + (d.error || 'Failed to remove goal.'), 'error'); }}
+  }} catch(e) {{ showToast('Connection error.', 'error'); }}
 }}
 
-// ── Generate Plan ─────────────────────────────────────────
-async function generatePlan() {{
-  const btn = document.getElementById('genPlanBtn');
-  if (btn) {{ btn.disabled = true; btn.textContent = 'Generating...'; }}
-  const planArea = document.getElementById('planArea');
-  if (planArea) {{
-    planArea.innerHTML = '<div class="plan-loading"><div class="plan-loading-dots"><span></span><span></span><span></span></div><p>Generating your action plan...</p></div>';
-  }}
+async function pauseGoal(goalId, currentStatus) {{
+  const newStatus = currentStatus === 'paused' ? 'active' : 'paused';
   try {{
-    const r = await fetch('/api/plan/generate', {{
-      method: 'POST', credentials: 'include'
+    const r = await fetch('/api/goals/status', {{
+      method: 'POST',
+      headers: {{'Content-Type': 'application/json'}},
+      credentials: 'include',
+      body: JSON.stringify({{ goal_id: goalId, status: newStatus }})
     }});
     const d = await r.json();
-    if (d.success) {{
-      location.reload();
-    }} else {{
-      if (planArea) planArea.innerHTML = '<div class="empty"><div class="empty-text">' + (d.error || 'Plan generation failed. Check that ANTHROPIC_API_KEY is configured.') + '</div></div>';
-      if (btn) {{ btn.disabled = false; btn.textContent = 'Try Again'; }}
+    if (d.success) {{ location.reload(); }}
+    else {{ showToast('Error: ' + (d.error || 'Failed.'), 'error'); }}
+  }} catch(e) {{ showToast('Connection error.', 'error'); }}
+}}
+
+async function archiveGoal(goalId) {{
+  if (!confirm('Archive this goal? You can still see it in your history.')) return;
+  try {{
+    const r = await fetch('/api/goals/status', {{
+      method: 'POST',
+      headers: {{'Content-Type': 'application/json'}},
+      credentials: 'include',
+      body: JSON.stringify({{ goal_id: goalId, status: 'archived' }})
+    }});
+    const d = await r.json();
+    if (d.success) {{ location.reload(); }}
+    else {{ showToast('Error: ' + (d.error || 'Failed.'), 'error'); }}
+  }} catch(e) {{ showToast('Connection error.', 'error'); }}
+}}
+
+async function completeMilestone(goalId, milestoneId) {{
+  try {{
+    const r = await fetch('/api/goals/milestone/complete', {{
+      method: 'POST',
+      headers: {{'Content-Type': 'application/json'}},
+      credentials: 'include',
+      body: JSON.stringify({{ goal_id: goalId, milestone_id: milestoneId }})
+    }});
+    const d = await r.json();
+    if (d.success) {{ location.reload(); }}
+    else {{ showToast('Error: ' + (d.error || 'Failed.'), 'error'); }}
+  }} catch(e) {{ showToast('Connection error.', 'error'); }}
+}}
+
+// ── GENERATE PLAN ─────────────────────────────────────────
+async function generatePlan() {{
+  const btns = [document.getElementById('genPlanBtn'), document.getElementById('genPlanBtnQA')];
+  btns.forEach(b => {{ if(b) {{ b.disabled = true; b.textContent = 'Generating...'; }} }});
+  const planArea = document.getElementById('planArea');
+  if (planArea) planArea.innerHTML = '<div class="plan-loading"><div class="plan-loading-dots"><span></span><span></span><span></span></div><p>Artemis is building your plan…</p></div>';
+  try {{
+    const r = await fetch('/api/plan/generate', {{ method: 'POST', credentials: 'include' }});
+    const d = await r.json();
+    if (d.success) {{ location.reload(); }}
+    else {{
+      if (planArea) planArea.innerHTML = '<div class="empty"><div class="empty-text">' + (d.error || 'Plan generation failed.') + '</div></div>';
+      btns.forEach(b => {{ if(b) {{ b.disabled = false; b.textContent = 'Try Again'; }} }});
     }}
   }} catch(e) {{
     if (planArea) planArea.innerHTML = '<div class="empty"><div class="empty-text">Connection error. Please try again.</div></div>';
-    if (btn) {{ btn.disabled = false; btn.textContent = 'Try Again'; }}
+    btns.forEach(b => {{ if(b) {{ b.disabled = false; b.textContent = 'Try Again'; }} }});
   }}
 }}
 
-// Artemis chat is now at /artemis page
+// ── FOCUS MODE ───────────────────────────────────────────
+function startFocusMode(taskId, taskTitle, goalLink) {{
+  const tasks = APP_STATE.tasks;
+  if (!taskId && tasks.length > 0) {{
+    const first = tasks.find(t => !t.completed) || tasks[0];
+    taskId    = first.id;
+    taskTitle = first.title;
+    goalLink  = first.goal_link;
+  }}
+  if (!taskTitle) {{ showToast('No task to focus on. Generate a plan first.'); return; }}
+  APP_STATE.focusMode   = true;
+  APP_STATE.focusTaskId = taskId;
+  APP_STATE.focusSeconds = 25 * 60;
+  APP_STATE.focusRunning = false;
+  document.getElementById('focusTaskTitle').textContent  = taskTitle || 'Focus Task';
+  document.getElementById('focusTaskGoal').textContent   = goalLink  ? '→ ' + goalLink : '';
+  document.getElementById('focusBannerTask').textContent = taskTitle || 'Focus Session';
+  document.getElementById('focusTimerDisplay').textContent = '25:00';
+  document.getElementById('focusPlayBtn').textContent = '▶ Start';
+  document.getElementById('focusOverlay').classList.add('active');
+}}
+function toggleFocusTimer() {{
+  if (APP_STATE.focusRunning) {{
+    clearInterval(APP_STATE.focusInterval);
+    APP_STATE.focusRunning = false;
+    document.getElementById('focusPlayBtn').textContent = '▶ Resume';
+  }} else {{
+    APP_STATE.focusRunning = true;
+    document.getElementById('focusPlayBtn').textContent = '⏸ Pause';
+    APP_STATE.focusInterval = setInterval(() => {{
+      APP_STATE.focusSeconds--;
+      const m = Math.floor(APP_STATE.focusSeconds / 60);
+      const s = APP_STATE.focusSeconds % 60;
+      const label = (m < 10 ? '0'+m : m) + ':' + (s < 10 ? '0'+s : s);
+      document.getElementById('focusTimerDisplay').textContent = label;
+      document.getElementById('focusBannerTimer').textContent  = label;
+      if (APP_STATE.focusSeconds <= 0) {{
+        clearInterval(APP_STATE.focusInterval);
+        APP_STATE.focusRunning = false;
+        document.getElementById('focusTimerDisplay').textContent = '00:00';
+        showToast('🎉 Focus session complete!');
+        endFocusSession();
+      }}
+    }}, 1000);
+  }}
+}}
+function endFocusSession() {{
+  clearInterval(APP_STATE.focusInterval);
+  APP_STATE.focusRunning = false;
+  APP_STATE.focusMode    = false;
+  document.getElementById('focusOverlay').classList.remove('active');
+  document.getElementById('focusBanner').classList.remove('active');
+}}
+
+// ── GOAL DRAWER ──────────────────────────────────────────
+function openGoalDrawer(goalId) {{
+  const drawer = document.getElementById('goalDrawer');
+  const overlay = document.getElementById('drawerOverlay');
+  document.getElementById('drawerContent').innerHTML = '<p style="color:var(--muted);font-size:13px;">Loading…</p>';
+  drawer.classList.add('open');
+  overlay.classList.add('open');
+  fetch('/api/data', {{ credentials: 'include' }}).then(r => r.json()).then(data => {{
+    const goal = (data.goals?.goals || []).find(g => g.id === goalId);
+    if (!goal) return;
+    const milestones = goal.milestones || [];
+    const msHtml = milestones.map(m => `
+<div class="drawer-milestone-row">
+  <div class="drawer-ms-check ${{m.completed?'done':''}}" onclick="completeMilestone('${{goalId}}','${{m.id}}')">${{m.completed?'✓':''}}</div>
+  <div class="drawer-ms-title" style="${{m.completed?'text-decoration:line-through;color:var(--muted)':''}}">${{m.title}}</div>
+  <div class="drawer-ms-dl">${{m.deadline||''}}</div>
+</div>`).join('');
+    document.getElementById('drawerContent').innerHTML = `
+<div class="drawer-goal-title">${{goal.title}}</div>
+<div class="goal-meta-row">
+  <span class="goal-priority-badge pri-${{goal.priority||'medium'}}">${{(goal.priority||'medium').toUpperCase()}}</span>
+  <span class="goal-category-tag">${{goal.category||'general'}}</span>
+  <span class="goal-deadline-tag">⏱ ${{goal.deadline||'open'}}</span>
+</div>
+${{goal.notes ? '<div class="goal-notes" style="margin-top:10px;">' + goal.notes + '</div>' : ''}}
+<div class="goal-progress-row" style="margin-top:12px;">
+  <div class="goal-progress-bar-wrap"><div class="goal-progress-bar" style="width:${{goal.progress||0}}%"></div></div>
+  <span class="goal-progress-pct">${{goal.progress||0}}% complete</span>
+</div>
+<div class="drawer-section">
+  <div class="drawer-section-title">Milestones (${{milestones.filter(m=>m.completed).length}}/${{milestones.length}} done)</div>
+  ${{msHtml || '<div style="font-size:12px;color:var(--muted);">No milestones yet.</div>'}}
+  <div class="drawer-add-ms">
+    <input id="newMsTitle_${{goalId}}" placeholder="Add milestone…"/>
+    <input id="newMsDl_${{goalId}}" placeholder="Deadline"/>
+    <button onclick="addMilestone('${{goalId}}')">+ Add</button>
+  </div>
+</div>`;
+  }}).catch(() => {{
+    document.getElementById('drawerContent').innerHTML = '<p style="color:var(--muted);font-size:13px;">Could not load goal data.</p>';
+  }});
+}}
+function closeDrawer() {{
+  document.getElementById('goalDrawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+}}
+async function addMilestone(goalId) {{
+  const titleEl = document.getElementById('newMsTitle_' + goalId);
+  const dlEl    = document.getElementById('newMsDl_' + goalId);
+  if (!titleEl || !titleEl.value.trim()) return;
+  try {{
+    const r = await fetch('/api/goals/milestone/add', {{
+      method: 'POST',
+      headers: {{'Content-Type': 'application/json'}},
+      credentials: 'include',
+      body: JSON.stringify({{ goal_id: goalId, title: titleEl.value.trim(), deadline: dlEl?.value.trim() || 'open-ended' }})
+    }});
+    const d = await r.json();
+    if (d.success) {{ openGoalDrawer(goalId); }}
+    else {{ showToast('Error: ' + (d.error || 'Failed.'), 'error'); }}
+  }} catch(e) {{ showToast('Connection error.', 'error'); }}
+}}
+
+// ── WEEKLY REVIEW ─────────────────────────────────────────
+function showWeeklyReview() {{
+  document.getElementById('weeklyReviewCard').scrollIntoView({{behavior:'smooth',block:'center'}});
+  setTimeout(() => openRail(), 400);
+  setTimeout(() => railSendMsg('Give me a full weekly review. What moved forward, what stalled, what patterns you see in my execution, and the top 3 focus areas for next week.'), 800);
+}}
+
+// ── TOAST NOTIFICATIONS ──────────────────────────────────
+function showToast(msg, type) {{
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:' +
+    (type==='error'?'rgba(239,68,68,.9)':'rgba(16,185,129,.9)') +
+    ';color:#fff;padding:10px 18px;border-radius:4px;font-size:13px;z-index:9999;' +
+    'box-shadow:0 4px 16px rgba(0,0,0,.4);transition:opacity .3s;';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => {{ t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }}, 2800);
+}}
 </script>
+
 {self._snow_mountain_html()}
+
 <!-- Artemis Intelligence Rail -->
 <div class="artemis-rail" id="artemisRail">
   <div class="rail-header">
@@ -2573,88 +3136,109 @@ async function generatePlan() {{
   <div class="rail-messages" id="railMessages"></div>
   <div class="rail-prompts" id="railPrompts"></div>
   <div class="rail-footer">
-    <input class="rail-input" id="railInput" placeholder="Ask Artemis…"/>
+    <input class="rail-input" id="railInput" placeholder="Ask Artemis…" onkeydown="if(event.key==='Enter')railSendMsg()"/>
     <button class="rail-send" id="railSend" onclick="railSendMsg()">&#9658;</button>
   </div>
 </div>
 <button class="rail-tab" id="railTab" onclick="toggleRail()">A R T E M I S</button>
+
 <script>
-const APP_STATE = {{
-  hasGoals: {'true' if has_goals else 'false'},
-  goalCount: {len(goals_list)},
-  hasPlan: {'true' if has_plan else 'false'},
-  planStatus: 'none',
-  displayName: '{display_name}',
-  compRate: 0
-}};
-var _railOpen=false;
-function openRail(){{
+var _railOpen = false;
+var _railHistory = [];
+
+function openRail() {{
   document.getElementById('artemisRail').classList.add('open');
   document.getElementById('railTab').classList.add('hidden');
-  _railOpen=true;
-  renderRailContext();renderRailPrompts();
-  if(!document.getElementById('railMessages').children.length){{
-    appendRailMsg('ai',APP_STATE.displayName+(APP_STATE.hasGoals
-      ?'. '+APP_STATE.goalCount+' goal'+(APP_STATE.goalCount!==1?'s':'')+' active. What do you need?'
-      :'. No goals yet — add one and I’ll have something to work with.'));
+  _railOpen = true;
+  renderRailContext();
+  renderRailPrompts();
+  if (!document.getElementById('railMessages').children.length) {{
+    const goalCtx = APP_STATE.hasGoals
+      ? APP_STATE.goalCount + ' goal' + (APP_STATE.goalCount !== 1 ? 's' : '') + ' active. '
+      : 'No goals yet. ';
+    const planCtx = APP_STATE.hasPlan ? 'Plan ready. ' : 'No plan today. ';
+    appendRailMsg('ai', APP_STATE.displayName + ' — ' + goalCtx + planCtx + 'What do you need?');
   }}
 }}
-function closeRail(){{
+function closeRail() {{
   document.getElementById('artemisRail').classList.remove('open');
   document.getElementById('railTab').classList.remove('hidden');
-  _railOpen=false;
+  _railOpen = false;
 }}
-function toggleRail(){{_railOpen?closeRail():openRail();}}
-function renderRailContext(){{
-  var el=document.getElementById('railContext');if(!el)return;
-  var parts=[];
-  if(APP_STATE.hasGoals)parts.push(APP_STATE.goalCount+' goal'+(APP_STATE.goalCount!==1?'s':''));
-  el.textContent=parts.join(' · ')||'No active goals';
+function toggleRail() {{
+  if (_railOpen) closeRail(); else openRail();
 }}
-function renderRailPrompts(){{
-  var el=document.getElementById('railPrompts');if(!el)return;
-  var chips=['How does Helion work?','Help me set a goal','What can Artemis do?'];
-  el.innerHTML='';
-  chips.forEach(function(c){{
-    var btn=document.createElement('button');
-    btn.className='prompt-chip';
-    btn.textContent=c;
-    btn.onclick=function(){{railQuickPrompt(c);}};
-    el.appendChild(btn);
-  }});
+
+function renderRailContext() {{
+  const el = document.getElementById('railContext');
+  if (!el) return;
+  const parts = [];
+  if (APP_STATE.hasGoals) parts.push(APP_STATE.goalCount + ' goal' + (APP_STATE.goalCount!==1?'s':''));
+  if (APP_STATE.hasPlan)  parts.push('plan active');
+  parts.push(APP_STATE.compRate + '% rate');
+  parts.push(APP_STATE.streak + ' day streak');
+  parts.push(APP_STATE.momentumState);
+  el.textContent = parts.join(' · ');
 }}
-function appendRailMsg(role,text){{
-  var el=document.getElementById('railMessages');if(!el)return;
-  var d=document.createElement('div');d.className='rail-msg '+role;d.textContent=text;
-  el.appendChild(d);el.scrollTop=el.scrollHeight;
+
+function renderRailPrompts() {{
+  const el = document.getElementById('railPrompts');
+  if (!el) return;
+  const chips = APP_STATE.hasGoals ? [
+    'What should I focus on today?',
+    'Which goal is slipping?',
+    'Rebuild this plan for a low-energy day',
+    'What's the bottleneck right now?',
+    'Give me a weekly review',
+  ] : [
+    'How do I set a good goal?',
+    'What makes a goal executable?',
+    'Help me think through my priorities',
+  ];
+  el.innerHTML = chips.map(c => `<button class="prompt-chip" onclick="railSendMsg(${{JSON.stringify(c)}})">${{c}}</button>`).join('');
 }}
-function railQuickPrompt(text){{appendRailMsg('user',text);railSendToApi(text);}}
-async function railSendMsg(){{
-  var inp=document.getElementById('railInput');
-  var msg=inp?inp.value.trim():'';if(!msg)return;
-  inp.value='';appendRailMsg('user',msg);railSendToApi(msg);
+
+function appendRailMsg(role, text) {{
+  const el  = document.getElementById('railMessages');
+  const div = document.createElement('div');
+  div.className = 'rail-msg ' + (role === 'user' ? 'user' : 'ai');
+  div.textContent = text;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+  return div;
 }}
-async function railSendToApi(msg){{
-  try{{
-    appendRailMsg('ai','\u2026');
-    var msgsEl=document.getElementById('railMessages');
-    var loading=msgsEl?msgsEl.lastChild:null;
-    var rh=[];
-    if(msgsEl){{msgsEl.querySelectorAll('.rail-msg').forEach(function(m){{if(m!==loading)rh.push({{role:m.classList.contains('user')?'user':'assistant',content:m.textContent}});}});}}
-    rh.push({{role:'user',content:msg}});
-    var resp=await fetch('/api/chat',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{messages:rh}})}});
-    var data=await resp.json();
-    if(loading)loading.remove();
-    appendRailMsg('ai',data.reply||data.response||data.error||'No response');
-  }}catch(e){{
-    var msgsEl=document.getElementById('railMessages');
-    if(msgsEl&&msgsEl.lastChild)msgsEl.lastChild.textContent='Connection error. Try again.';
+
+async function railSendMsg(override) {{
+  const input = document.getElementById('railInput');
+  const text  = (override !== undefined ? override : (input ? input.value.trim() : '')).trim();
+  if (!text) return;
+  if (!_railOpen) openRail();
+  if (input) input.value = '';
+  appendRailMsg('user', text);
+  _railHistory.push({{ role: 'user', content: text }});
+  const loadDiv = appendRailMsg('ai', '…');
+  loadDiv.classList.add('art-loading');
+  const sendBtn = document.getElementById('railSend');
+  if (sendBtn) sendBtn.disabled = true;
+  try {{
+    const r = await fetch('/api/chat', {{
+      method: 'POST',
+      headers: {{'Content-Type': 'application/json'}},
+      credentials: 'include',
+      body: JSON.stringify({{ messages: _railHistory.slice(-20) }})
+    }});
+    const d = await r.json();
+    loadDiv.remove();
+    const reply = d.reply || 'No response.';
+    appendRailMsg('ai', reply);
+    _railHistory.push({{ role: 'assistant', content: reply }});
+  }} catch(e) {{
+    loadDiv.textContent = 'Connection error. Please try again.';
+    loadDiv.classList.remove('art-loading');
   }}
+  if (sendBtn) sendBtn.disabled = false;
+  renderRailPrompts();
 }}
-document.addEventListener('DOMContentLoaded',function(){{
-  var inp=document.getElementById('railInput');
-  if(inp)inp.addEventListener('keydown',function(e){{if(e.key==='Enter'&&!e.shiftKey){{e.preventDefault();railSendMsg();}}}});
-}});
 </script>
 </body>
 </html>"""
@@ -2847,19 +3431,69 @@ requestAnimationFrame(frame);
     def _build_goals_html(self, goals_list: list) -> str:
         if not goals_list:
             return ""
+        active  = [g for g in goals_list if g.get("status") in ("active", "")]
+        paused  = [g for g in goals_list if g.get("status") == "paused"]
+        archived = [g for g in goals_list if g.get("status") in ("archived", "complete")]
+
         out = ""
-        for g in goals_list:
-            status = g.get("status", "active")
-            color  = "#10b981" if status == "complete" else "#5aabdf"
-            dl     = g.get("deadline", "open")
-            gid    = g.get("id", "")
+        for g in active + paused:
+            status   = g.get("status", "active")
+            priority = g.get("priority", "medium")
+            prog     = g.get("progress", 0)
+            milestones = g.get("milestones", [])
+            ms_done  = sum(1 for m in milestones if m.get("completed"))
+            ms_total = len(milestones)
+            dl       = g.get("deadline", "open")
+            gid      = g.get("id", "")
+            category = g.get("category", "general")
+            notes    = g.get("notes", "")
+
+            # Colors
+            if status == "paused":
+                left_color = "#f59e0b"
+                status_badge = '<span class="goal-status-badge paused">PAUSED</span>'
+            else:
+                left_color = {"high": "#ef4444", "low": "#10b981"}.get(priority, "#5aabdf")
+                status_badge = ""
+
+            pri_badge = f'<span class="goal-priority-badge pri-{priority}">{priority.upper()}</span>'
+            ms_badge  = f'<span class="goal-ms-badge">{ms_done}/{ms_total} milestones</span>' if ms_total else ""
+            notes_html = f'<div class="goal-notes">{notes}</div>' if notes else ""
+            prog_html = f"""
+<div class="goal-progress-bar-wrap">
+  <div class="goal-progress-bar" style="width:{prog}%"></div>
+</div>
+<span class="goal-progress-pct">{prog}%</span>""" if prog > 0 else ""
+
+            milestone_rows = ""
+            for m in milestones[:3]:
+                done_cls = "ms-done" if m.get("completed") else ""
+                check    = "✓" if m.get("completed") else "○"
+                mid      = m.get("id","")
+                milestone_rows += f'<div class="goal-ms-row {done_cls}" data-mid="{mid}" data-gid="{gid}"><span class="ms-check" onclick="completeMilestone(\'{gid}\',\'{mid}\')">{check}</span> {m.get("title","")}</div>'
+            if ms_total > 3:
+                milestone_rows += f'<div class="goal-ms-more">+{ms_total-3} more</div>'
+
             out += f"""
-<div class="goal-item" style="border-left-color:{color}">
-  <div class="goal-body">
+<div class="goal-item" style="border-left-color:{left_color}" data-gid="{gid}" data-status="{status}">
+  <div class="goal-header-row">
     <span class="goal-name">{g.get('title','')}</span>
-    <span class="goal-deadline">Due: {dl}</span>
+    <div class="goal-actions">
+      <button class="goal-action-btn" onclick="pauseGoal('{gid}','{status}')" title="{('Resume' if status=='paused' else 'Pause')}">{"▶" if status=="paused" else "⏸"}</button>
+      <button class="goal-action-btn" onclick="archiveGoal('{gid}')" title="Archive">⊘</button>
+      <button class="goal-remove" onclick="removeGoal('{gid}')" title="Delete">✕</button>
+    </div>
   </div>
-  <button class="goal-remove" onclick="removeGoal('{gid}')" title="Remove goal">&#215;</button>
+  <div class="goal-meta-row">
+    {pri_badge}
+    <span class="goal-category-tag">{category}</span>
+    <span class="goal-deadline-tag">⏱ {dl}</span>
+    {status_badge}
+    {ms_badge}
+  </div>
+  {notes_html}
+  {"<div class='goal-progress-row'>" + prog_html + "</div>" if prog > 0 else ""}
+  {("<div class='goal-milestones'>" + milestone_rows + "</div>") if milestone_rows else ""}
 </div>"""
         return out
 
@@ -3787,8 +4421,106 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
                 if not goal_id:
                     self._json({"success": False, "error": "goal_id required"})
                     return
-                orch = LifeOSOrchestrator(get_api_kez(), user)
+                orch = LifeOSOrchestrator(get_api_key(), user)
                 orch.goals.remove_goal(goal_id)
+                self._json({"success": True})
+            except Exception as e:
+                self._json({"success": False, "error": str(e)})
+            return
+
+        if path == "/api/goals/update":
+            try:
+                d = json.loads(body)
+                goal_id = d.get("goal_id", "").strip()
+                if not goal_id:
+                    self._json({"success": False, "error": "goal_id required"})
+                    return
+                orch = LifeOSOrchestrator(get_api_key(), user)
+                kwargs = {k: v for k, v in d.items()
+                          if k in ("title", "deadline", "priority", "category", "notes", "progress")}
+                orch.goals.update_goal(goal_id, **kwargs)
+                self._json({"success": True})
+            except Exception as e:
+                self._json({"success": False, "error": str(e)})
+            return
+
+        if path == "/api/goals/status":
+            try:
+                d = json.loads(body)
+                goal_id = d.get("goal_id", "").strip()
+                status  = d.get("status", "").strip()
+                if not goal_id or not status:
+                    self._json({"success": False, "error": "goal_id and status required"})
+                    return
+                orch = LifeOSOrchestrator(get_api_key(), user)
+                orch.goals.update_goal_status(goal_id, status)
+                self._json({"success": True})
+            except Exception as e:
+                self._json({"success": False, "error": str(e)})
+            return
+
+        if path == "/api/goals/milestone/add":
+            try:
+                d = json.loads(body)
+                goal_id = d.get("goal_id", "").strip()
+                title   = d.get("title", "").strip()
+                if not goal_id or not title:
+                    self._json({"success": False, "error": "goal_id and title required"})
+                    return
+                orch = LifeOSOrchestrator(get_api_key(), user)
+                orch.goals.add_milestone(goal_id, title, d.get("deadline"), d.get("order"))
+                self._json({"success": True})
+            except Exception as e:
+                self._json({"success": False, "error": str(e)})
+            return
+
+        if path == "/api/goals/milestone/complete":
+            try:
+                d = json.loads(body)
+                goal_id      = d.get("goal_id", "").strip()
+                milestone_id = d.get("milestone_id", "").strip()
+                if not goal_id or not milestone_id:
+                    self._json({"success": False, "error": "goal_id and milestone_id required"})
+                    return
+                orch = LifeOSOrchestrator(get_api_key(), user)
+                orch.goals.complete_milestone(goal_id, milestone_id)
+                self._json({"success": True})
+            except Exception as e:
+                self._json({"success": False, "error": str(e)})
+            return
+
+        if path == "/api/tasks/complete":
+            try:
+                d = json.loads(body)
+                task_id = d.get("task_id", "").strip()
+                done    = bool(d.get("done", True))
+                if not task_id:
+                    self._json({"success": False, "error": "task_id required"})
+                    return
+                orch = LifeOSOrchestrator(get_api_key(), user)
+                pf = user_plan_file(user)
+                if pf.exists():
+                    plan = json.loads(pf.read_text())
+                    for t in plan.get("tasks", []):
+                        if t.get("id") == task_id:
+                            t["completed"] = done
+                            t["completed_at"] = datetime.now().isoformat() if done else None
+                            break
+                    pf.write_text(json.dumps(plan, indent=2))
+                    # Update memory
+                    completed_ids = [t["id"] for t in plan.get("tasks", []) if t.get("completed")]
+                    if orch.memory.data.get("sessions"):
+                        orch.memory.data["sessions"][-1]["tasks_completed"] = completed_ids
+                    else:
+                        orch.memory.log_session({
+                            "date": datetime.now().strftime("%Y-%m-%d"),
+                            "daily_plan": [t["id"] for t in plan.get("tasks", [])],
+                            "tasks_completed": completed_ids,
+                        })
+                    orch.memory.data["total_tasks_completed"] = sum(
+                        len(s.get("tasks_completed", [])) for s in orch.memory.data.get("sessions", [])
+                    )
+                    orch.memory.save()
                 self._json({"success": True})
             except Exception as e:
                 self._json({"success": False, "error": str(e)})
