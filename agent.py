@@ -2158,6 +2158,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
                  color:rgba(255,255,255,.35);cursor:pointer;font-size:10px;
                  padding:2px 6px;transition:all .15s;}
 .goal-action-btn:hover{color:var(--text);border-color:var(--border-m);}
+.goal-edit-btn{border-color:rgba(90,171,223,.2);color:rgba(90,171,223,.6);}
+.goal-edit-btn:hover{background:rgba(90,171,223,.1);color:var(--accent);border-color:var(--border-m);}
 .goal-remove{background:none;border:1px solid var(--border);border-radius:2px;
              color:rgba(255,255,255,0.28);cursor:pointer;font-size:10px;
              padding:2px 6px;line-height:1;transition:all .15s;flex-shrink:0;}
@@ -2778,6 +2780,59 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
   </div>
 </div>
 
+<!-- Edit Goal Modal -->
+<div class="modal-overlay" id="editGoalModal">
+  <div class="modal">
+    <div class="modal-title">Edit Goal</div>
+    <input type="hidden" id="editGoalId"/>
+    <div class="modal-field">
+      <label>Goal Title *</label>
+      <input type="text" id="editGoalTitle" maxlength="140"/>
+    </div>
+    <div class="modal-row">
+      <div class="modal-field">
+        <label>Priority</label>
+        <select id="editGoalPriority">
+          <option value="high">🔴 High</option>
+          <option value="medium">🟡 Medium</option>
+          <option value="low">🟢 Low</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Category</label>
+        <select id="editGoalCategory">
+          <option value="career">Career</option>
+          <option value="health">Health</option>
+          <option value="finance">Finance</option>
+          <option value="learning">Learning</option>
+          <option value="personal">Personal</option>
+          <option value="business">Business</option>
+          <option value="general">General</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-field">
+      <label>Target Date</label>
+      <input type="text" id="editGoalDeadline" placeholder="e.g. June 30, 2026 or open-ended"/>
+    </div>
+    <div class="modal-field">
+      <label>Why this matters</label>
+      <textarea id="editGoalNotes" placeholder="Why is this goal important to you?"></textarea>
+    </div>
+    <div class="modal-field">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" id="editGoalReplan" style="width:auto;accent-color:var(--accent);"/>
+        <span>Rebuild today's plan based on this edit</span>
+      </label>
+    </div>
+    <div class="modal-err" id="editGoalErr"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="hideEditGoal()">Cancel</button>
+      <button class="btn-primary" id="editGoalBtn" onclick="submitEditGoal()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <!-- Goal Detail Drawer -->
 <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
 <div class="goal-drawer" id="goalDrawer">
@@ -2952,6 +3007,106 @@ async function archiveGoal(goalId) {{
     if (d.success) {{ location.reload(); }}
     else {{ showToast('Error: ' + (d.error || 'Failed.'), 'error'); }}
   }} catch(e) {{ showToast('Connection error.', 'error'); }}
+}}
+
+// ── EDIT GOAL ────────────────────────────────────────────
+async function openEditGoal(goalId) {{
+  // Fetch live goal data from the server
+  let goal = null;
+  try {{
+    const r = await fetch('/api/data', {{ credentials: 'include' }});
+    const d = await r.json();
+    goal = (d.goals?.goals || []).find(g => g.id === goalId);
+  }} catch(e) {{}}
+  if (!goal) {{ showToast('Could not load goal data.', 'error'); return; }}
+
+  // Pre-fill the edit modal
+  document.getElementById('editGoalId').value        = goal.id;
+  document.getElementById('editGoalTitle').value     = goal.title || '';
+  document.getElementById('editGoalDeadline').value  = goal.deadline === 'open-ended' ? '' : (goal.deadline || '');
+  document.getElementById('editGoalNotes').value     = goal.notes || '';
+  document.getElementById('editGoalErr').textContent = '';
+
+  // Set selects
+  const priSel = document.getElementById('editGoalPriority');
+  const catSel = document.getElementById('editGoalCategory');
+  for (let o of priSel.options) o.selected = (o.value === (goal.priority || 'medium'));
+  for (let o of catSel.options) o.selected = (o.value === (goal.category || 'general'));
+
+  document.getElementById('editGoalReplan').checked = true; // default ON
+  document.getElementById('editGoalModal').classList.add('open');
+  setTimeout(() => document.getElementById('editGoalTitle').focus(), 50);
+}}
+
+function hideEditGoal() {{
+  document.getElementById('editGoalModal').classList.remove('open');
+  document.getElementById('editGoalErr').textContent = '';
+}}
+
+async function submitEditGoal() {{
+  const goalId   = document.getElementById('editGoalId').value;
+  const title    = document.getElementById('editGoalTitle').value.trim();
+  const deadline = document.getElementById('editGoalDeadline').value.trim();
+  const priority = document.getElementById('editGoalPriority').value;
+  const category = document.getElementById('editGoalCategory').value;
+  const notes    = document.getElementById('editGoalNotes').value.trim();
+  const replan   = document.getElementById('editGoalReplan').checked;
+  const errEl    = document.getElementById('editGoalErr');
+
+  if (!title) {{ errEl.textContent = 'Goal title cannot be empty.'; return; }}
+
+  const btn = document.getElementById('editGoalBtn');
+  btn.disabled = true;
+  btn.textContent = replan ? 'Saving & rebuilding plan…' : 'Saving…';
+  errEl.textContent = '';
+
+  try {{
+    // 1. Save the goal changes
+    const r = await fetch('/api/goals/update', {{
+      method: 'POST',
+      headers: {{'Content-Type': 'application/json'}},
+      credentials: 'include',
+      body: JSON.stringify({{
+        goal_id: goalId,
+        title,
+        deadline: deadline || 'open-ended',
+        priority,
+        category,
+        notes,
+      }})
+    }});
+    const d = await r.json();
+    if (!d.success) {{
+      errEl.textContent = d.error || 'Failed to save changes.';
+      btn.disabled = false; btn.textContent = 'Save Changes';
+      return;
+    }}
+
+    // 2. If re-plan requested, regenerate the action plan
+    if (replan) {{
+      hideEditGoal();
+      const planArea = document.getElementById('planArea');
+      if (planArea) planArea.innerHTML = '<div class="plan-loading"><div class="plan-loading-dots"><span></span><span></span><span></span></div><p>Artemis is rebuilding your plan around the updated goal…</p></div>';
+      try {{
+        const rp = await fetch('/api/plan/generate', {{ method: 'POST', credentials: 'include' }});
+        const dp = await rp.json();
+        if (dp.success) {{
+          location.reload();
+        }} else {{
+          if (planArea) planArea.innerHTML = '<div class="empty"><div class="empty-text">' + (dp.error || 'Plan generation failed.') + '</div></div>';
+          location.reload(); // reload anyway so goal shows updated
+        }}
+      }} catch(e) {{
+        location.reload();
+      }}
+    }} else {{
+      hideEditGoal();
+      location.reload();
+    }}
+  }} catch(e) {{
+    errEl.textContent = 'Connection error. Please try again.';
+    btn.disabled = false; btn.textContent = 'Save Changes';
+  }}
 }}
 
 async function completeMilestone(goalId, milestoneId) {{
@@ -3479,6 +3634,7 @@ requestAnimationFrame(frame);
   <div class="goal-header-row">
     <span class="goal-name">{g.get('title','')}</span>
     <div class="goal-actions">
+      <button class="goal-action-btn goal-edit-btn" onclick="openEditGoal('{gid}')" title="Edit goal">✎</button>
       <button class="goal-action-btn" onclick="pauseGoal('{gid}','{status}')" title="{('Resume' if status=='paused' else 'Pause')}">{"▶" if status=="paused" else "⏸"}</button>
       <button class="goal-action-btn" onclick="archiveGoal('{gid}')" title="Archive">⊘</button>
       <button class="goal-remove" onclick="removeGoal('{gid}')" title="Delete">✕</button>
