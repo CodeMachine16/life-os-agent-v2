@@ -35,10 +35,35 @@ import urllib.parse
 # ─────────────────────────────────────────────
 
 BASE_DIR = Path(__file__).parent
-# On Railway, use /data (persistent volume mount point) unless overridden.
-# Set up a volume in Railway dashboard mounted at /data.
+# On Railway, prefer /data (persistent volume) if it exists and is writable.
+# Falls back to BASE_DIR/data so the app always starts even without a volume.
 _on_railway = bool(os.environ.get("RAILWAY_ENVIRONMENT") or os.environ.get("RAILWAY_PROJECT_ID"))
-DATA_DIR = Path(os.environ.get("DATA_PATH", "/data" if _on_railway else str(BASE_DIR / "data")))
+
+def _resolve_data_dir() -> Path:
+    """Pick a writable data directory, falling back gracefully."""
+    # Explicit override always wins
+    if os.environ.get("DATA_PATH"):
+        d = Path(os.environ["DATA_PATH"])
+        d.mkdir(parents=True, exist_ok=True)
+        return d
+    # On Railway try /data first (mounted persistent volume)
+    if _on_railway:
+        try:
+            d = Path("/data")
+            d.mkdir(parents=True, exist_ok=True)
+            # Quick write-access check
+            probe = d / ".write_probe"
+            probe.touch()
+            probe.unlink()
+            return d
+        except (PermissionError, OSError):
+            pass  # fall through to local fallback
+    # Local / fallback: BASE_DIR/data
+    d = BASE_DIR / "data"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+DATA_DIR = _resolve_data_dir()
 
 GOALS_FILE     = BASE_DIR / "goals.json"
 MEMORY_FILE    = BASE_DIR / "memory.json"
@@ -539,7 +564,6 @@ Rules:
 
 class UserManager:
     def __init__(self):
-        DATA_DIR.mkdir(exist_ok=True)
         self.users = self._load()
 
     def _load(self):
@@ -620,7 +644,6 @@ class SessionManager:
 
     def _save(self):
         try:
-            DATA_DIR.mkdir(exist_ok=True)
             SESSIONS_FILE.write_text(json.dumps(self._s))
         except:
             pass
