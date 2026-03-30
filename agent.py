@@ -2505,6 +2505,18 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);overflow:hid
         else:
             regen_btn_panel = ""
 
+        # Pre-compute JSON for APP_STATE to avoid double-brace f-string issues
+        _goals_json = json.dumps([
+            {"id": g.get("id",""), "title": g.get("title",""),
+             "status": g.get("status","active"), "priority": g.get("priority","medium")}
+            for g in goals_list
+        ])
+        _tasks_json = json.dumps([
+            {"id": t.get("id",""), "title": t.get("title",""),
+             "completed": t.get("completed", False), "goal_link": t.get("goal_link","")}
+            for t in tasks
+        ])
+
         return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2717,8 +2729,8 @@ const APP_STATE = {{
   streak: {streak},
   totalDone: {total_done},
   weekTasksDone: {week_tasks_done},
-  goals: {json.dumps([{{"id": g.get("id",""), "title": g.get("title",""), "status": g.get("status","active"), "priority": g.get("priority","medium")}} for g in goals_list])},
-  tasks: {json.dumps([{{"id": t.get("id",""), "title": t.get("title",""), "completed": t.get("completed", False), "goal_link": t.get("goal_link","")}} for t in tasks])},
+  goals: {_goals_json},
+  tasks: {_tasks_json},
   momentumState: {json.dumps(momentum_state)},
   focusMode: false, focusTaskId: null, focusSeconds: 0, focusInterval: null, focusRunning: false,
 }};
