@@ -2689,7 +2689,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
       {trend_badge.get(streak_trend, "")}
     </div>
     <div class="stat-card">
-      <div class="stat-value">{comp_rate}%</div>
+      <div class="stat-value" id="statCompRate">{comp_rate}%</div>
       <div class="stat-label">Completion Rate</div>
       <div class="stat-sublabel">{momentum_state}</div>
     </div>
@@ -2699,9 +2699,9 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
       <div class="stat-sublabel">{("Ready to execute" if goals_list else "Add your first goal")}</div>
     </div>
     <div class="stat-card">
-      <div class="stat-value">{total_done}</div>
+      <div class="stat-value" id="statTasksCompleted">{total_done}</div>
       <div class="stat-label">Tasks Completed</div>
-      <div class="stat-sublabel">{week_tasks_done} this week</div>
+      <div class="stat-sublabel" id="statWeekDone">{week_tasks_done} this week</div>
     </div>
   </div>
 
@@ -2731,7 +2731,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
   </div>
 
   <!-- Blockers -->
-  {{f'<div class="card" style="margin-bottom:20px;border-color:rgba(239,68,68,.18);"><div class="card-head"><div class="card-title" style="color:rgba(239,68,68,.7);">⚡ Friction Detection</div></div>{blockers_html}</div>' if blockers_html else ""}}
+  {f'<div class="card" style="margin-bottom:20px;border-color:rgba(239,68,68,.18);"><div class="card-head"><div class="card-title" style="color:rgba(239,68,68,.7);">⚡ Friction Detection</div></div>{blockers_html}</div>' if blockers_html else ""}
 
   <!-- Activity + Weekly Review -->
   <div class="grid-full">
@@ -2897,23 +2897,67 @@ const APP_STATE = {{
 }};
 
 // ── TASK COMPLETION ─────────────────────────────────────
+const _taskAcks = [
+  "{{taskTitle}} — done. Keep the streak alive.",
+  "Task complete — one step closer.",
+  "Done! Artemis sees it. Keep going.",
+  "{{taskTitle}} — locked in.",
+  "Another one down. Consistency compounds.",
+  "Task locked — do not stop now.",
+  "Artemis logged it: {{taskTitle}} complete.",
+];
+function _taskAck(title) {{
+  const msg = _taskAcks[Math.floor(Math.random() * _taskAcks.length)];
+  return msg.replace('{{taskTitle}}', title || 'Task');
+}}
+
 async function toggleTask(box) {{
   const item   = box.closest('.task-item');
   const done   = item.classList.toggle('done');
   box.classList.toggle('checked', done);
   box.textContent = done ? '✓' : '';
-  const taskId = box.dataset.id || '';
+  const taskId   = box.dataset.id || '';
+  const taskTitle = item.querySelector('.task-title')?.textContent?.trim().slice(0, 40) || 'Task';
   if (taskId) {{
     try {{
-      await fetch('/api/tasks/complete', {{
+      const r = await fetch('/api/tasks/complete', {{
         method: 'POST',
         headers: {{'Content-Type': 'application/json'}},
         credentials: 'include',
         body: JSON.stringify({{ task_id: taskId, done }})
       }});
+      const data = await r.json();
+      if (data.success) {{
+        // Update stat cards in real-time
+        if (data.today_done !== undefined) {{
+          const tc = document.getElementById('statTasksCompleted');
+          if (tc) tc.textContent = data.total_done;
+        }}
+        if (data.comp_rate !== undefined) {{
+          const cr = document.getElementById('statCompRate');
+          if (cr) cr.textContent = data.comp_rate + '%';
+        }}
+        // Show AI acknowledgment if task was completed (not uncompleted)
+        if (done) {{
+          const checks = document.querySelectorAll('.task-check.checked').length;
+          const total  = document.querySelectorAll('.task-check').length;
+          if (checks === total) {{
+            showToast('🎉 All tasks done! Artemis is proud of you — plan complete!');
+            dismissNudge();
+          }} else {{
+            showToast(_taskAck(taskTitle));
+            if (checks === 1) dismissNudge();
+          }}
+        }}
+      }}
     }} catch(e) {{}}
   }}
   updatePlanProgress();
+}}
+
+function dismissNudge() {{
+  const nudge = document.querySelector('.nudge-strip');
+  if (nudge) nudge.style.display = 'none';
 }}
 
 function updatePlanProgress() {{
@@ -3366,7 +3410,7 @@ function renderRailPrompts() {{
     'What should I focus on today?',
     'Which goal is slipping?',
     'Rebuild this plan for a low-energy day',
-    'What's the bottleneck right now?',
+    "What's the bottleneck right now?",
     'Give me a weekly review',
   ] : [
     'How do I set a good goal?',
@@ -4696,10 +4740,24 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
                             "daily_plan": [t["id"] for t in plan.get("tasks", [])],
                             "tasks_completed": completed_ids,
                         })
-                    orch.memory.data["total_tasks_completed"] = sum(
+                    total_all = sum(
                         len(s.get("tasks_completed", [])) for s in orch.memory.data.get("sessions", [])
                     )
+                    orch.memory.data["total_tasks_completed"] = total_all
                     orch.memory.save()
+                    # Compute today's done count and return for real-time UI update
+                    today_done  = len(completed_ids)
+                    total_tasks = len(plan.get("tasks", []))
+                    rate = orch.memory.get_completion_rate()
+                    comp_rate = int(rate * 100)
+                    self._json({
+                        "success": True,
+                        "today_done": today_done,
+                        "total_tasks": total_tasks,
+                        "total_done": total_all,
+                        "comp_rate": comp_rate,
+                    })
+                    return
                 self._json({"success": True})
             except Exception as e:
                 self._json({"success": False, "error": str(e)})
@@ -4778,9 +4836,17 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
                         plan = json.loads(pf.read_text())
                         tasks = plan.get("tasks", [])
                         if tasks:
-                            plan_summary = f"Today's plan ({plan.get('focus_theme','')}):\n"
-                            for t in tasks[:6]:
-                                plan_summary += f"- {t.get('title','')} [{t.get('priority','')}]\n"
+                            done_tasks   = [t for t in tasks if t.get("completed")]
+                            undone_tasks = [t for t in tasks if not t.get("completed")]
+                            plan_summary = f"Today's plan (theme: {plan.get('focus_theme','')}):\n"
+                            if done_tasks:
+                                plan_summary += f"COMPLETED ({len(done_tasks)}/{len(tasks)}):\n"
+                                for t in done_tasks:
+                                    plan_summary += f"  ✓ {t.get('title','')} [{t.get('priority','')}]\n"
+                            if undone_tasks:
+                                plan_summary += f"REMAINING:\n"
+                                for t in undone_tasks[:4]:
+                                    plan_summary += f"  ○ {t.get('title','')} [{t.get('priority','')}]\n"
                     except:
                         pass
 
