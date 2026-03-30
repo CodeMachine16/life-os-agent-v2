@@ -2043,109 +2043,84 @@ class DashboardGenerator:
 :root{
   --bg:#06101e;--surface:rgba(255,255,255,0.08);--surface-2:rgba(255,255,255,0.11);
   --border:rgba(90,171,223,.16);--border-m:rgba(90,171,223,.32);
-  --text:#eaf5ff;--muted:rgba(255,255,255,0.65);--accent:#5aabdf;
+  --text:#eaf5ff;--dim:rgba(255,255,255,0.35);--muted:rgba(255,255,255,0.65);--accent:#5aabdf;
   --green:#10b981;--amber:#f59e0b;--red:#ef4444;--purple:#a78bfa;
   --serif:'Playfair Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif;
 }
-body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 300px;}
+html,body{width:100%;height:100%;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);overflow:hidden;}
 .atm{position:fixed;inset:0;pointer-events:none;z-index:0;}
 .orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.35;}
 .o1{width:800px;height:600px;top:-200px;left:-100px;background:radial-gradient(ellipse,rgba(90,171,223,0.12),transparent 70%);}
 .o2{width:700px;height:500px;bottom:-150px;right:-100px;background:radial-gradient(ellipse,rgba(90,171,223,0.08),transparent 70%);}
-.wrapper{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 24px;}
-
-/* Nav */
-.nav{display:flex;justify-content:space-between;align-items:center;
-     padding:18px 0 16px;border-bottom:1px solid var(--border);margin-bottom:28px;}
-.nav-brand{display:flex;align-items:center;gap:10px;}
-.nav-brand svg{width:36px;height:24px;}
-.nav-title{font-size:14px;font-weight:600;letter-spacing:-.3px;font-family:var(--serif);color:var(--text);}
-.nav-title span{color:var(--accent);}
-.nav-right{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
-.nav-user{font-size:13px;color:rgba(255,255,255,0.58);}
-.nav-link{font-size:12px;color:var(--accent);text-decoration:none;
-          padding:5px 12px;border:1px solid rgba(90,171,223,.25);border-radius:2px;transition:all .2s;}
-.nav-link:hover{background:rgba(90,171,223,.1);}
-
-/* Hero */
-.hero{margin-bottom:24px;}
-.hero-label{font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:rgba(255,255,255,0.45);margin-bottom:8px;}
-.hero-title{font-family:var(--serif);font-size:30px;font-weight:700;color:#f0f8ff;margin-bottom:8px;line-height:1.25;letter-spacing:-.3px;}
-.hero-sub{font-size:14px;color:rgba(255,255,255,0.60);line-height:1.65;}
-
-/* Stats */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:18px 20px;text-align:center;position:relative;overflow:hidden;transition:border-color .2s;}
-.stat-card:hover{border-color:var(--border-m);}
-.stat-value{font-size:34px;font-weight:800;color:#ffffff;line-height:1.1;margin-bottom:4px;letter-spacing:-.5px;}
-.stat-label{font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.12em;}
-.stat-sublabel{font-size:10px;color:rgba(255,255,255,0.35);margin-top:4px;}
-.stat-trend{position:absolute;top:12px;right:12px;font-size:9px;padding:2px 6px;border-radius:8px;font-weight:600;}
-.trend-up{background:rgba(16,185,129,.15);color:#10b981;}
-.trend-down{background:rgba(239,68,68,.15);color:#ef4444;}
-.trend-flat{background:rgba(107,114,128,.15);color:#9ca3af;}
-
-/* Quick Actions Bar */
-.quick-actions{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;}
-.qa-btn{font-size:11px;padding:7px 14px;border-radius:2px;border:1px solid var(--border);
-        background:var(--surface);color:var(--muted);cursor:pointer;font-family:var(--sans);
-        transition:all .2s;display:flex;align-items:center;gap:5px;font-weight:500;}
-.qa-btn:hover{border-color:var(--border-m);color:var(--text);background:var(--surface-2);}
-.qa-btn.qa-primary{border-color:rgba(90,171,223,.35);color:var(--accent);background:rgba(90,171,223,.06);}
-.qa-btn.qa-primary:hover{background:rgba(90,171,223,.14);}
-
-/* Focus Banner */
-.focus-banner{background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.2);
-              border-radius:3px;padding:12px 18px;margin-bottom:20px;display:none;
-              justify-content:space-between;align-items:center;}
-.focus-banner.active{display:flex;}
-.focus-banner-left{display:flex;align-items:center;gap:10px;}
-.focus-task-name{font-size:13px;font-weight:600;color:#eaf5ff;}
-.focus-timer{font-size:22px;font-weight:800;color:var(--purple);font-variant-numeric:tabular-nums;letter-spacing:-.5px;}
-.focus-label{font-size:10px;color:rgba(167,139,250,.7);text-transform:uppercase;letter-spacing:.1em;}
-.focus-banner-right{display:flex;gap:8px;}
-.focus-end-btn{font-size:11px;padding:5px 12px;border-radius:2px;border:1px solid rgba(167,139,250,.3);
-               background:none;color:rgba(167,139,250,.8);cursor:pointer;transition:all .2s;}
-.focus-end-btn:hover{background:rgba(167,139,250,.12);}
-
-/* Nudge Banner */
-.nudge-strip{background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.2);border-radius:3px;
-             padding:10px 16px;margin-bottom:18px;display:none;
-             align-items:center;gap:10px;font-size:12px;color:rgba(245,158,11,.9);}
-.nudge-strip.show{display:flex;}
-.nudge-icon{font-size:14px;}
-.nudge-dismiss{margin-left:auto;background:none;border:none;color:rgba(245,158,11,.5);cursor:pointer;font-size:14px;}
-
-/* Grid */
-.grid{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:20px;}
-.grid-full{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
-
-/* Cards */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:24px;}
-.card.card-primary{border-top:2px solid var(--accent);background:rgba(255,255,255,0.09);}
-.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
-.card-title{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:rgba(255,255,255,0.5);font-weight:600;}
-.card-action{font-size:12px;color:var(--accent);cursor:pointer;
-             background:none;border:1px solid rgba(90,171,223,.25);border-radius:2px;
-             padding:4px 10px;font-family:var(--sans);transition:all .2s;}
-.card-action:hover{background:rgba(90,171,223,.12);}
-
-/* Task Progress Bar (header of plan card) */
-.plan-progress-bar-wrap{height:2px;background:rgba(255,255,255,.06);border-radius:2px;margin-bottom:16px;overflow:hidden;}
-.plan-progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:2px;transition:width .4s ease;}
-.plan-progress-label{font-size:10px;color:var(--muted);margin-bottom:10px;}
-
-/* Tasks */
-.task-item{background:var(--surface-2);border:1px solid var(--border);border-radius:3px;
-           padding:12px 14px;margin-bottom:8px;transition:all .15s;position:relative;}
+.app{display:flex;flex-direction:column;height:100vh;z-index:1;}
+.topbar{display:flex;justify-content:space-between;align-items:center;height:52px;padding:0 20px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.topbar-left{display:flex;align-items:center;gap:12px;}
+.menu-btn{background:none;border:none;color:var(--text);font-size:20px;cursor:pointer;padding:4px 8px;transition:.2s;}
+.menu-btn:hover{color:var(--accent);}
+.brand{display:flex;align-items:center;gap:8px;}
+.brand svg{width:28px;height:18px;}
+.brand-name{font-size:12px;font-weight:600;letter-spacing:-.5px;font-family:var(--serif);color:var(--text);}
+.brand-name span{color:var(--accent);}
+.topbar-center{flex:1;display:flex;justify-content:center;}
+.status-pills{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+.status-pill{font-size:11px;padding:4px 10px;border-radius:12px;background:rgba(90,171,223,.08);color:rgba(90,171,223,.8);font-weight:500;}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.topbar-user{font-size:11px;color:var(--muted);}
+.topbar-signout{font-size:11px;color:var(--accent);text-decoration:none;cursor:pointer;padding:4px 10px;border:1px solid rgba(90,171,223,.25);border-radius:2px;transition:.2s;}
+.topbar-signout:hover{background:rgba(90,171,223,.1);}
+.app-body{display:flex;flex:1;overflow:hidden;}
+.side-panel{flex:0 0 290px;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;background:var(--bg);z-index:10;transition:flex .25s;}
+.side-panel.collapsed{flex:0 0 0;border-right:none;overflow:hidden;}
+.panel-head{padding:16px 16px 12px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.panel-tabs{display:flex;}
+.ptab{flex:1;padding:8px 12px;border:none;background:none;color:var(--dim);font-size:12px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:.2s;}
+.ptab:hover{color:var(--text);}
+.ptab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.ptab-count{font-size:10px;margin-left:4px;opacity:.7;}
+.panel-body{flex:1;overflow-y:auto;padding:0;}
+.panel-body.hidden{display:none;}
+.hidden{display:none!important;}
+#planArea{padding:12px;}
+#goalsArea{padding:12px;}
+.panel-build-btn,.panel-add-btn{width:calc(100% - 24px);margin:12px;padding:10px 16px;border:1px solid rgba(90,171,223,.3);background:rgba(90,171,223,.08);color:var(--accent);font-size:12px;font-weight:600;border-radius:3px;cursor:pointer;transition:.2s;font-family:var(--sans);}
+.panel-build-btn:hover,.panel-add-btn:hover{background:rgba(90,171,223,.15);}
+.chat-area{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.chat-header{padding:12px 20px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;justify-content:space-between;align-items:center;}
+.artemis-brand{font-size:11px;letter-spacing:.12em;color:rgba(90,171,223,.7);font-weight:600;font-family:var(--serif);}
+.artemis-ctx{font-size:10px;color:var(--dim);}
+.chat-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px;}
+.greeting-msg{display:flex;justify-content:flex-start;}
+.greeting-bubble{max-width:85%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px 12px 12px 3px;padding:16px;}
+.greeting-text{font-size:14px;color:var(--text);line-height:1.6;}
+.chat-task-list{margin-top:14px;padding:12px;background:rgba(90,171,223,.06);border:1px solid rgba(90,171,223,.15);border-radius:8px;}
+.chat-task-list-header{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:rgba(90,171,223,.7);margin-bottom:10px;font-weight:600;}
+.chat-task-item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;transition:.2s;}
+.chat-task-item.done{opacity:.45;}
+.chat-task-item.done .chat-task-title{text-decoration:line-through;color:var(--dim);}
+.chat-task-check{width:16px;height:16px;border:1.5px solid rgba(90,160,230,.35);border-radius:3px;cursor:pointer;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent;transition:.15s;user-select:none;}
+.chat-task-check.checked{background:var(--green);border-color:var(--green);color:#fff;}
+.chat-task-info{flex:1;}
+.chat-task-title{font-size:12px;font-weight:500;color:var(--text);}
+.rail-msg{max-width:80%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.55;}
+.rail-msg.user{background:rgba(90,171,223,.12);color:var(--text);align-self:flex-end;border-radius:12px 12px 3px 12px;margin-left:auto;}
+.rail-msg.ai{background:rgba(255,255,255,.04);color:var(--text);align-self:flex-start;border-radius:3px 12px 12px 12px;border:1px solid var(--border);}
+.rail-prompts{padding:8px 20px;display:flex;flex-wrap:wrap;gap:6px;flex-shrink:0;}
+.prompt-chip{font-size:11px;padding:6px 12px;border-radius:20px;border:1px solid rgba(90,171,223,.25);background:rgba(90,171,223,.06);color:var(--text);cursor:pointer;transition:.2s;font-family:var(--sans);}
+.prompt-chip:hover{background:rgba(90,171,223,.15);border-color:rgba(90,171,223,.4);}
+.chat-input-bar{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;}
+.rail-input{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(90,171,223,.2);border-radius:6px;padding:10px 14px;color:var(--text);font-size:12px;outline:none;font-family:var(--sans);}
+.rail-input:focus{border-color:rgba(90,171,223,.5);}
+.rail-send{background:rgba(90,171,223,.15);border:1px solid rgba(90,171,223,.3);border-radius:6px;padding:10px 16px;color:var(--accent);cursor:pointer;font-weight:600;font-size:12px;transition:.2s;font-family:var(--sans);}
+.rail-send:hover{background:rgba(90,171,223,.25);}
+.rail-send:disabled{opacity:.5;cursor:not-allowed;}
+.task-item{background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:12px 14px;margin-bottom:8px;transition:all .15s;position:relative;}
 .task-item:last-child{margin-bottom:0;}
 .task-item.done{opacity:.45;border-color:rgba(16,185,129,.2);}
 .task-item.done .task-title{text-decoration:line-through;color:var(--muted);}
 .task-item.top-priority{border-left:2px solid var(--amber);}
 .task-row{display:flex;gap:10px;align-items:flex-start;}
-.task-check{width:18px;height:18px;border:1.5px solid rgba(90,160,230,.35);border-radius:3px;
-            cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;
-            justify-content:center;font-size:11px;color:transparent;transition:all .15s;user-select:none;}
+.task-check{width:18px;height:18px;border:1.5px solid rgba(90,160,230,.35);border-radius:3px;cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;color:transparent;transition:all .15s;user-select:none;}
 .task-check.checked{background:var(--green);border-color:var(--green);color:#fff;}
 .task-body{flex:1;}
 .task-title{font-size:13px;font-weight:600;color:#eaf5ff;margin-bottom:5px;line-height:1.4;}
@@ -2155,50 +2130,31 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .tag-medium{background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.25);}
 .tag-low{background:rgba(16,185,129,.12);color:#10b981;border:1px solid rgba(16,185,129,.25);}
 .tag-time{background:rgba(30,42,58,.8);color:#7dd3fc;border:1px solid rgba(125,211,252,.15);}
-.tag-start{background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2);}
 .task-goal{font-size:11px;color:rgba(255,255,255,0.38);}
-.task-why{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5;}
 .task-item-actions{display:flex;gap:6px;margin-top:8px;}
-.task-micro-btn{font-size:10px;padding:3px 8px;border-radius:2px;border:1px solid var(--border);
-                background:none;color:var(--muted);cursor:pointer;font-family:var(--sans);transition:all .15s;}
+.task-micro-btn{font-size:10px;padding:3px 8px;border-radius:2px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;font-family:var(--sans);transition:all .15s;}
 .task-micro-btn:hover{border-color:var(--border-m);color:var(--text);}
-.task-micro-btn.focus-btn{border-color:rgba(167,139,250,.25);color:rgba(167,139,250,.8);}
-.task-micro-btn.focus-btn:hover{background:rgba(167,139,250,.1);}
-.task-top-badge{position:absolute;top:-1px;left:8px;font-size:9px;font-weight:700;
-                letter-spacing:.08em;color:var(--amber);text-transform:uppercase;
-                background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);
-                border-top:none;padding:1px 6px;border-radius:0 0 4px 4px;}
-
-/* Goal items — upgraded */
-.goal-item{background:var(--surface-2);border-left:2px solid var(--accent);
-           border-radius:0 3px 3px 0;padding:12px 14px;margin-bottom:10px;
-           border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
+.goal-item{background:var(--surface-2);border-left:2px solid var(--accent);border-radius:0 3px 3px 0;padding:12px 14px;margin-bottom:10px;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
 .goal-item:last-child{margin-bottom:0;}
 .goal-header-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
 .goal-name{font-size:13px;font-weight:600;color:var(--text);line-height:1.35;flex:1;margin-right:8px;}
 .goal-actions{display:flex;gap:4px;flex-shrink:0;}
-.goal-action-btn{background:none;border:1px solid var(--border);border-radius:2px;
-                 color:rgba(255,255,255,.35);cursor:pointer;font-size:10px;
-                 padding:2px 6px;transition:all .15s;}
+.goal-action-btn{background:none;border:1px solid var(--border);border-radius:2px;color:rgba(255,255,255,.35);cursor:pointer;font-size:10px;padding:2px 6px;transition:all .15s;}
 .goal-action-btn:hover{color:var(--text);border-color:var(--border-m);}
 .goal-edit-btn{border-color:rgba(90,171,223,.2);color:rgba(90,171,223,.6);}
 .goal-edit-btn:hover{background:rgba(90,171,223,.1);color:var(--accent);border-color:var(--border-m);}
-.goal-remove{background:none;border:1px solid var(--border);border-radius:2px;
-             color:rgba(255,255,255,0.28);cursor:pointer;font-size:10px;
-             padding:2px 6px;line-height:1;transition:all .15s;flex-shrink:0;}
+.goal-remove{background:none;border:1px solid var(--border);border-radius:2px;color:rgba(255,255,255,0.28);cursor:pointer;font-size:10px;padding:2px 6px;line-height:1;transition:all .15s;flex-shrink:0;}
 .goal-remove:hover{color:#ef4444;border-color:rgba(239,68,68,.35);}
 .goal-meta-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:6px;}
 .goal-priority-badge{font-size:9px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:8px;}
 .pri-high{background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.25);}
 .pri-medium{background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.25);}
 .pri-low{background:rgba(16,185,129,.12);color:#10b981;border:1px solid rgba(16,185,129,.25);}
-.goal-category-tag{font-size:9px;color:rgba(255,255,255,.45);background:rgba(255,255,255,.05);
-                   border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:2px 7px;}
+.goal-category-tag{font-size:9px;color:rgba(255,255,255,.45);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:2px 7px;}
 .goal-deadline-tag{font-size:10px;color:rgba(255,255,255,.4);}
 .goal-status-badge{font-size:9px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:8px;}
 .goal-status-badge.paused{background:rgba(245,158,11,.1);color:var(--amber);border:1px solid rgba(245,158,11,.25);}
 .goal-ms-badge{font-size:10px;color:rgba(90,171,223,.7);}
-.goal-notes{font-size:11px;color:var(--muted);margin-bottom:6px;line-height:1.5;font-style:italic;}
 .goal-progress-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
 .goal-progress-bar-wrap{flex:1;height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;}
 .goal-progress-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:2px;transition:width .4s;}
@@ -2208,202 +2164,72 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .goal-ms-row:hover{color:var(--text);}
 .goal-ms-row.ms-done{color:rgba(16,185,129,.6);text-decoration:line-through;}
 .ms-check{font-size:10px;color:var(--accent);min-width:12px;}
-.goal-ms-more{font-size:10px;color:rgba(255,255,255,.3);margin-top:2px;}
-
-/* Add Milestone button */
-.add-ms-btn{font-size:10px;color:rgba(90,171,223,.6);background:none;border:none;
-            cursor:pointer;padding:3px 0;margin-top:4px;text-decoration:none;transition:.15s;}
+.add-ms-btn{font-size:10px;color:rgba(90,171,223,.6);background:none;border:none;cursor:pointer;padding:3px 0;margin-top:4px;transition:.15s;}
 .add-ms-btn:hover{color:var(--accent);}
-
-/* Weekly Review & Reflection */
-.reflect-card{background:linear-gradient(135deg,rgba(16,185,129,.04),rgba(90,171,223,.04));
-              border:1px solid rgba(16,185,129,.15);border-radius:4px;padding:20px 24px;}
-.reflect-title{font-size:10px;text-transform:uppercase;letter-spacing:.14em;
-               color:rgba(16,185,129,.7);margin-bottom:14px;font-weight:600;}
-.reflect-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
-.reflect-item{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
-              border-radius:3px;padding:12px 14px;}
-.reflect-item-label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px;}
-.reflect-item-val{font-size:13px;color:var(--text);line-height:1.4;}
-
-/* Friction / Blockers */
-.blocker-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;
-              background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.12);
-              border-radius:3px;margin-bottom:8px;font-size:12px;color:rgba(255,255,255,.75);line-height:1.5;}
-.blocker-icon{font-size:13px;flex-shrink:0;margin-top:1px;}
-
-/* Coach */
-.coach-text{font-size:13px;line-height:1.8;color:rgba(255,255,255,0.68);white-space:pre-line;}
-
-/* Status */
-.status-chip{display:inline-flex;align-items:center;gap:5px;
-             padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;
-             letter-spacing:.04em;margin-bottom:10px;}
-.hard-truth{font-size:12px;font-style:italic;color:var(--amber);
-            border-left:2px solid var(--amber);padding-left:10px;margin-top:12px;line-height:1.6;}
-.replan-note{font-size:12px;color:var(--muted);line-height:1.65;margin-top:6px;}
-
-/* Bars */
-.bars{display:flex;align-items:flex-end;gap:5px;height:64px;padding-top:8px;}
-.bar-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;}
-.bar{width:20px;background:var(--accent);border-radius:2px 2px 0 0;min-height:3px;opacity:.8;transition:height .3s;}
-.bar-label{font-size:9px;color:var(--muted);}
-
-/* Empty states */
-.empty{text-align:center;padding:32px 20px;}
-.empty-icon{font-size:28px;color:rgba(255,255,255,0.22);margin-bottom:12px;line-height:1;}
-.empty-title{font-size:15px;font-weight:600;color:rgba(255,255,255,0.85);margin-bottom:8px;}
-.empty-text{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6;}
-.empty-cta{font-size:11px;color:var(--accent);margin-top:6px;}
-
-/* Buttons */
-.btn-primary{background:rgba(90,171,223,.15);border:1px solid rgba(90,171,223,.3);
-             border-radius:2px;color:var(--text);font-size:12px;font-weight:600;
-             letter-spacing:.05em;text-transform:uppercase;cursor:pointer;
-             font-family:var(--sans);padding:9px 18px;transition:all .2s;}
-.btn-primary:hover{background:rgba(90,171,223,.25);border-color:rgba(90,171,223,.5);}
-.btn-primary:disabled{opacity:.45;cursor:not-allowed;}
-
-.btn-google{display:flex;align-items:center;justify-content:center;gap:10px;
-  width:100%;padding:13px 16px;margin-top:14px;
-  border:2px solid #d0d5dd;border-radius:10px;
-  background:#fff;color:#1a1a2e;font-size:15px;font-weight:600;
-  cursor:pointer;text-decoration:none;box-sizing:border-box;
-  transition:background .15s,border-color .15s;}
-.btn-google:hover{background:#f4f6ff;border-color:#a0aec0;text-decoration:none;}
-.google-divider{display:flex;align-items:center;gap:10px;margin:18px 0 4px;color:#aaa;font-size:13px;font-weight:500;}
-.google-divider::before,.google-divider::after{content:'';flex:1;height:1px;background:#e8eaed;}
-
-/* Modal */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(10,20,50,.8);
-               z-index:50;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.plan-progress-bar-wrap{height:2px;background:rgba(255,255,255,.06);border-radius:2px;margin:0 12px 8px;overflow:hidden;}
+.plan-progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:2px;transition:width .4s ease;}
+.plan-progress-label{font-size:10px;color:var(--muted);margin:0 12px 12px;display:block;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(10,20,50,.8);z-index:50;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 .modal-overlay.open{display:flex;}
-.modal{background:#0a1a3d;border:1px solid var(--border-m);border-radius:6px;
-       padding:28px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
+.modal{background:#0a1a3d;border:1px solid var(--border-m);border-radius:6px;padding:28px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
 .modal-title{font-family:var(--serif);font-size:20px;color:#ffffff;margin-bottom:18px;}
 .modal-field{margin-bottom:14px;}
-.modal-field label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;
-                    color:rgba(255,255,255,.65);margin-bottom:6px;font-weight:600;}
-.modal-field input,.modal-field select,.modal-field textarea{
-  width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);
-  border-radius:2px;padding:9px 12px;font-size:13px;color:var(--text);
-  font-family:var(--sans);outline:none;transition:border-color .2s;}
+.modal-field label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.65);margin-bottom:6px;font-weight:600;}
+.modal-field input,.modal-field select,.modal-field textarea{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:2px;padding:9px 12px;font-size:13px;color:var(--text);font-family:var(--sans);outline:none;transition:border-color .2s;}
 .modal-field select option{background:#0a1a3d;}
 .modal-field textarea{resize:vertical;min-height:60px;line-height:1.5;}
 .modal-field input:focus,.modal-field select:focus,.modal-field textarea:focus{border-color:var(--border-m);}
 .modal-field input::placeholder,.modal-field textarea::placeholder{color:rgba(255,255,255,.3);}
 .modal-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .modal-actions{display:flex;gap:10px;margin-top:18px;justify-content:flex-end;}
-.btn-cancel{background:none;border:1px solid var(--border);border-radius:2px;color:var(--muted);
-            font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);padding:8px 16px;transition:all .2s;}
+.btn-cancel{background:none;border:1px solid var(--border);border-radius:2px;color:var(--muted);font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);padding:8px 16px;transition:all .2s;}
 .btn-cancel:hover{border-color:var(--border-m);color:var(--text);}
+.btn-primary{background:rgba(90,171,223,.15);border:1px solid rgba(90,171,223,.3);border-radius:2px;color:var(--text);font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);padding:9px 18px;transition:all .2s;}
+.btn-primary:hover{background:rgba(90,171,223,.25);border-color:rgba(90,171,223,.5);}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed;}
 .modal-err{font-size:12px;color:#c97b7b;margin-top:8px;min-height:16px;}
-
-/* Goal Detail Drawer */
 .drawer-overlay{display:none;position:fixed;inset:0;background:rgba(6,16,30,.6);z-index:60;backdrop-filter:blur(2px);}
 .drawer-overlay.open{display:block;}
-.goal-drawer{position:fixed;top:0;right:-520px;width:480px;height:100vh;overflow-y:auto;
-             background:#080e1e;border-left:1px solid var(--border-m);z-index:61;
-             transition:right .32s cubic-bezier(.4,0,.2,1);padding:28px;}
+.goal-drawer{position:fixed;top:0;right:-520px;width:480px;height:100vh;overflow-y:auto;background:#080e1e;border-left:1px solid var(--border-m);z-index:61;transition:right .32s cubic-bezier(.4,0,.2,1);padding:28px;}
 .goal-drawer.open{right:0;}
 .drawer-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;margin-bottom:18px;display:block;}
 .drawer-close:hover{color:var(--text);}
 .drawer-goal-title{font-family:var(--serif);font-size:22px;color:#f0f8ff;margin-bottom:12px;line-height:1.3;}
 .drawer-section{margin-top:20px;}
-.drawer-section-title{font-size:10px;text-transform:uppercase;letter-spacing:.12em;
-                       color:rgba(255,255,255,.4);margin-bottom:10px;font-weight:600;}
-.drawer-milestone-row{display:flex;align-items:center;gap:8px;padding:8px 10px;
-                       background:var(--surface);border:1px solid var(--border);border-radius:3px;
-                       margin-bottom:6px;}
-.drawer-ms-check{width:16px;height:16px;border:1.5px solid var(--border-m);border-radius:3px;
-                  cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;}
+.drawer-section-title{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.4);margin-bottom:10px;font-weight:600;}
+.drawer-milestone-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:3px;margin-bottom:6px;}
+.drawer-ms-check{width:16px;height:16px;border:1.5px solid var(--border-m);border-radius:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;}
 .drawer-ms-check.done{background:var(--green);border-color:var(--green);color:#fff;}
 .drawer-ms-title{flex:1;font-size:12px;color:var(--text);}
 .drawer-ms-dl{font-size:10px;color:var(--muted);}
 .drawer-add-ms{display:flex;gap:8px;margin-top:10px;}
-.drawer-add-ms input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);
-                      border-radius:2px;padding:7px 10px;font-size:12px;color:var(--text);
-                      font-family:var(--sans);outline:none;}
+.drawer-add-ms input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:2px;padding:7px 10px;font-size:12px;color:var(--text);font-family:var(--sans);outline:none;}
 .drawer-add-ms input:focus{border-color:var(--border-m);}
-.drawer-add-ms button{font-size:11px;padding:7px 12px;border-radius:2px;
-                       border:1px solid rgba(90,171,223,.3);background:rgba(90,171,223,.1);
-                       color:var(--accent);cursor:pointer;font-family:var(--sans);}
-
-/* Focus Mode Overlay */
-.focus-overlay{display:none;position:fixed;inset:0;background:rgba(4,8,18,.97);z-index:80;
-               flex-direction:column;align-items:center;justify-content:center;}
+.drawer-add-ms button{font-size:11px;padding:7px 12px;border-radius:2px;border:1px solid rgba(90,171,223,.3);background:rgba(90,171,223,.1);color:var(--accent);cursor:pointer;font-family:var(--sans);}
+.focus-overlay{display:none;position:fixed;inset:0;background:rgba(4,8,18,.97);z-index:80;flex-direction:column;align-items:center;justify-content:center;}
 .focus-overlay.active{display:flex;}
-.focus-session-task{font-family:var(--serif);font-size:28px;color:#f0f8ff;text-align:center;
-                     max-width:600px;line-height:1.35;margin-bottom:8px;}
+.focus-session-task{font-family:var(--serif);font-size:28px;color:#f0f8ff;text-align:center;max-width:600px;line-height:1.35;margin-bottom:8px;}
 .focus-session-goal{font-size:13px;color:rgba(255,255,255,.4);margin-bottom:36px;}
-.focus-session-timer{font-size:72px;font-weight:800;color:#ffffff;letter-spacing:-2px;
-                      font-variant-numeric:tabular-nums;margin-bottom:36px;}
+.focus-session-timer{font-size:72px;font-weight:800;color:#ffffff;letter-spacing:-2px;font-variant-numeric:tabular-nums;margin-bottom:36px;}
 .focus-session-controls{display:flex;gap:12px;}
-.focus-ctrl-btn{font-size:12px;padding:10px 24px;border-radius:2px;cursor:pointer;font-family:var(--sans);
-                border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:var(--text);}
+.focus-ctrl-btn{font-size:12px;padding:10px 24px;border-radius:2px;cursor:pointer;font-family:var(--sans);border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:var(--text);}
 .focus-ctrl-btn.primary{border-color:rgba(90,171,223,.4);background:rgba(90,171,223,.12);color:var(--accent);}
 .focus-ctrl-btn:hover{background:rgba(255,255,255,.1);}
-.focus-progress-ring{margin-bottom:28px;}
-
-/* Weekly review card */
-.week-stat{display:flex;justify-content:space-between;align-items:center;
-           padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px;}
-.week-stat:last-child{border-bottom:none;}
-.week-stat-label{color:var(--muted);}
-.week-stat-val{color:var(--text);font-weight:600;}
-
-/* Artemis chat */
-.art-toggle{position:fixed;bottom:24px;right:24px;z-index:40;
-            background:rgba(15,40,85,.95);border:1px solid var(--border-m);
-            border-radius:3px;padding:10px 18px;cursor:pointer;display:flex;
-            align-items:center;gap:8px;color:var(--text);font-family:var(--sans);
-            font-size:13px;font-weight:600;letter-spacing:.04em;
-            box-shadow:0 4px 24px rgba(0,0,0,.4);transition:all .2s;}
-.art-toggle:hover{background:rgba(25,55,110,.95);border-color:rgba(90,171,223,.4);}
-.art-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
-
-/* Loading */
-.plan-loading{text-align:center;padding:40px 20px;}
-.plan-loading-dots{display:flex;justify-content:center;gap:6px;margin-bottom:12px;}
+.empty{text-align:center;padding:20px;}
+.empty-icon{font-size:24px;color:rgba(255,255,255,0.22);margin-bottom:10px;line-height:1;}
+.empty-title{font-size:13px;font-weight:600;color:rgba(255,255,255,0.85);margin-bottom:6px;}
+.empty-text{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5;}
+.plan-loading{text-align:center;padding:20px;}
+.plan-loading-dots{display:flex;justify-content:center;gap:6px;margin-bottom:10px;}
 .plan-loading-dots span{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:dot-bounce .9s infinite both;}
 .plan-loading-dots span:nth-child(2){animation-delay:.15s;}
 .plan-loading-dots span:nth-child(3){animation-delay:.3s;}
 @keyframes dot-bounce{0%,80%,100%{transform:scale(.6);opacity:.4;}40%{transform:scale(1);opacity:1;}}
 .plan-loading p{font-size:12px;color:var(--muted);}
-
-/* Responsive */
-@media(max-width:800px){
-  .grid,.grid-full{grid-template-columns:1fr;}
-  .stats-row{grid-template-columns:repeat(2,1fr);}
-  .quick-actions{gap:6px;}
-  .goal-drawer{width:100%;right:-100%;}
-}
-
-/* Save indicator */
 .save-ind{font-size:11px;color:var(--muted);}
-
-/* ── Artemis Intelligence Rail ──────────────────────────── */
-:root{--rail-w:370px}
-.artemis-rail{position:fixed;top:0;right:calc(-1 * var(--rail-w));width:var(--rail-w);height:100vh;background:rgba(8,14,28,.97);border-left:1px solid rgba(90,171,223,.18);z-index:1000;display:flex;flex-direction:column;transition:right .35s cubic-bezier(.4,0,.2,1)}
-.artemis-rail.open{right:0}
-.rail-header{padding:20px 20px 16px;border-bottom:1px solid rgba(90,171,223,.12);flex-shrink:0}
-.rail-brand{font-size:13px;letter-spacing:.12em;color:rgba(90,171,223,.8);font-family:var(--mono,monospace)}
-.rail-context{font-size:11px;color:rgba(234,245,255,.35);margin-top:6px;line-height:1.5}
-.rail-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
-.rail-msg{max-width:92%;padding:10px 13px;border-radius:12px;font-size:13.5px;line-height:1.55}
-.rail-msg.user{background:rgba(90,171,223,.12);color:rgba(234,245,255,.9);align-self:flex-end;border-radius:12px 12px 3px 12px}
-.rail-msg.ai{background:rgba(255,255,255,.04);color:rgba(234,245,255,.85);align-self:flex-start;border-radius:3px 12px 12px 12px}
-.rail-prompts{display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px;flex-shrink:0}
-.prompt-chip{font-size:11.5px;padding:5px 10px;border-radius:20px;border:1px solid rgba(90,171,223,.25);background:rgba(90,171,223,.06);color:rgba(234,245,255,.7);cursor:pointer;transition:.2s}
-.prompt-chip:hover{background:rgba(90,171,223,.15);border-color:rgba(90,171,223,.5)}
-.rail-footer{padding:12px 16px;border-top:1px solid rgba(90,171,223,.12);display:flex;gap:8px;flex-shrink:0}
-.rail-input{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(90,171,223,.2);border-radius:8px;padding:9px 12px;color:rgba(234,245,255,.9);font-size:13px;outline:none}
-.rail-input:focus{border-color:rgba(90,171,223,.5)}
-.rail-send{background:rgba(90,171,223,.2);border:1px solid rgba(90,171,223,.3);border-radius:8px;padding:9px 13px;color:rgba(90,171,223,.9);cursor:pointer;transition:.2s}
-.rail-send:hover{background:rgba(90,171,223,.35)}
-.rail-tab{position:fixed;top:50%;right:0;transform:translateY(-50%) rotate(90deg) translateX(50%);transform-origin:right center;background:rgba(8,14,28,.9);border:1px solid rgba(90,171,223,.25);border-bottom:none;padding:8px 16px;color:rgba(90,171,223,.8);font-size:10px;letter-spacing:.15em;cursor:pointer;z-index:999;transition:opacity .2s;border-radius:6px 6px 0 0}
-.rail-tab.hidden{opacity:0;pointer-events:none}
+.art-loading{opacity:.5;animation:dot-bounce .9s infinite both;}
+@media(max-width:1024px){.side-panel{flex:0 0 250px;}}
+@media(max-width:768px){.topbar{flex-wrap:wrap;height:auto;padding:10px 12px;}.topbar-center{width:100%;order:3;margin-top:8px;}.status-pills{gap:4px;}.status-pill{font-size:10px;padding:3px 8px;}.side-panel{flex:0 0 200px;}}
 """
 
     def generate(self, goals: dict, memory: dict, daily_plan: dict,
@@ -2617,147 +2443,156 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
   {habits_html}
 </div>"""
 
-        # Activity bars section
-        activity_section = f"""
-<div class="card" style="margin-bottom:20px;">
-  <div class="card-head"><div class="card-title">7-Day Activity</div></div>
-  <div class="bars">
-    {bars_html if bars_html else '<p style="font-size:12px;color:var(--muted);">No history yet.</p>'}
-  </div>
-</div>"""
+        # ── Chat-first greeting ─────────────────────────────────────────────
+        _hour = datetime.now().hour
+        _greet_word = "Good morning" if _hour < 12 else ("Good afternoon" if _hour < 17 else "Good evening")
+        _greet_task_rows = ""
+        if has_plan and total_tasks > 0:
+            for _t in tasks[:6]:
+                _t_id    = _t.get("id", "")
+                _t_title = _t.get("title", "").replace("<", "&lt;").replace(">", "&gt;")
+                _t_pri   = _t.get("priority", "medium")
+                _t_done  = _t.get("completed", False)
+                _t_dc    = " done" if _t_done else ""
+                _t_cc    = " checked" if _t_done else ""
+                _t_ct    = "&#10003;" if _t_done else ""
+                _greet_task_rows += (
+                    f'<div class="chat-task-item{_t_dc}">'
+                    f'<div class="chat-task-check{_t_cc}" data-id="{_t_id}" onclick="toggleChatTask(this)">{_t_ct}</div>'
+                    f'<div class="chat-task-info"><div class="chat-task-title">{_t_title}</div></div>'
+                    f'</div>'
+                )
+            _more_label = (
+                f'<div style="font-size:10px;color:rgba(255,255,255,.3);padding:4px 0 2px;">'
+                f'+{total_tasks - 6} more &mdash; see Tasks panel</div>'
+            ) if total_tasks > 6 else ""
+            _task_block = (
+                f'<div class="chat-task-list">'
+                f'<div class="chat-task-list-header">TODAY &mdash; {completed_tasks}/{total_tasks} DONE</div>'
+                f'{_greet_task_rows}{_more_label}'
+                f'</div>'
+            )
+        else:
+            _task_block = ""
+
+        if has_plan and total_tasks > 0:
+            if completed_tasks == total_tasks:
+                _greet_line = f"{_greet_word}, {display_name}. All {total_tasks} tasks done &mdash; outstanding."
+            elif completed_tasks > 0:
+                _greet_line = f"{_greet_word}, {display_name}. {completed_tasks} of {total_tasks} tasks done. Keep going."
+            else:
+                _greet_line = f"{_greet_word}, {display_name}. Your plan is ready &mdash; {total_tasks} tasks. What are you starting with?"
+        elif has_goals:
+            _gcount = len(goals_list)
+            _gs = "s" if _gcount != 1 else ""
+            _greet_line = f"{_greet_word}, {display_name}. You have {_gcount} active goal{_gs}. Build today&#39;s plan to start executing."
+        else:
+            _greet_line = f"{_greet_word}, {display_name}. Welcome to Helion. Add a goal and I&#39;ll build your first action plan."
+
+        greeting_html = (
+            '<div class="greeting-msg">'
+            '<div class="greeting-bubble">'
+            f'<div class="greeting-text">{_greet_line}</div>'
+            f'{_task_block}'
+            '</div>'
+            '</div>'
+        )
+
+        # Panel build/regen button
+        if has_goals:
+            _regen_lbl = "&#8635; Regenerate Plan" if has_plan else "Generate Today&#39;s Plan"
+            regen_btn_panel = f'<button class="panel-build-btn" id="genPlanBtn" onclick="generatePlan()">{_regen_lbl}</button>'
+        else:
+            regen_btn_panel = ""
 
         return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Helion AI — {display_name}</title>
+  <title>Helion AI &mdash; {display_name}</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>{self._CSS}</style>
 </head>
 <body>
 <div class="atm"><div class="orb o1"></div><div class="orb o2"></div></div>
-<div class="wrapper page-content">
 
-  <!-- Navigation -->
-  <div class="nav">
-    <div class="nav-brand">
-      <svg viewBox="0 0 100 62" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="35" cy="11" r="5.5" stroke="rgba(90,171,223,0.75)" stroke-width="1.9"/>
-        <path d="M1,58 C8,44 20,31 35,24 C43,28 51,34 57,38 C61,32 65,27 69,27 C77,33 88,40 99,50"
-              stroke="rgba(90,171,223,0.75)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <div class="nav-title">Helion <span>AI</span></div>
+<div class="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="menu-btn" onclick="togglePanel()" title="Toggle panel">&#9776;</button>
+      <div class="brand">
+        <svg viewBox="0 0 100 62" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="35" cy="11" r="5.5" stroke="rgba(90,171,223,0.75)" stroke-width="1.9"/>
+          <path d="M1,58 C8,44 20,31 35,24 C43,28 51,34 57,38 C61,32 65,27 69,27 C77,33 88,40 99,50"
+                stroke="rgba(90,171,223,0.75)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="brand-name">Helion <span>AI</span></div>
+      </div>
     </div>
-    <div class="nav-right">
-      <span class="nav-user">{display_name}</span>
+    <div class="topbar-center">
+      <div class="status-pills">
+        <span class="status-pill">{streak} day streak</span>
+        <span class="status-pill" id="statCompRate">{comp_rate}% rate</span>
+        <span class="status-pill" id="statTodayPill">{completed_tasks}/{total_tasks} done today</span>
+      </div>
+    </div>
+    <div class="topbar-right">
       <span id="saveInd" class="save-ind"></span>
-      <a href="/api/auth/logout" class="nav-link">Sign out</a>
-      <button onclick="toggleRail()" class="nav-link" style="background:rgba(90,171,223,.10);border:1px solid rgba(90,171,223,.32);">&#9679; Artemis</button>
+      <span class="topbar-user">{display_name}</span>
+      <a href="/api/auth/logout" class="topbar-signout">Sign out</a>
     </div>
   </div>
 
-  <!-- Hero -->
-  {hero_html}
-
-  <!-- Quick Actions -->
-  {quick_actions_html}
-
-  <!-- Nudge -->
-  {nudge_html}
-
-  <!-- Focus Banner (shown during focus mode) -->
-  <div class="focus-banner" id="focusBanner">
-    <div class="focus-banner-left">
-      <div>
-        <div class="focus-label">FOCUS SESSION</div>
-        <div class="focus-task-name" id="focusBannerTask">—</div>
-      </div>
-      <div class="focus-timer" id="focusBannerTimer">00:00</div>
-    </div>
-    <div class="focus-banner-right">
-      <button class="focus-end-btn" onclick="endFocusSession()">End Session</button>
-    </div>
-  </div>
-
-  <!-- Stats Row -->
-  <div class="stats-row">
-    <div class="stat-card">
-      <div class="stat-value">{streak}</div>
-      <div class="stat-label">Day Streak</div>
-      <div class="stat-sublabel">{("🔥 Keep going" if streak > 3 else "Start your streak")}</div>
-      {trend_badge.get(streak_trend, "")}
-    </div>
-    <div class="stat-card">
-      <div class="stat-value" id="statCompRate">{comp_rate}%</div>
-      <div class="stat-label">Completion Rate</div>
-      <div class="stat-sublabel">{momentum_state}</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value">{len(goals_list)}</div>
-      <div class="stat-label">Active Goals</div>
-      <div class="stat-sublabel">{("Ready to execute" if goals_list else "Add your first goal")}</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value" id="statTasksCompleted">{total_done}</div>
-      <div class="stat-label">Tasks Completed</div>
-      <div class="stat-sublabel" id="statWeekDone">{week_tasks_done} this week</div>
-    </div>
-  </div>
-
-  <!-- Main Grid: Plan + Goals -->
-  <div class="grid">
-    <div>
-      <div class="card card-primary">
-        <div class="card-head">
-          <div class="card-title">Today's Action Plan</div>
-          {regen_btn}
+  <div class="app-body">
+    <div class="side-panel" id="sidePanel">
+      <div class="panel-head">
+        <div class="panel-tabs">
+          <button class="ptab active" id="ptabTasks" onclick="showPTab('tasks')">Tasks<span class="ptab-count" id="ptabTasksCount"> ({total_tasks})</span></button>
+          <button class="ptab" id="ptabGoals" onclick="showPTab('goals')">Goals<span class="ptab-count" id="ptabGoalsCount"> ({len(goals_list)})</span></button>
         </div>
+      </div>
+      <div class="panel-body" id="panelTasks">
+        {regen_btn_panel}
         {plan_progress_html}
-        <div id="planArea">{plan_content}</div>
+        <div id="planArea" style="padding:0 12px 12px;">{plan_content}</div>
+      </div>
+      <div class="panel-body hidden" id="panelGoals">
+        <button class="panel-add-btn" onclick="showAddGoal()">+ Add Goal</button>
+        <div id="goalsArea" style="padding:0 12px 12px;">{goals_content}</div>
       </div>
     </div>
 
-    <div>
-      <div class="card">
-        <div class="card-head">
-          <div class="card-title">Active Goals</div>
-          {add_goal_btn}
-        </div>
-        <div id="goalsArea">{goals_content}</div>
+    <div class="chat-area">
+      <div class="chat-header">
+        <span class="artemis-brand">ARTEMIS &mdash; HELION AI</span>
+        <span class="artemis-ctx" id="railContext"></span>
       </div>
-      {habits_section}
-    </div>
-  </div>
-
-  <!-- Blockers -->
-  {f'<div class="card" style="margin-bottom:20px;border-color:rgba(239,68,68,.18);"><div class="card-head"><div class="card-title" style="color:rgba(239,68,68,.7);">⚡ Friction Detection</div></div>{blockers_html}</div>' if blockers_html else ""}
-
-  <!-- Activity + Weekly Review -->
-  <div class="grid-full">
-    {activity_section}
-    <div class="card reflect-card" id="weeklyReviewCard">
-      <div class="reflect-title">This Week's Momentum</div>
-      <div class="week-stat"><span class="week-stat-label">Plans generated</span><span class="week-stat-val">{week_plans_run}</span></div>
-      <div class="week-stat"><span class="week-stat-label">Tasks completed</span><span class="week-stat-val">{week_tasks_done}</span></div>
-      <div class="week-stat"><span class="week-stat-label">Completion rate</span><span class="week-stat-val">{comp_rate}%</span></div>
-      <div class="week-stat"><span class="week-stat-label">Momentum state</span><span class="week-stat-val">{momentum_state}</span></div>
-      <div class="week-stat"><span class="week-stat-label">Trend</span><span class="week-stat-val">{streak_trend.title()}</span></div>
-      <div style="margin-top:14px;">
-        <button class="card-action" onclick="openRail();railSendMsg('Give me a weekly review — what moved forward, what stalled, and what I should focus on next week.')">Ask Artemis for Review</button>
+      <div class="chat-messages" id="railMessages">
+        {greeting_html}
+      </div>
+      <div class="rail-prompts" id="railPrompts"></div>
+      <div class="chat-input-bar">
+        <input class="rail-input" id="railInput" placeholder="Ask Artemis anything&hellip;" onkeydown="if(event.key==='Enter')railSendMsg()"/>
+        <button class="rail-send" id="railSend" onclick="railSendMsg()">Send</button>
       </div>
     </div>
   </div>
-
-  <!-- Coach + Status -->
-  <div class="grid-full">
-    {coach_section}
-    {status_section}
-  </div>
-
 </div>
 
-<!-- Add Goal Modal (upgraded) -->
+<div id="focusBanner" style="display:none;position:fixed;top:52px;left:0;right:0;z-index:40;padding:10px 20px;background:rgba(6,14,30,.97);border-bottom:1px solid rgba(90,171,223,.2);">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <div style="display:flex;align-items:center;gap:16px;">
+      <span style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:rgba(90,171,223,.7);">FOCUS SESSION</span>
+      <span id="focusBannerTask" style="font-size:13px;font-weight:500;color:var(--text);">&#8212;</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span id="focusBannerTimer" style="font-size:13px;font-weight:700;color:var(--accent);">00:00</span>
+      <button onclick="endFocusSession()" style="font-size:11px;padding:5px 12px;border:1px solid rgba(239,68,68,.3);border-radius:2px;background:rgba(239,68,68,.08);color:#ef4444;cursor:pointer;font-family:var(--sans);">End Session</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="addGoalModal">
   <div class="modal">
     <div class="modal-title">Add a New Goal</div>
@@ -2769,9 +2604,9 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
       <div class="modal-field">
         <label>Priority</label>
         <select id="goalPriority">
-          <option value="high">🔴 High</option>
-          <option value="medium" selected>🟡 Medium</option>
-          <option value="low">🟢 Low</option>
+          <option value="high">&#x1F534; High</option>
+          <option value="medium" selected>&#x1F7E1; Medium</option>
+          <option value="low">&#x1F7E2; Low</option>
         </select>
       </div>
       <div class="modal-field">
@@ -2803,7 +2638,6 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
   </div>
 </div>
 
-<!-- Edit Goal Modal -->
 <div class="modal-overlay" id="editGoalModal">
   <div class="modal">
     <div class="modal-title">Edit Goal</div>
@@ -2816,9 +2650,9 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
       <div class="modal-field">
         <label>Priority</label>
         <select id="editGoalPriority">
-          <option value="high">🔴 High</option>
-          <option value="medium">🟡 Medium</option>
-          <option value="low">🟢 Low</option>
+          <option value="high">&#x1F534; High</option>
+          <option value="medium">&#x1F7E1; Medium</option>
+          <option value="low">&#x1F7E2; Low</option>
         </select>
       </div>
       <div class="modal-field">
@@ -2845,7 +2679,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
     <div class="modal-field">
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
         <input type="checkbox" id="editGoalReplan" style="width:auto;accent-color:var(--accent);"/>
-        <span>Rebuild today's plan based on this edit</span>
+        <span>Rebuild today&#39;s plan based on this edit</span>
       </label>
     </div>
     <div class="modal-err" id="editGoalErr"></div>
@@ -2856,26 +2690,23 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
   </div>
 </div>
 
-<!-- Goal Detail Drawer -->
 <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
 <div class="goal-drawer" id="goalDrawer">
-  <button class="drawer-close" onclick="closeDrawer()">✕ Close</button>
+  <button class="drawer-close" onclick="closeDrawer()">&#10005; Close</button>
   <div id="drawerContent"></div>
 </div>
 
-<!-- Focus Mode Overlay -->
 <div class="focus-overlay" id="focusOverlay">
   <div class="focus-session-task" id="focusTaskTitle">Task</div>
   <div class="focus-session-goal" id="focusTaskGoal"></div>
   <div class="focus-session-timer" id="focusTimerDisplay">25:00</div>
   <div class="focus-session-controls">
-    <button class="focus-ctrl-btn primary" id="focusPlayBtn" onclick="toggleFocusTimer()">▶ Start</button>
-    <button class="focus-ctrl-btn" onclick="endFocusSession()">✕ Exit</button>
+    <button class="focus-ctrl-btn primary" id="focusPlayBtn" onclick="toggleFocusTimer()">&#9654; Start</button>
+    <button class="focus-ctrl-btn" onclick="endFocusSession()">&#10005; Exit</button>
   </div>
 </div>
 
 <script>
-// ── APP STATE ────────────────────────────────────────────
 const APP_STATE = {{
   hasGoals: {'true' if has_goals else 'false'},
   goalCount: {len(goals_list)},
@@ -2886,25 +2717,26 @@ const APP_STATE = {{
   streak: {streak},
   totalDone: {total_done},
   weekTasksDone: {week_tasks_done},
-  goals: {json.dumps([{"id": g.get("id",""), "title": g.get("title",""), "status": g.get("status","active"), "priority": g.get("priority","medium")} for g in goals_list])},
-  tasks: {json.dumps([{"id": t.get("id",""), "title": t.get("title",""), "completed": t.get("completed", False), "goal_link": t.get("goal_link","")} for t in tasks])},
+  goals: {json.dumps([{{"id": g.get("id",""), "title": g.get("title",""), "status": g.get("status","active"), "priority": g.get("priority","medium")}} for g in goals_list])},
+  tasks: {json.dumps([{{"id": t.get("id",""), "title": t.get("title",""), "completed": t.get("completed", False), "goal_link": t.get("goal_link","")}} for t in tasks])},
   momentumState: {json.dumps(momentum_state)},
-  focusMode: false,
-  focusTaskId: null,
-  focusSeconds: 0,
-  focusInterval: null,
-  focusRunning: false,
+  focusMode: false, focusTaskId: null, focusSeconds: 0, focusInterval: null, focusRunning: false,
 }};
 
-// ── TASK COMPLETION ─────────────────────────────────────
+function togglePanel() {{ document.getElementById('sidePanel').classList.toggle('collapsed'); }}
+function showPTab(tab) {{
+  document.getElementById('panelTasks').classList.toggle('hidden', tab !== 'tasks');
+  document.getElementById('panelGoals').classList.toggle('hidden', tab !== 'goals');
+  document.getElementById('ptabTasks').classList.toggle('active', tab === 'tasks');
+  document.getElementById('ptabGoals').classList.toggle('active', tab === 'goals');
+}}
+
 const _taskAcks = [
-  "{{taskTitle}} — done. Keep the streak alive.",
-  "Task complete — one step closer.",
-  "Done! Artemis sees it. Keep going.",
-  "{{taskTitle}} — locked in.",
+  "{{taskTitle}} done. Keep the streak alive.",
+  "Task complete. One step closer.",
+  "Done. Artemis sees it. Keep going.",
+  "{{taskTitle}} locked in.",
   "Another one down. Consistency compounds.",
-  "Task locked — do not stop now.",
-  "Artemis logged it: {{taskTitle}} complete.",
 ];
 function _taskAck(title) {{
   const msg = _taskAcks[Math.floor(Math.random() * _taskAcks.length)];
@@ -2912,42 +2744,35 @@ function _taskAck(title) {{
 }}
 
 async function toggleTask(box) {{
-  const item   = box.closest('.task-item');
-  const done   = item.classList.toggle('done');
+  const item    = box.closest('.task-item');
+  const done    = item.classList.toggle('done');
   box.classList.toggle('checked', done);
-  box.textContent = done ? '✓' : '';
-  const taskId   = box.dataset.id || '';
+  box.textContent = done ? '\u2713' : '';
+  const taskId    = box.dataset.id || '';
   const taskTitle = item.querySelector('.task-title')?.textContent?.trim().slice(0, 40) || 'Task';
   if (taskId) {{
+    const chatBox = document.querySelector('.chat-task-check[data-id="' + taskId + '"]');
+    if (chatBox) {{
+      const chatItem = chatBox.closest('.chat-task-item');
+      chatItem.classList.toggle('done', done);
+      chatBox.classList.toggle('checked', done);
+      chatBox.innerHTML = done ? '&#10003;' : '';
+    }}
     try {{
       const r = await fetch('/api/tasks/complete', {{
-        method: 'POST',
-        headers: {{'Content-Type': 'application/json'}},
-        credentials: 'include',
+        method: 'POST', headers: {{'Content-Type': 'application/json'}}, credentials: 'include',
         body: JSON.stringify({{ task_id: taskId, done }})
       }});
       const data = await r.json();
       if (data.success) {{
-        // Update stat cards in real-time
-        if (data.today_done !== undefined) {{
-          const tc = document.getElementById('statTasksCompleted');
-          if (tc) tc.textContent = data.total_done;
-        }}
         if (data.comp_rate !== undefined) {{
           const cr = document.getElementById('statCompRate');
-          if (cr) cr.textContent = data.comp_rate + '%';
+          if (cr) cr.textContent = data.comp_rate + '% rate';
         }}
-        // Show AI acknowledgment if task was completed (not uncompleted)
         if (done) {{
           const checks = document.querySelectorAll('.task-check.checked').length;
           const total  = document.querySelectorAll('.task-check').length;
-          if (checks === total) {{
-            showToast('🎉 All tasks done! Artemis is proud of you — plan complete!');
-            dismissNudge();
-          }} else {{
-            showToast(_taskAck(taskTitle));
-            if (checks === 1) dismissNudge();
-          }}
+          showToast(checks === total ? '\ud83c\udf89 All tasks done! Outstanding.' : _taskAck(taskTitle));
         }}
       }}
     }} catch(e) {{}}
@@ -2955,9 +2780,25 @@ async function toggleTask(box) {{
   updatePlanProgress();
 }}
 
-function dismissNudge() {{
-  const nudge = document.querySelector('.nudge-strip');
-  if (nudge) nudge.style.display = 'none';
+async function toggleChatTask(box) {{
+  const taskId = box.dataset.id;
+  const sideCheck = document.querySelector('#planArea .task-check[data-id="' + taskId + '"]');
+  if (sideCheck) {{ sideCheck.click(); return; }}
+  const item = box.closest('.chat-task-item');
+  const done = item.classList.toggle('done');
+  box.classList.toggle('checked', done);
+  box.innerHTML = done ? '&#10003;' : '';
+  if (taskId) {{
+    try {{
+      const r = await fetch('/api/tasks/complete', {{
+        method: 'POST', headers: {{'Content-Type': 'application/json'}}, credentials: 'include',
+        body: JSON.stringify({{ task_id: taskId, done }})
+      }});
+      const data = await r.json();
+      if (data.success && done) showToast(_taskAck(item.querySelector('.chat-task-title')?.textContent?.trim() || 'Task'));
+    }} catch(e) {{}}
+  }}
+  updatePlanProgress();
 }}
 
 function updatePlanProgress() {{
@@ -2967,12 +2808,13 @@ function updatePlanProgress() {{
   const pct    = total > 0 ? Math.round(done / total * 100) : 0;
   const fill   = document.getElementById('planProgressFill');
   const label  = document.getElementById('planProgressLabel');
+  const pill   = document.getElementById('statTodayPill');
   if (fill)  fill.style.width = pct + '%';
-  if (label) label.textContent = done + '/' + total + ' tasks done today — ' + pct + '% complete';
+  if (label) label.textContent = done + '/' + total + ' tasks done today \u2014 ' + pct + '% complete';
+  if (pill)  pill.textContent = done + '/' + total + ' done today';
 }}
 
-let saveTimer = null;
-let pendingChanges = {{}};
+let saveTimer = null, pendingChanges = {{}};
 function scheduleSave() {{
   clearTimeout(saveTimer);
   const checks = document.querySelectorAll('.task-check.checked');
@@ -2982,12 +2824,9 @@ function scheduleSave() {{
 function doSave() {{
   if (!Object.keys(pendingChanges).length) return;
   const ind = document.getElementById('saveInd');
-  if (ind) {{ ind.textContent = 'Saving...'; }}
-  fetch('/api/save', {{
-    method: 'POST',
-    headers: {{'Content-Type': 'application/json'}},
-    body: JSON.stringify(pendingChanges),
-    credentials: 'include'
+  if (ind) ind.textContent = 'Saving...';
+  fetch('/api/save', {{ method: 'POST', headers: {{'Content-Type': 'application/json'}},
+    body: JSON.stringify(pendingChanges), credentials: 'include'
   }}).then(r => r.json()).then(() => {{
     if (ind) {{ ind.textContent = 'Saved'; setTimeout(() => {{ ind.textContent = ''; }}, 2000); }}
     pendingChanges = {{}};
@@ -2995,7 +2834,6 @@ function doSave() {{
 }}
 window.addEventListener('beforeunload', doSave);
 
-// ── ADD GOAL MODAL ───────────────────────────────────────
 function showAddGoal() {{
   document.getElementById('addGoalModal').classList.add('open');
   setTimeout(() => document.getElementById('goalTitle').focus(), 50);
@@ -3016,100 +2854,68 @@ async function submitGoal() {{
   const btn = document.getElementById('addGoalBtn');
   btn.disabled = true; btn.textContent = 'Adding...'; errEl.textContent = '';
   try {{
-    const r = await fetch('/api/goals/add', {{
-      method: 'POST',
-      headers: {{'Content-Type': 'application/json'}},
-      credentials: 'include',
-      body: JSON.stringify({{ title, deadline: deadline || 'open-ended', priority, category, notes }})
-    }});
+    const r = await fetch('/api/goals/add', {{ method: 'POST',
+      headers: {{'Content-Type': 'application/json'}}, credentials: 'include',
+      body: JSON.stringify({{ title, deadline: deadline || 'open-ended', priority, category, notes }}) }});
     const d = await r.json();
-    if (d.success) {{ location.reload(); }}
-    else {{ errEl.textContent = d.error || 'Failed to add goal.'; }}
+    if (d.success) {{ location.reload(); }} else {{ errEl.textContent = d.error || 'Failed to add goal.'; }}
   }} catch(e) {{ errEl.textContent = 'Connection error. Please try again.'; }}
   btn.disabled = false; btn.textContent = 'Add Goal';
 }}
 document.getElementById('goalTitle').addEventListener('keydown', e => {{ if (e.key === 'Enter') submitGoal(); }});
 
-// ── REMOVE / PAUSE / ARCHIVE GOAL ───────────────────────
 async function removeGoal(goalId) {{
-  if (!confirm('Permanently delete this goal? This cannot be undone.')) return;
+  if (!confirm('Permanently delete this goal?')) return;
   try {{
-    const r = await fetch('/api/goals/remove', {{
-      method: 'POST',
-      headers: {{'Content-Type': 'application/json'}},
-      credentials: 'include',
-      body: JSON.stringify({{ goal_id: goalId }})
-    }});
+    const r = await fetch('/api/goals/remove', {{ method: 'POST',
+      headers: {{'Content-Type': 'application/json'}}, credentials: 'include',
+      body: JSON.stringify({{ goal_id: goalId }}) }});
     const d = await r.json();
-    if (d.success) {{ location.reload(); }}
-    else {{ showToast('Error: ' + (d.error || 'Failed to remove goal.'), 'error'); }}
+    if (d.success) {{ location.reload(); }} else {{ showToast('Error: ' + (d.error || 'Failed.'), 'error'); }}
   }} catch(e) {{ showToast('Connection error.', 'error'); }}
 }}
-
 async function pauseGoal(goalId, currentStatus) {{
   const newStatus = currentStatus === 'paused' ? 'active' : 'paused';
   try {{
-    const r = await fetch('/api/goals/status', {{
-      method: 'POST',
-      headers: {{'Content-Type': 'application/json'}},
-      credentials: 'include',
-      body: JSON.stringify({{ goal_id: goalId, status: newStatus }})
-    }});
+    const r = await fetch('/api/goals/status', {{ method: 'POST',
+      headers: {{'Content-Type': 'application/json'}}, credentials: 'include',
+      body: JSON.stringify({{ goal_id: goalId, status: newStatus }}) }});
     const d = await r.json();
-    if (d.success) {{ location.reload(); }}
-    else {{ showToast('Error: ' + (d.error || 'Failed.'), 'error'); }}
+    if (d.success) {{ location.reload(); }} else {{ showToast('Error: ' + (d.error || 'Failed.'), 'error'); }}
   }} catch(e) {{ showToast('Connection error.', 'error'); }}
 }}
-
 async function archiveGoal(goalId) {{
-  if (!confirm('Archive this goal? You can still see it in your history.')) return;
+  if (!confirm('Archive this goal?')) return;
   try {{
-    const r = await fetch('/api/goals/status', {{
-      method: 'POST',
-      headers: {{'Content-Type': 'application/json'}},
-      credentials: 'include',
-      body: JSON.stringify({{ goal_id: goalId, status: 'archived' }})
-    }});
+    const r = await fetch('/api/goals/status', {{ method: 'POST',
+      headers: {{'Content-Type': 'application/json'}}, credentials: 'include',
+      body: JSON.stringify({{ goal_id: goalId, status: 'archived' }}) }});
     const d = await r.json();
-    if (d.success) {{ location.reload(); }}
-    else {{ showToast('Error: ' + (d.error || 'Failed.'), 'error'); }}
+    if (d.success) {{ location.reload(); }} else {{ showToast('Error: ' + (d.error || 'Failed.'), 'error'); }}
   }} catch(e) {{ showToast('Connection error.', 'error'); }}
 }}
 
-// ── EDIT GOAL ────────────────────────────────────────────
 async function openEditGoal(goalId) {{
-  // Fetch live goal data from the server
   let goal = null;
-  try {{
-    const r = await fetch('/api/data', {{ credentials: 'include' }});
-    const d = await r.json();
-    goal = (d.goals?.goals || []).find(g => g.id === goalId);
-  }} catch(e) {{}}
+  try {{ const r = await fetch('/api/data', {{ credentials: 'include' }}); const d = await r.json(); goal = (d.goals?.goals || []).find(g => g.id === goalId); }} catch(e) {{}}
   if (!goal) {{ showToast('Could not load goal data.', 'error'); return; }}
-
-  // Pre-fill the edit modal
   document.getElementById('editGoalId').value        = goal.id;
   document.getElementById('editGoalTitle').value     = goal.title || '';
   document.getElementById('editGoalDeadline').value  = goal.deadline === 'open-ended' ? '' : (goal.deadline || '');
   document.getElementById('editGoalNotes').value     = goal.notes || '';
   document.getElementById('editGoalErr').textContent = '';
-
-  // Set selects
   const priSel = document.getElementById('editGoalPriority');
   const catSel = document.getElementById('editGoalCategory');
   for (let o of priSel.options) o.selected = (o.value === (goal.priority || 'medium'));
   for (let o of catSel.options) o.selected = (o.value === (goal.category || 'general'));
-
-  document.getElementById('editGoalReplan').checked = true; // default ON
+  document.getElementById('editGoalReplan').checked = true;
   document.getElementById('editGoalModal').classList.add('open');
   setTimeout(() => document.getElementById('editGoalTitle').focus(), 50);
 }}
-
 function hideEditGoal() {{
   document.getElementById('editGoalModal').classList.remove('open');
   document.getElementById('editGoalErr').textContent = '';
 }}
-
 async function submitEditGoal() {{
   const goalId   = document.getElementById('editGoalId').value;
   const title    = document.getElementById('editGoalTitle').value.trim();
@@ -3119,174 +2925,115 @@ async function submitEditGoal() {{
   const notes    = document.getElementById('editGoalNotes').value.trim();
   const replan   = document.getElementById('editGoalReplan').checked;
   const errEl    = document.getElementById('editGoalErr');
-
   if (!title) {{ errEl.textContent = 'Goal title cannot be empty.'; return; }}
-
   const btn = document.getElementById('editGoalBtn');
-  btn.disabled = true;
-  btn.textContent = replan ? 'Saving & rebuilding plan…' : 'Saving…';
+  btn.disabled = true; btn.textContent = replan ? 'Saving & rebuilding\u2026' : 'Saving\u2026';
   errEl.textContent = '';
-
   try {{
-    // 1. Save the goal changes
-    const r = await fetch('/api/goals/update', {{
-      method: 'POST',
-      headers: {{'Content-Type': 'application/json'}},
-      credentials: 'include',
-      body: JSON.stringify({{
-        goal_id: goalId,
-        title,
-        deadline: deadline || 'open-ended',
-        priority,
-        category,
-        notes,
-      }})
-    }});
+    const r = await fetch('/api/goals/update', {{ method: 'POST',
+      headers: {{'Content-Type': 'application/json'}}, credentials: 'include',
+      body: JSON.stringify({{ goal_id: goalId, title, deadline: deadline || 'open-ended', priority, category, notes }}) }});
     const d = await r.json();
-    if (!d.success) {{
-      errEl.textContent = d.error || 'Failed to save changes.';
-      btn.disabled = false; btn.textContent = 'Save Changes';
-      return;
-    }}
-
-    // 2. If re-plan requested, regenerate the action plan
+    if (!d.success) {{ errEl.textContent = d.error || 'Failed to save changes.'; btn.disabled = false; btn.textContent = 'Save Changes'; return; }}
     if (replan) {{
       hideEditGoal();
       const planArea = document.getElementById('planArea');
-      if (planArea) planArea.innerHTML = '<div class="plan-loading"><div class="plan-loading-dots"><span></span><span></span><span></span></div><p>Artemis is rebuilding your plan around the updated goal…</p></div>';
-      try {{
-        const rp = await fetch('/api/plan/generate', {{ method: 'POST', credentials: 'include' }});
-        const dp = await rp.json();
-        if (dp.success) {{
-          location.reload();
-        }} else {{
-          if (planArea) planArea.innerHTML = '<div class="empty"><div class="empty-text">' + (dp.error || 'Plan generation failed.') + '</div></div>';
-          location.reload(); // reload anyway so goal shows updated
-        }}
-      }} catch(e) {{
-        location.reload();
-      }}
-    }} else {{
-      hideEditGoal();
-      location.reload();
-    }}
-  }} catch(e) {{
-    errEl.textContent = 'Connection error. Please try again.';
-    btn.disabled = false; btn.textContent = 'Save Changes';
-  }}
+      if (planArea) planArea.innerHTML = '<div class="plan-loading"><div class="plan-loading-dots"><span></span><span></span><span></span></div><p>Rebuilding plan\u2026</p></div>';
+      try {{ await fetch('/api/plan/generate', {{ method: 'POST', credentials: 'include' }}); location.reload(); }} catch(e) {{ location.reload(); }}
+    }} else {{ hideEditGoal(); location.reload(); }}
+  }} catch(e) {{ errEl.textContent = 'Connection error.'; btn.disabled = false; btn.textContent = 'Save Changes'; }}
 }}
 
 async function completeMilestone(goalId, milestoneId) {{
   try {{
-    const r = await fetch('/api/goals/milestone/complete', {{
-      method: 'POST',
-      headers: {{'Content-Type': 'application/json'}},
-      credentials: 'include',
-      body: JSON.stringify({{ goal_id: goalId, milestone_id: milestoneId }})
-    }});
+    const r = await fetch('/api/goals/milestone/complete', {{ method: 'POST',
+      headers: {{'Content-Type': 'application/json'}}, credentials: 'include',
+      body: JSON.stringify({{ goal_id: goalId, milestone_id: milestoneId }}) }});
     const d = await r.json();
-    if (d.success) {{ location.reload(); }}
-    else {{ showToast('Error: ' + (d.error || 'Failed.'), 'error'); }}
+    if (d.success) {{ location.reload(); }} else {{ showToast('Error: ' + (d.error || 'Failed.'), 'error'); }}
   }} catch(e) {{ showToast('Connection error.', 'error'); }}
 }}
 
-// ── GENERATE PLAN ─────────────────────────────────────────
 async function generatePlan() {{
-  const btns = [document.getElementById('genPlanBtn'), document.getElementById('genPlanBtnQA')];
-  btns.forEach(b => {{ if(b) {{ b.disabled = true; b.textContent = 'Generating...'; }} }});
+  const btn = document.getElementById('genPlanBtn');
+  if (btn) {{ btn.disabled = true; btn.textContent = 'Generating\u2026'; }}
   const planArea = document.getElementById('planArea');
-  if (planArea) planArea.innerHTML = '<div class="plan-loading"><div class="plan-loading-dots"><span></span><span></span><span></span></div><p>Artemis is building your plan…</p></div>';
+  if (planArea) planArea.innerHTML = '<div class="plan-loading"><div class="plan-loading-dots"><span></span><span></span><span></span></div><p>Artemis is building your plan\u2026</p></div>';
   try {{
     const r = await fetch('/api/plan/generate', {{ method: 'POST', credentials: 'include' }});
     const d = await r.json();
     if (d.success) {{ location.reload(); }}
     else {{
       if (planArea) planArea.innerHTML = '<div class="empty"><div class="empty-text">' + (d.error || 'Plan generation failed.') + '</div></div>';
-      btns.forEach(b => {{ if(b) {{ b.disabled = false; b.textContent = 'Try Again'; }} }});
+      if (btn) {{ btn.disabled = false; btn.textContent = 'Try Again'; }}
     }}
   }} catch(e) {{
-    if (planArea) planArea.innerHTML = '<div class="empty"><div class="empty-text">Connection error. Please try again.</div></div>';
-    btns.forEach(b => {{ if(b) {{ b.disabled = false; b.textContent = 'Try Again'; }} }});
+    if (planArea) planArea.innerHTML = '<div class="empty"><div class="empty-text">Connection error.</div></div>';
+    if (btn) {{ btn.disabled = false; btn.textContent = 'Try Again'; }}
   }}
 }}
 
-// ── FOCUS MODE ───────────────────────────────────────────
 function startFocusMode(taskId, taskTitle, goalLink) {{
   const tasks = APP_STATE.tasks;
   if (!taskId && tasks.length > 0) {{
     const first = tasks.find(t => !t.completed) || tasks[0];
-    taskId    = first.id;
-    taskTitle = first.title;
-    goalLink  = first.goal_link;
+    taskId = first.id; taskTitle = first.title; goalLink = first.goal_link;
   }}
   if (!taskTitle) {{ showToast('No task to focus on. Generate a plan first.'); return; }}
-  APP_STATE.focusMode   = true;
-  APP_STATE.focusTaskId = taskId;
-  APP_STATE.focusSeconds = 25 * 60;
-  APP_STATE.focusRunning = false;
+  APP_STATE.focusMode = true; APP_STATE.focusTaskId = taskId;
+  APP_STATE.focusSeconds = 25 * 60; APP_STATE.focusRunning = false;
   document.getElementById('focusTaskTitle').textContent  = taskTitle || 'Focus Task';
-  document.getElementById('focusTaskGoal').textContent   = goalLink  ? '→ ' + goalLink : '';
+  document.getElementById('focusTaskGoal').textContent   = goalLink  ? '\u2192 ' + goalLink : '';
   document.getElementById('focusBannerTask').textContent = taskTitle || 'Focus Session';
   document.getElementById('focusTimerDisplay').textContent = '25:00';
-  document.getElementById('focusPlayBtn').textContent = '▶ Start';
+  document.getElementById('focusPlayBtn').textContent = '\u25b6 Start';
   document.getElementById('focusOverlay').classList.add('active');
+  document.getElementById('focusBanner').style.display = 'block';
 }}
 function toggleFocusTimer() {{
   if (APP_STATE.focusRunning) {{
-    clearInterval(APP_STATE.focusInterval);
-    APP_STATE.focusRunning = false;
-    document.getElementById('focusPlayBtn').textContent = '▶ Resume';
+    clearInterval(APP_STATE.focusInterval); APP_STATE.focusRunning = false;
+    document.getElementById('focusPlayBtn').textContent = '\u25b6 Resume';
   }} else {{
     APP_STATE.focusRunning = true;
-    document.getElementById('focusPlayBtn').textContent = '⏸ Pause';
+    document.getElementById('focusPlayBtn').textContent = '\u23f8 Pause';
     APP_STATE.focusInterval = setInterval(() => {{
       APP_STATE.focusSeconds--;
-      const m = Math.floor(APP_STATE.focusSeconds / 60);
-      const s = APP_STATE.focusSeconds % 60;
-      const label = (m < 10 ? '0'+m : m) + ':' + (s < 10 ? '0'+s : s);
+      const m = Math.floor(APP_STATE.focusSeconds / 60), s = APP_STATE.focusSeconds % 60;
+      const label = (m<10?'0'+m:m)+':'+(s<10?'0'+s:s);
       document.getElementById('focusTimerDisplay').textContent = label;
       document.getElementById('focusBannerTimer').textContent  = label;
       if (APP_STATE.focusSeconds <= 0) {{
-        clearInterval(APP_STATE.focusInterval);
-        APP_STATE.focusRunning = false;
+        clearInterval(APP_STATE.focusInterval); APP_STATE.focusRunning = false;
         document.getElementById('focusTimerDisplay').textContent = '00:00';
-        showToast('🎉 Focus session complete!');
-        endFocusSession();
+        showToast('\ud83c\udf89 Focus session complete!'); endFocusSession();
       }}
     }}, 1000);
   }}
 }}
 function endFocusSession() {{
-  clearInterval(APP_STATE.focusInterval);
-  APP_STATE.focusRunning = false;
-  APP_STATE.focusMode    = false;
+  clearInterval(APP_STATE.focusInterval); APP_STATE.focusRunning = false; APP_STATE.focusMode = false;
   document.getElementById('focusOverlay').classList.remove('active');
-  document.getElementById('focusBanner').classList.remove('active');
+  document.getElementById('focusBanner').style.display = 'none';
 }}
 
-// ── GOAL DRAWER ──────────────────────────────────────────
 function openGoalDrawer(goalId) {{
-  const drawer = document.getElementById('goalDrawer');
-  const overlay = document.getElementById('drawerOverlay');
-  document.getElementById('drawerContent').innerHTML = '<p style="color:var(--muted);font-size:13px;">Loading…</p>';
-  drawer.classList.add('open');
-  overlay.classList.add('open');
+  const drawer = document.getElementById('goalDrawer'), overlay = document.getElementById('drawerOverlay');
+  document.getElementById('drawerContent').innerHTML = '<p style="color:var(--muted);font-size:13px;">Loading\u2026</p>';
+  drawer.classList.add('open'); overlay.classList.add('open');
   fetch('/api/data', {{ credentials: 'include' }}).then(r => r.json()).then(data => {{
     const goal = (data.goals?.goals || []).find(g => g.id === goalId);
     if (!goal) return;
     const milestones = goal.milestones || [];
-    const msHtml = milestones.map(m => `
-<div class="drawer-milestone-row">
-  <div class="drawer-ms-check ${{m.completed?'done':''}}" onclick="completeMilestone('${{goalId}}','${{m.id}}')">${{m.completed?'✓':''}}</div>
+    const msHtml = milestones.map(m => `<div class="drawer-milestone-row">
+  <div class="drawer-ms-check ${{m.completed?'done':''}}" onclick="completeMilestone('${{goalId}}','${{m.id}}')">${{m.completed?'\u2713':''}}</div>
   <div class="drawer-ms-title" style="${{m.completed?'text-decoration:line-through;color:var(--muted)':''}}">${{m.title}}</div>
-  <div class="drawer-ms-dl">${{m.deadline||''}}</div>
-</div>`).join('');
-    document.getElementById('drawerContent').innerHTML = `
-<div class="drawer-goal-title">${{goal.title}}</div>
+  <div class="drawer-ms-dl">${{m.deadline||''}}</div></div>`).join('');
+    document.getElementById('drawerContent').innerHTML = `<div class="drawer-goal-title">${{goal.title}}</div>
 <div class="goal-meta-row">
   <span class="goal-priority-badge pri-${{goal.priority||'medium'}}">${{(goal.priority||'medium').toUpperCase()}}</span>
   <span class="goal-category-tag">${{goal.category||'general'}}</span>
-  <span class="goal-deadline-tag">⏱ ${{goal.deadline||'open'}}</span>
+  <span class="goal-deadline-tag">\u23f1 ${{goal.deadline||'open'}}</span>
 </div>
 ${{goal.notes ? '<div class="goal-notes" style="margin-top:10px;">' + goal.notes + '</div>' : ''}}
 <div class="goal-progress-row" style="margin-top:12px;">
@@ -3297,14 +3044,12 @@ ${{goal.notes ? '<div class="goal-notes" style="margin-top:10px;">' + goal.notes
   <div class="drawer-section-title">Milestones (${{milestones.filter(m=>m.completed).length}}/${{milestones.length}} done)</div>
   ${{msHtml || '<div style="font-size:12px;color:var(--muted);">No milestones yet.</div>'}}
   <div class="drawer-add-ms">
-    <input id="newMsTitle_${{goalId}}" placeholder="Add milestone…"/>
+    <input id="newMsTitle_${{goalId}}" placeholder="Add milestone\u2026"/>
     <input id="newMsDl_${{goalId}}" placeholder="Deadline"/>
     <button onclick="addMilestone('${{goalId}}')">+ Add</button>
   </div>
 </div>`;
-  }}).catch(() => {{
-    document.getElementById('drawerContent').innerHTML = '<p style="color:var(--muted);font-size:13px;">Could not load goal data.</p>';
-  }});
+  }}).catch(() => {{ document.getElementById('drawerContent').innerHTML = '<p style="color:var(--muted);font-size:13px;">Could not load goal data.</p>'; }});
 }}
 function closeDrawer() {{
   document.getElementById('goalDrawer').classList.remove('open');
@@ -3315,32 +3060,23 @@ async function addMilestone(goalId) {{
   const dlEl    = document.getElementById('newMsDl_' + goalId);
   if (!titleEl || !titleEl.value.trim()) return;
   try {{
-    const r = await fetch('/api/goals/milestone/add', {{
-      method: 'POST',
-      headers: {{'Content-Type': 'application/json'}},
-      credentials: 'include',
-      body: JSON.stringify({{ goal_id: goalId, title: titleEl.value.trim(), deadline: dlEl?.value.trim() || 'open-ended' }})
-    }});
+    const r = await fetch('/api/goals/milestone/add', {{ method: 'POST',
+      headers: {{'Content-Type': 'application/json'}}, credentials: 'include',
+      body: JSON.stringify({{ goal_id: goalId, title: titleEl.value.trim(), deadline: dlEl?.value.trim() || 'open-ended' }}) }});
     const d = await r.json();
-    if (d.success) {{ openGoalDrawer(goalId); }}
-    else {{ showToast('Error: ' + (d.error || 'Failed.'), 'error'); }}
+    if (d.success) {{ openGoalDrawer(goalId); }} else {{ showToast('Error: ' + (d.error || 'Failed.'), 'error'); }}
   }} catch(e) {{ showToast('Connection error.', 'error'); }}
 }}
 
-// ── WEEKLY REVIEW ─────────────────────────────────────────
 function showWeeklyReview() {{
-  document.getElementById('weeklyReviewCard').scrollIntoView({{behavior:'smooth',block:'center'}});
-  setTimeout(() => openRail(), 400);
-  setTimeout(() => railSendMsg('Give me a full weekly review. What moved forward, what stalled, what patterns you see in my execution, and the top 3 focus areas for next week.'), 800);
+  railSendMsg('Give me a full weekly review. What moved forward, what stalled, what patterns you see in my execution, and the top 3 focus areas for next week.');
 }}
 
-// ── TOAST NOTIFICATIONS ──────────────────────────────────
 function showToast(msg, type) {{
   const t = document.createElement('div');
   t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:' +
     (type==='error'?'rgba(239,68,68,.9)':'rgba(16,185,129,.9)') +
-    ';color:#fff;padding:10px 18px;border-radius:4px;font-size:13px;z-index:9999;' +
-    'box-shadow:0 4px 16px rgba(0,0,0,.4);transition:opacity .3s;';
+    ';color:#fff;padding:10px 18px;border-radius:4px;font-size:13px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.4);transition:opacity .3s;';
   t.textContent = msg;
   document.body.appendChild(t);
   setTimeout(() => {{ t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }}, 2800);
@@ -3349,60 +3085,23 @@ function showToast(msg, type) {{
 
 {self._snow_mountain_html()}
 
-<!-- Artemis Intelligence Rail -->
-<div class="artemis-rail" id="artemisRail">
-  <div class="rail-header">
-    <div class="rail-brand">ARTEMIS / HELION AI</div>
-    <div class="rail-context" id="railContext"></div>
-  </div>
-  <div class="rail-messages" id="railMessages"></div>
-  <div class="rail-prompts" id="railPrompts"></div>
-  <div class="rail-footer">
-    <input class="rail-input" id="railInput" placeholder="Ask Artemis…" onkeydown="if(event.key==='Enter')railSendMsg()"/>
-    <button class="rail-send" id="railSend" onclick="railSendMsg()">&#9658;</button>
-  </div>
-</div>
-<button class="rail-tab" id="railTab" onclick="toggleRail()">A R T E M I S</button>
-
 <script>
-var _railOpen = false;
-var _railHistory = [];
-
-function openRail() {{
-  document.getElementById('artemisRail').classList.add('open');
-  document.getElementById('railTab').classList.add('hidden');
-  _railOpen = true;
-  renderRailContext();
-  renderRailPrompts();
-  if (!document.getElementById('railMessages').children.length) {{
-    const goalCtx = APP_STATE.hasGoals
-      ? APP_STATE.goalCount + ' goal' + (APP_STATE.goalCount !== 1 ? 's' : '') + ' active. '
-      : 'No goals yet. ';
-    const planCtx = APP_STATE.hasPlan ? 'Plan ready. ' : 'No plan today. ';
-    appendRailMsg('ai', APP_STATE.displayName + ' — ' + goalCtx + planCtx + 'What do you need?');
-  }}
-}}
-function closeRail() {{
-  document.getElementById('artemisRail').classList.remove('open');
-  document.getElementById('railTab').classList.remove('hidden');
-  _railOpen = false;
-}}
-function toggleRail() {{
-  if (_railOpen) closeRail(); else openRail();
-}}
+var _railOpen = true, _railHistory = [];
+function openRail() {{ const inp = document.getElementById('railInput'); if (inp) inp.focus(); }}
+function closeRail() {{}}
+function toggleRail() {{ openRail(); }}
 
 function renderRailContext() {{
   const el = document.getElementById('railContext');
   if (!el) return;
   const parts = [];
-  if (APP_STATE.hasGoals) parts.push(APP_STATE.goalCount + ' goal' + (APP_STATE.goalCount!==1?'s':''));
+  if (APP_STATE.hasGoals) parts.push(APP_STATE.goalCount + ' goal' + (APP_STATE.goalCount !== 1 ? 's' : ''));
   if (APP_STATE.hasPlan)  parts.push('plan active');
   parts.push(APP_STATE.compRate + '% rate');
   parts.push(APP_STATE.streak + ' day streak');
   parts.push(APP_STATE.momentumState);
-  el.textContent = parts.join(' · ');
+  el.textContent = parts.join(' \u00b7 ');
 }}
-
 function renderRailPrompts() {{
   const el = document.getElementById('railPrompts');
   if (!el) return;
@@ -3419,9 +3118,8 @@ function renderRailPrompts() {{
   ];
   el.innerHTML = chips.map(c => `<button class="prompt-chip" onclick="railSendMsg(${{JSON.stringify(c)}})">${{c}}</button>`).join('');
 }}
-
 function appendRailMsg(role, text) {{
-  const el  = document.getElementById('railMessages');
+  const el = document.getElementById('railMessages');
   const div = document.createElement('div');
   div.className = 'rail-msg ' + (role === 'user' ? 'user' : 'ai');
   div.textContent = text;
@@ -3429,26 +3127,21 @@ function appendRailMsg(role, text) {{
   el.scrollTop = el.scrollHeight;
   return div;
 }}
-
 async function railSendMsg(override) {{
   const input = document.getElementById('railInput');
   const text  = (override !== undefined ? override : (input ? input.value.trim() : '')).trim();
   if (!text) return;
-  if (!_railOpen) openRail();
   if (input) input.value = '';
   appendRailMsg('user', text);
   _railHistory.push({{ role: 'user', content: text }});
-  const loadDiv = appendRailMsg('ai', '…');
+  const loadDiv = appendRailMsg('ai', '\u2026');
   loadDiv.classList.add('art-loading');
   const sendBtn = document.getElementById('railSend');
   if (sendBtn) sendBtn.disabled = true;
   try {{
-    const r = await fetch('/api/chat', {{
-      method: 'POST',
-      headers: {{'Content-Type': 'application/json'}},
-      credentials: 'include',
-      body: JSON.stringify({{ messages: _railHistory.slice(-20) }})
-    }});
+    const r = await fetch('/api/chat', {{ method: 'POST',
+      headers: {{'Content-Type': 'application/json'}}, credentials: 'include',
+      body: JSON.stringify({{ messages: _railHistory.slice(-20) }}) }});
     const d = await r.json();
     loadDiv.remove();
     const reply = d.reply || 'No response.';
@@ -3461,6 +3154,10 @@ async function railSendMsg(override) {{
   if (sendBtn) sendBtn.disabled = false;
   renderRailPrompts();
 }}
+document.addEventListener('DOMContentLoaded', () => {{
+  renderRailContext();
+  renderRailPrompts();
+}});
 </script>
 </body>
 </html>"""
