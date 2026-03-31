@@ -151,14 +151,20 @@ class GoalManager:
         self.data = self._load()
 
     def _load(self) -> dict:
-        if self._file.exists():
-            with open(self._file) as f:
-                return json.load(f)
+        try:
+            if self._file.exists():
+                with open(self._file) as f:
+                    return json.load(f)
+        except Exception:
+            pass  # corrupted file → safe default
         return {"goals": [], "context": {}}
 
     def save(self):
-        with open(self._file, "w") as f:
-            json.dump(self.data, f, indent=2)
+        try:
+            with open(self._file, "w") as f:
+                json.dump(self.data, f, indent=2)
+        except Exception:
+            pass  # non-fatal: in-memory state is still valid
 
     def get_goals_summary(self) -> str:
         goals = self.data.get("goals", [])
@@ -278,9 +284,12 @@ class MemorySystem:
         self.data = self._load()
 
     def _load(self) -> dict:
-        if self._file.exists():
-            with open(self._file) as f:
-                return json.load(f)
+        try:
+            if self._file.exists():
+                with open(self._file) as f:
+                    return json.load(f)
+        except Exception:
+            pass  # corrupted file → safe default
         return {
             "sessions": [],
             "habit_log": {},
@@ -290,8 +299,11 @@ class MemorySystem:
         }
 
     def save(self):
-        with open(self._file, "w") as f:
-            json.dump(self.data, f, indent=2)
+        try:
+            with open(self._file, "w") as f:
+                json.dump(self.data, f, indent=2)
+        except Exception:
+            pass  # non-fatal: in-memory state is still valid
 
     def log_session(self, session: dict):
         self.data["sessions"].append(session)
@@ -340,9 +352,12 @@ class HabitTracker:
         self.data = self._load()
 
     def _load(self) -> dict:
-        if self._file.exists():
-            with open(self._file) as f:
-                return json.load(f)
+        try:
+            if self._file.exists():
+                with open(self._file) as f:
+                    return json.load(f)
+        except Exception:
+            pass  # corrupted file → safe default
         return {"habits": []}
 
     def save(self):
@@ -567,14 +582,20 @@ class UserManager:
         self.users = self._load()
 
     def _load(self):
-        if USERS_FILE.exists():
-            with open(USERS_FILE) as f:
-                return json.load(f)
+        try:
+            if USERS_FILE.exists():
+                with open(USERS_FILE) as f:
+                    return json.load(f)
+        except Exception:
+            pass  # corrupted → empty user store (users can re-register)
         return {}
 
     def _save(self):
-        with open(USERS_FILE, "w") as f:
-            json.dump(self.users, f, indent=2)
+        try:
+            with open(USERS_FILE, "w") as f:
+                json.dump(self.users, f, indent=2)
+        except Exception:
+            pass  # non-fatal in-memory state is still valid
 
     def _hash(self, password, salt):
         return hashlib.sha256(f"{salt}{password}{salt}".encode()).hexdigest()
@@ -3167,9 +3188,18 @@ async function railSendMsg(override) {{
   renderRailPrompts();
 }}
 document.addEventListener('DOMContentLoaded', () => {{
-  renderRailContext();
-  renderRailPrompts();
+  try {{ renderRailContext(); }} catch(e) {{ console.warn('railContext:', e); }}
+  try {{ renderRailPrompts(); }} catch(e) {{ console.warn('railPrompts:', e); }}
 }});
+
+// Global JS error boundary — prevents silent crashes from collapsing the UI
+window.onerror = function(msg, src, line, col, err) {{
+  console.error('[Helion] Uncaught error at ' + src + ':' + line + ' — ' + msg);
+  return false;  // do not suppress; still log to console
+}};
+window.onunhandledrejection = function(event) {{
+  console.error('[Helion] Unhandled promise rejection:', event.reason);
+}};
 </script>
 </body>
 </html>"""
@@ -3332,6 +3362,15 @@ requestAnimationFrame(frame);
 })();
 </script>"""
 
+    @staticmethod
+    def _esc(text: str) -> str:
+        """HTML-escape user-supplied text to prevent injection / broken markup."""
+        return (str(text)
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace('"', "&quot;"))
+
     def _build_tasks_html(self, tasks: list) -> str:
         if not tasks:
             return '<div class="empty"><div class="empty-text">No tasks in this plan.</div></div>'
@@ -3341,19 +3380,26 @@ requestAnimationFrame(frame);
             tag_cls  = f"tag-{priority}" if priority in ("high", "medium", "low") else "tag-medium"
             momentum = '<span class="tag tag-start">&#9658; Priority start</span>' if t.get("is_momentum_task") else ""
             mins     = t.get("estimated_minutes", 60)
+            tid      = self._esc(t.get("id", ""))
+            title    = self._esc(t.get("title", ""))
+            goal_lnk = self._esc(t.get("goal_link", ""))
+            why      = self._esc(t.get("why_today", ""))
+            done_cls = " done" if t.get("completed") else ""
+            chk_cls  = " checked" if t.get("completed") else ""
+            chk_txt  = "&#10003;" if t.get("completed") else ""
             out += f"""
-<div class="task-item" id="ti_{t.get('id','')}">
+<div class="task-item{done_cls}" id="ti_{tid}">
   <div class="task-row">
-    <div class="task-check" data-id="{t.get('id','')}" onclick="toggleTask(this)"></div>
+    <div class="task-check{chk_cls}" data-id="{tid}" onclick="toggleTask(this)">{chk_txt}</div>
     <div class="task-body">
-      <div class="task-title">{t.get('title','')}</div>
+      <div class="task-title">{title}</div>
       <div class="task-meta">
         <span class="tag {tag_cls}">{priority.upper()}</span>
         <span class="tag tag-time">{mins} min</span>
         {momentum}
-        <span class="task-goal">&rsaquo; {t.get('goal_link','')}</span>
+        <span class="task-goal">&rsaquo; {goal_lnk}</span>
       </div>
-      <div class="task-why">{t.get('why_today','')}</div>
+      <div class="task-why">{why}</div>
     </div>
   </div>
 </div>"""
@@ -3375,9 +3421,10 @@ requestAnimationFrame(frame);
             ms_done  = sum(1 for m in milestones if m.get("completed"))
             ms_total = len(milestones)
             dl       = g.get("deadline", "open")
-            gid      = g.get("id", "")
+            gid      = self._esc(g.get("id", ""))
             category = g.get("category", "general")
-            notes    = g.get("notes", "")
+            notes    = self._esc(g.get("notes", ""))
+            g_title  = self._esc(g.get("title", ""))
 
             # Colors
             if status == "paused":
@@ -3398,20 +3445,21 @@ requestAnimationFrame(frame);
 
             milestone_rows = ""
             for m in milestones[:3]:
-                done_cls = "ms-done" if m.get("completed") else ""
-                check    = "✓" if m.get("completed") else "○"
-                mid      = m.get("id","")
-                milestone_rows += f'<div class="goal-ms-row {done_cls}" data-mid="{mid}" data-gid="{gid}"><span class="ms-check" onclick="completeMilestone(\'{gid}\',\'{mid}\')">{check}</span> {m.get("title","")}</div>'
+                done_cls  = "ms-done" if m.get("completed") else ""
+                check     = "&#10003;" if m.get("completed") else "&#9675;"
+                mid       = self._esc(m.get("id",""))
+                m_title   = self._esc(m.get("title",""))
+                milestone_rows += f'<div class="goal-ms-row {done_cls}" data-mid="{mid}" data-gid="{gid}"><span class="ms-check" onclick="completeMilestone(\'{gid}\',\'{mid}\')">{check}</span> {m_title}</div>'
             if ms_total > 3:
                 milestone_rows += f'<div class="goal-ms-more">+{ms_total-3} more</div>'
 
             out += f"""
 <div class="goal-item" style="border-left-color:{left_color}" data-gid="{gid}" data-status="{status}">
   <div class="goal-header-row">
-    <span class="goal-name">{g.get('title','')}</span>
+    <span class="goal-name">{g_title}</span>
     <div class="goal-actions">
-      <button class="goal-action-btn goal-edit-btn" onclick="openEditGoal('{gid}')" title="Edit goal">✎</button>
-      <button class="goal-action-btn" onclick="pauseGoal('{gid}','{status}')" title="{('Resume' if status=='paused' else 'Pause')}">{"▶" if status=="paused" else "⏸"}</button>
+      <button class="goal-action-btn goal-edit-btn" onclick="openEditGoal('{gid}')" title="Edit goal">&#9998;</button>
+      <button class="goal-action-btn" onclick="pauseGoal('{gid}','{status}')" title="{('Resume' if status=='paused' else 'Pause')}">{"&#9654;" if status=="paused" else "&#9208;"}</button>
       <button class="goal-action-btn" onclick="archiveGoal('{gid}')" title="Archive">⊘</button>
       <button class="goal-remove" onclick="removeGoal('{gid}')" title="Delete">✕</button>
     </div>
@@ -4150,14 +4198,29 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
             if not user:
                 self._redir("/")
                 return
-            orch      = LifeOSOrchestrator(get_api_key(), user)
-            user_info = self._user_mgr.get_user(user)
-            plan, coaching, replan = self._load_user_dashboard_data(user)
-            html = orch.dashboard.generate(
-                orch.goals.data, orch.memory.data, plan, coaching, replan,
-                orch.habits.data, user_info
-            )
-            self._html(html)
+            try:
+                orch      = LifeOSOrchestrator(get_api_key(), user)
+                user_info = self._user_mgr.get_user(user)
+                plan, coaching, replan = self._load_user_dashboard_data(user)
+                html = orch.dashboard.generate(
+                    orch.goals.data, orch.memory.data, plan, coaching, replan,
+                    orch.habits.data, user_info
+                )
+                self._html(html)
+            except Exception as _dash_err:
+                import traceback
+                err_detail = traceback.format_exc()
+                safe_name  = (self._user_mgr.get_user(user) or {}).get("display_name", user) if user else "there"
+                self._html(f"""<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Helion AI</title>
+<style>*{{box-sizing:border-box;margin:0;padding:0}}body{{font-family:system-ui,sans-serif;background:#050c1a;color:#e2e8f0;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}}.card{{max-width:480px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:32px;text-align:center}}h2{{color:#5aabdf;margin-bottom:12px}}p{{color:rgba(255,255,255,.6);line-height:1.6;margin-bottom:20px}}.btn{{display:inline-block;padding:10px 24px;background:#5aabdf;color:#fff;border-radius:6px;text-decoration:none;font-weight:500;margin:4px}}.btn.sec{{background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7)}}</style></head>
+<body><div class="card">
+<h2>Something went wrong</h2>
+<p>We hit an unexpected error loading your dashboard, {safe_name}. Your data is safe.</p>
+<a class="btn" href="/dashboard">Try Again</a>
+<a class="btn sec" href="/api/auth/logout">Sign Out</a>
+</div></body></html>""")
             return
 
         if path == "/api/auth/logout":
@@ -4190,12 +4253,15 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
             if not user:
                 self._json({"error": "Not authenticated"}, 401)
                 return
-            orch = LifeOSOrchestrator(get_api_key(), user)
-            self._json({
-                "goals":  orch.goals.data,
-                "memory": orch.memory.data,
-                "habits": orch.habits.data,
-            })
+            try:
+                orch = LifeOSOrchestrator(get_api_key(), user)
+                self._json({
+                    "goals":  orch.goals.data,
+                    "memory": orch.memory.data,
+                    "habits": orch.habits.data,
+                })
+            except Exception as e:
+                self._json({"error": str(e)}, 500)
             return
 
         # ── Google OAuth ──────────────────────────────────────────────────────
@@ -4243,9 +4309,9 @@ class LifeOSServer(http.server.SimpleHTTPRequestHandler):
             # Create user if new, else just log in
             if not self._user_mgr.get_user(username):
                 self._user_mgr.create_user(username, secrets.token_hex(16), name, email)
-            token = self._sess_mgr.create_session(username)
+            token = self._session_mgr.create(username)
             self.send_response(302)
-            self.send_header("Set-Cookie", f"session={token}; Path=/; HttpOnly; SameSite=Lax")
+            self.send_header("Set-Cookie", f"lifeos_session={token}; Path=/; Max-Age=86400; HttpOnly; SameSite=Lax")
             self.send_header("Location", "/")
             self.end_headers()
             return
