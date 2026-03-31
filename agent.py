@@ -2784,7 +2784,7 @@ async function toggleTask(box) {{
         if (done) {{
           const checks = document.querySelectorAll('.task-check.checked').length;
           const total  = document.querySelectorAll('.task-check').length;
-          showToast(checks === total ? '\ud83c\udf89 All tasks done! Outstanding.' : _taskAck(taskTitle));
+          showToast(checks === total ? '\U0001F389 All tasks done! Outstanding.' : _taskAck(taskTitle));
         }}
       }}
     }} catch(e) {{}}
@@ -3018,7 +3018,7 @@ function toggleFocusTimer() {{
       if (APP_STATE.focusSeconds <= 0) {{
         clearInterval(APP_STATE.focusInterval); APP_STATE.focusRunning = false;
         document.getElementById('focusTimerDisplay').textContent = '00:00';
-        showToast('\ud83c\udf89 Focus session complete!'); endFocusSession();
+        showToast('\U0001F389 Focus session complete!'); endFocusSession();
       }}
     }}, 1000);
   }}
