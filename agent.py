@@ -122,6 +122,8 @@ class AnthropicClient:
         except urllib.error.HTTPError as e:
             body = e.read().decode("utf-8")
             raise RuntimeError(f"API error {e.code}: {body}")
+        except urllib.error.URLError as e:
+            raise RuntimeError(f"Network error reaching Anthropic API: {e.reason}")
 
     def message(self, system: str, user: str, max_tokens: int = 1500) -> str:
         return self._request({
@@ -570,7 +572,7 @@ Rules:
         try:
             return self.client.chat(system, messages, max_tokens=600)
         except Exception as e:
-            return f"I'm having trouble connecting right now. Please try again in a moment."
+            return f"Artemis error — {type(e).__name__}: {str(e)[:200]}"
 
 
 # ─────────────────────────────────────────────
