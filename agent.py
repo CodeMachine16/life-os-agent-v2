@@ -2076,7 +2076,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);overflow:hid
 .orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.35;}
 .o1{width:800px;height:600px;top:-200px;left:-100px;background:radial-gradient(ellipse,rgba(90,171,223,0.12),transparent 70%);}
 .o2{width:700px;height:500px;bottom:-150px;right:-100px;background:radial-gradient(ellipse,rgba(90,171,223,0.08),transparent 70%);}
-.app{display:flex;flex-direction:column;height:100vh;z-index:1;}
+.app{display:flex;flex-direction:column;height:100vh;position:relative;z-index:1;}
 .topbar{display:flex;justify-content:space-between;align-items:center;height:52px;padding:0 20px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .topbar-left{display:flex;align-items:center;gap:12px;}
 .menu-btn{background:none;border:none;color:var(--text);font-size:20px;cursor:pointer;padding:4px 8px;transition:.2s;}
@@ -2128,10 +2128,10 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);overflow:hid
 .rail-msg{max-width:80%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.55;}
 .rail-msg.user{background:rgba(90,171,223,.12);color:var(--text);align-self:flex-end;border-radius:12px 12px 3px 12px;margin-left:auto;}
 .rail-msg.ai{background:rgba(255,255,255,.04);color:var(--text);align-self:flex-start;border-radius:3px 12px 12px 12px;border:1px solid var(--border);}
-.rail-prompts{padding:8px 20px;display:flex;flex-wrap:wrap;gap:6px;flex-shrink:0;}
+.rail-prompts{padding:8px 20px;display:flex;flex-wrap:wrap;gap:6px;flex-shrink:0;background:rgba(6,14,28,0.72);backdrop-filter:blur(10px);}
 .prompt-chip{font-size:11px;padding:6px 12px;border-radius:20px;border:1px solid rgba(90,171,223,.25);background:rgba(90,171,223,.06);color:var(--text);cursor:pointer;transition:.2s;font-family:var(--sans);}
 .prompt-chip:hover{background:rgba(90,171,223,.15);border-color:rgba(90,171,223,.4);}
-.chat-input-bar{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;}
+.chat-input-bar{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;background:rgba(6,14,28,0.85);backdrop-filter:blur(16px);}
 .rail-input{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(90,171,223,.2);border-radius:6px;padding:10px 14px;color:var(--text);font-size:12px;outline:none;font-family:var(--sans);}
 .rail-input:focus{border-color:rgba(90,171,223,.5);}
 .rail-send{background:rgba(90,171,223,.15);border:1px solid rgba(90,171,223,.3);border-radius:6px;padding:10px 16px;color:var(--accent);cursor:pointer;font-weight:600;font-size:12px;transition:.2s;font-family:var(--sans);}
@@ -3212,7 +3212,7 @@ window.onunhandledrejection = function(event) {{
     def _snow_mountain_html() -> str:
         """Returns the snow mountain canvas animation HTML/JS block."""
         return """
-<canvas id="snowMtn" style="position:fixed;bottom:0;left:0;width:100%;height:280px;pointer-events:none;z-index:0;"></canvas>
+<canvas id="snowMtn" style="position:fixed;bottom:0;left:0;width:100%;height:220px;pointer-events:none;z-index:0;opacity:0.82;"></canvas>
 <script>
 (function(){
 var cvs=document.getElementById('snowMtn');document.body.appendChild(cvs);
